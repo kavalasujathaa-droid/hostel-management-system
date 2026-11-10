@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hostelmanagement.app.core.theme.AppDimens
+import com.hostelmanagement.app.core.theme.AppShapes
 import com.hostelmanagement.app.core.theme.AppTypography
 import com.hostelmanagement.app.core.theme.PureWhite
 import com.hostelmanagement.app.core.theme.Slate100
@@ -50,6 +51,7 @@ import com.hostelmanagement.app.core.theme.Slate50
 import com.hostelmanagement.app.core.theme.Slate500
 import com.hostelmanagement.app.core.theme.Slate600
 import com.hostelmanagement.app.core.theme.Slate900
+import com.hostelmanagement.app.core.theme.StatusOverdueText
 import com.hostelmanagement.app.ui.components.AppButton
 import com.hostelmanagement.app.ui.components.AppCard
 import com.hostelmanagement.app.ui.components.AppTextField

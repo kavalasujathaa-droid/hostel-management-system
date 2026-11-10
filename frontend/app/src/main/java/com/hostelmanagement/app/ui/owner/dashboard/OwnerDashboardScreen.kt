@@ -48,6 +48,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hostelmanagement.app.core.common.CurrencyFormatter
 import com.hostelmanagement.app.core.common.DateFormatter
 import com.hostelmanagement.app.core.theme.AppDimens
+import com.hostelmanagement.app.core.theme.AppShapes
 import com.hostelmanagement.app.core.theme.AppTypography
 import com.hostelmanagement.app.core.theme.PureWhite
 import com.hostelmanagement.app.core.theme.Slate100
