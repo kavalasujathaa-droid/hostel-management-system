@@ -18,7 +18,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import retrofit2.Response
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AuthRepositoryTest {
@@ -52,7 +51,7 @@ class AuthRepositoryTest {
             user = mockUser
         )
 
-        coEvery { authApi.login(any()) } returns Response.success(mockToken)
+        coEvery { authApi.login(any()) } returns mockToken
 
         val result = authRepository.login(LoginRequestDto("owner@example.com", "password"))
 
@@ -72,7 +71,7 @@ class AuthRepositoryTest {
     @Test
     fun logout_clearsSessionAlways() = runTest {
         coEvery { sessionManager.getRefreshToken() } returns "refresh_token_xyz"
-        coEvery { authApi.logout(any()) } returns Response.success(MessageResponseDto(message = "Logged out"))
+        coEvery { authApi.logout(any()) } returns MessageResponseDto(success = true, message = "Logged out")
 
         val result = authRepository.logout()
 
