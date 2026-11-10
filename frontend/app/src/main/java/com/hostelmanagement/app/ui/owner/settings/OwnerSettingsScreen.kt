@@ -42,6 +42,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -287,14 +288,28 @@ fun OwnerSettingsScreen(
                         value = editFullName,
                         onValueChange = { editFullName = it },
                         label = "Full Name",
-                        leadingIcon = Icons.Default.Person,
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp),
+                                tint = TextSecondary
+                            )
+                        },
                         modifier = Modifier.fillMaxWidth()
                     )
                     AppTextField(
                         value = editPhone,
                         onValueChange = { editPhone = it },
                         label = "Phone Number",
-                        leadingIcon = Icons.Default.Phone,
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Phone,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp),
+                                tint = TextSecondary
+                            )
+                        },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -334,16 +349,30 @@ fun OwnerSettingsScreen(
                         value = oldPassword,
                         onValueChange = { oldPassword = it },
                         label = "Current Password",
-                        isPassword = true,
-                        leadingIcon = Icons.Default.Lock,
+                        visualTransformation = PasswordVisualTransformation(),
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Lock,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp),
+                                tint = TextSecondary
+                            )
+                        },
                         modifier = Modifier.fillMaxWidth()
                     )
                     AppTextField(
                         value = newPassword,
                         onValueChange = { newPassword = it },
                         label = "New Password (min 6 chars)",
-                        isPassword = true,
-                        leadingIcon = Icons.Default.Lock,
+                        visualTransformation = PasswordVisualTransformation(),
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Lock,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp),
+                                tint = TextSecondary
+                            )
+                        },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }

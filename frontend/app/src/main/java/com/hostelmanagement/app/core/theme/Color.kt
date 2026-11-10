@@ -31,6 +31,7 @@ val BorderStrong = Color(0xFFD6D5E0)        // Active / Focused Borders
 val StatusPaidBg = Color(0xFFE6F5EE)
 val StatusPaidBorder = Color(0xFFA3E6CD)
 val StatusPaidText = Color(0xFF16845B)
+val StatusGreen = StatusPaidText
 
 val StatusPendingBg = Color(0xFFFCF4E6)
 val StatusPendingBorder = Color(0xFFFCE2B8)
