@@ -51,9 +51,9 @@ import com.hostelmanagement.app.ui.components.AppCard
 import com.hostelmanagement.app.ui.components.AppTopBar
 import com.hostelmanagement.app.ui.components.LoadingView
 import com.hostelmanagement.app.ui.components.StatusBadge
-import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneId
+import java.util.Calendar
+import java.util.Locale
+import java.util.TimeZone
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,7 +64,13 @@ fun TenantVacateScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    var selectedDate by remember { mutableStateOf(LocalDate.now().plusDays(30)) }
+    val initialDateMillis = remember {
+        val cal = Calendar.getInstance()
+        cal.add(Calendar.DAY_OF_YEAR, 30)
+        cal.timeInMillis
+    }
+    var selectedDateMillis by remember { mutableStateOf(initialDateMillis) }
+    var selectedDate by remember { mutableStateOf(formatEpochToIsoDate(initialDateMillis)) }
     var showDatePicker by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.errorMessage) {
@@ -151,7 +157,7 @@ fun TenantVacateScreen(
 
     if (showDatePicker) {
         val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = selectedDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+            initialSelectedDateMillis = selectedDateMillis
         )
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
@@ -159,7 +165,8 @@ fun TenantVacateScreen(
                 TextButton(
                     onClick = {
                         datePickerState.selectedDateMillis?.let { millis ->
-                            selectedDate = Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalDate()
+                            selectedDateMillis = millis
+                            selectedDate = formatEpochToIsoDate(millis)
                         }
                         showDatePicker = false
                     }
@@ -239,7 +246,7 @@ private fun ActiveNoticeCard(notice: VacateRequestResponseDto) {
 
 @Composable
 private fun NewVacateNoticeCard(
-    selectedDate: LocalDate,
+    selectedDate: String,
     isSubmitting: Boolean,
     onPickDateClick: () -> Unit,
     onSubmitClick: () -> Unit
@@ -350,4 +357,17 @@ private fun NoticeHistoryCard(notice: VacateRequestResponseDto) {
             }
         }
     }
+}
+
+private fun formatEpochToIsoDate(millis: Long): String {
+    val cal = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+        timeInMillis = millis
+    }
+    return String.format(
+        Locale.US,
+        "%04d-%02d-%02d",
+        cal.get(Calendar.YEAR),
+        cal.get(Calendar.MONTH) + 1,
+        cal.get(Calendar.DAY_OF_MONTH)
+    )
 }

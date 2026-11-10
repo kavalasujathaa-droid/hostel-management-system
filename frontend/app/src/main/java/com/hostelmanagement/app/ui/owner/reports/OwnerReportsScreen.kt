@@ -51,8 +51,7 @@ import com.hostelmanagement.app.ui.components.AppCard
 import com.hostelmanagement.app.ui.components.AppTopBar
 import com.hostelmanagement.app.ui.components.EmptyStateView
 import com.hostelmanagement.app.ui.components.LoadingView
-import java.time.Month
-import java.time.format.TextStyle
+import java.util.Calendar
 import java.util.Locale
 
 @Composable
@@ -86,7 +85,7 @@ fun OwnerReportsScreen(
                 .padding(paddingValues)
         ) {
             // Year filter chips
-            val currentYear = remember { java.time.LocalDate.now().year }
+            val currentYear = remember { Calendar.getInstance().get(Calendar.YEAR) }
             val years = remember(currentYear) { listOf(currentYear, currentYear - 1, currentYear - 2) }
 
             LazyRow(
@@ -248,11 +247,11 @@ private fun ReportKpiRow(
 @Composable
 private fun MonthlyRecordCard(record: MonthlyFinancialRecordDto) {
     val monthName = remember(record.month) {
-        try {
-            Month.of(record.month).getDisplayName(TextStyle.FULL, Locale.getDefault())
-        } catch (e: Exception) {
-            "Month ${record.month}"
-        }
+        val monthNames = listOf(
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        )
+        if (record.month in 1..12) monthNames[record.month - 1] else "Month ${record.month}"
     }
 
     AppCard(modifier = Modifier.fillMaxWidth()) {

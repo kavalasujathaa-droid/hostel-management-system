@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import javax.inject.Inject
 
 data class TenantVacateUiState(
@@ -64,12 +63,12 @@ class TenantVacateViewModel @Inject constructor(
         }
     }
 
-    fun submitVacateNotice(vacatingDate: LocalDate) {
+    fun submitVacateNotice(vacatingDate: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isSubmitting = true, errorMessage = null) }
             val request = VacateRequestCreateDto(
                 tenant_stay_id = null,
-                requested_vacating_date = vacatingDate.toString()
+                requested_vacating_date = vacatingDate
             )
             when (val result = vacateRepository.submitVacateRequest(request)) {
                 is Resource.Success -> {

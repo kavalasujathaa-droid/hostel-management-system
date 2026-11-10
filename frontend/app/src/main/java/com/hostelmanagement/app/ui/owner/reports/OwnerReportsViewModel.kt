@@ -11,12 +11,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.LocalDate
+import java.util.Calendar
 import javax.inject.Inject
 
 data class OwnerReportsUiState(
     val isLoading: Boolean = false,
-    val selectedYear: Int = LocalDate.now().year,
+    val selectedYear: Int = Calendar.getInstance().get(Calendar.YEAR),
     val report: FinancialReportDto? = null,
     val errorMessage: String? = null
 )
