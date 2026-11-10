@@ -32,6 +32,10 @@ class OwnerInitViewModel @Inject constructor(
     private val authRepository: AuthRepository
 ) : ViewModel() {
 
+    companion object {
+        private val EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$".toRegex()
+    }
+
     private val _uiState = MutableStateFlow(OwnerInitUiState())
     val uiState: StateFlow<OwnerInitUiState> = _uiState.asStateFlow()
 
@@ -54,7 +58,7 @@ class OwnerInitViewModel @Inject constructor(
             _uiState.update { it.copy(errorMessage = "Owner full name is required") }
             return
         }
-        if (s.email.isBlank() || !android.util.Patterns.EMAIL_ADDRESS.matcher(s.email.trim()).matches()) {
+        if (s.email.isBlank() || !EMAIL_REGEX.matches(s.email.trim())) {
             _uiState.update { it.copy(errorMessage = "Valid email is required") }
             return
         }

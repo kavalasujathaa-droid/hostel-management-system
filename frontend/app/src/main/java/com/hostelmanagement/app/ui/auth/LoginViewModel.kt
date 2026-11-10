@@ -26,6 +26,10 @@ class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository
 ) : ViewModel() {
 
+    companion object {
+        private val EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$".toRegex()
+    }
+
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
 
@@ -42,7 +46,7 @@ class LoginViewModel @Inject constructor(
         val email = state.email.trim()
         val password = state.password.trim()
 
-        if (email.isBlank() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+        if (email.isBlank() || !EMAIL_REGEX.matches(email)) {
             _uiState.update { it.copy(errorMessage = "Please enter a valid email address") }
             return
         }
