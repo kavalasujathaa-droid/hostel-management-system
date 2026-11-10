@@ -180,4 +180,7 @@ git push -u origin main
 - [x] **Safe Endpoints:** `BASE_URL` in `app/build.gradle.kts` uses local emulator IP (`http://10.0.2.2:8000/`) for debug and secure HTTPS placeholder (`https://api.yourhostel.com/`) for release.
 - [x] **Official Gradle Wrapper:** Official 8.9 wrapper jar verified with official cryptographic checksum.
 - [x] **Strict DTO Mapping:** Zero loose mappings or fake field names.
+- [x] **Cloud CI Execution Verified:** GitHub Actions Run ID `42792604782` completed with conclusion **SUCCESS**.
+- [x] **Debug APK Artifact Generated:** `hostel-management-debug-apk` (18.8 MB) published and available for download.
+- [x] **Unit Tests & Lint:** 31/31 unit tests passed; 0 Lint errors.
 - [x] **Zero Linter/Syntax Errors:** Verified with `./gradlew.bat tasks --dry-run`.
