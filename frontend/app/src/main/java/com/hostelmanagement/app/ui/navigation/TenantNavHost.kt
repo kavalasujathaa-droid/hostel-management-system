@@ -133,23 +133,20 @@ fun TenantNavHost(
                     onNavigateToPay = { rentChargeId ->
                         navController.navigate(Screen.TenantPay.createRoute(rentChargeId))
                     },
-                    onNavigateToPaymentHistory = { navController.navigate(Screen.TenantPayments.route) },
+                    onNavigateToRentDetails = { navController.navigate(Screen.TenantRentDetails.route) },
+                    onNavigateToRoomInfo = { navController.navigate(Screen.TenantRoomInfo.route) },
                     onNavigateToComplaints = { navController.navigate(Screen.TenantComplaints.route) },
                     onNavigateToRaiseComplaint = { navController.navigate(Screen.TenantRaiseComplaint.route) },
-                    onNavigateToRoomInfo = { navController.navigate(Screen.TenantRoom.route) },
-                    onNavigateToBilling = { navController.navigate(Screen.TenantBilling.route) },
                     onNavigateToVacate = { navController.navigate(Screen.TenantVacate.route) },
-                    onNavigateToNotifications = { navController.navigate(Screen.TenantNotifications.route) }
+                    onNavigateToNotifications = { navController.navigate(Screen.TenantNotifications.route) },
+                    onNavigateToPaymentHistory = { navController.navigate(Screen.TenantPayments.route) }
                 )
             }
 
             // Tab 2: Payments History
             composable(Screen.TenantPayments.route) {
                 TenantPaymentHistoryScreen(
-                    onNavigateBack = { navController.popBackStack() },
-                    onNavigateToPay = { rentChargeId ->
-                        navController.navigate(Screen.TenantPay.createRoute(rentChargeId))
-                    }
+                    onNavigateBack = { navController.popBackStack() }
                 )
             }
 
@@ -190,22 +187,20 @@ fun TenantNavHost(
                     type = NavType.LongType
                     defaultValue = 0L
                 })
-            ) { backStackEntry ->
-                val chargeId = backStackEntry.arguments?.getLong("rentChargeId") ?: 0L
+            ) {
                 TenantPayScreen(
-                    rentChargeId = chargeId,
                     onNavigateBack = { navController.popBackStack() },
-                    onPaymentSubmitted = { navController.navigate(Screen.TenantPayments.route) }
+                    onNavigateToHistory = { navController.navigate(Screen.TenantPayments.route) }
                 )
             }
 
-            composable(Screen.TenantRoom.route) {
+            composable(Screen.TenantRoomInfo.route) {
                 TenantRoomInfoScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
 
-            composable(Screen.TenantBilling.route) {
+            composable(Screen.TenantRentDetails.route) {
                 TenantRentDetailsScreen(
                     onNavigateBack = { navController.popBackStack() },
                     onNavigateToPay = { rentChargeId ->

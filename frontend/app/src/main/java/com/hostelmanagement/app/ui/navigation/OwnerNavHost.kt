@@ -163,18 +163,14 @@ fun OwnerNavHost(
                 val roomId = backStackEntry.arguments?.getLong("roomId") ?: 0L
                 RoomDetailScreen(
                     roomId = roomId,
-                    onNavigateBack = { navController.popBackStack() },
-                    onNavigateToTenantDetail = { tenantId ->
-                        navController.navigate(Screen.OwnerTenantDetail.createRoute(tenantId))
-                    }
+                    onNavigateBack = { navController.popBackStack() }
                 )
             }
 
             // Tab 3: Payments Review & Management
             composable(Screen.OwnerPayments.route) {
                 OwnerPaymentReviewScreen(
-                    onNavigateBack = { navController.popBackStack() },
-                    onNavigateToPaymentQr = { navController.navigate(Screen.OwnerPaymentQr.route) }
+                    onNavigateBack = { navController.popBackStack() }
                 )
             }
 
