@@ -1,12 +1,14 @@
 package com.hostelmanagement.app.data.remote.dto
 
 data class ComplaintCreateDto(
+    val title: String,
+    val category: String = "Other",
     val tenant_stay_id: Long? = null,
     val description: String
 )
 
 data class ComplaintUpdateDto(
-    val status: String // "OPEN" or "IN PROGRESS"
+    val status: String // "OPEN", "IN PROGRESS", "RESOLVED"
 )
 
 data class ComplaintResponseDto(
@@ -14,8 +16,11 @@ data class ComplaintResponseDto(
     val tenant_stay_id: Long,
     val tenant_name: String? = null,
     val room_number: String? = null,
+    val title: String = "",
+    val category: String = "Other",
     val description: String,
     val status: String,
+    val attachment_path: String? = null,
     val created_at: String,
     val updated_at: String
 )

@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.CheckCircle
@@ -64,6 +65,7 @@ fun TenantDashboardScreen(
     onNavigateToRentDetails: () -> Unit,
     onNavigateToRoomInfo: () -> Unit,
     onNavigateToComplaints: () -> Unit,
+    onNavigateToRaiseComplaint: () -> Unit = onNavigateToComplaints,
     onNavigateToVacate: () -> Unit,
     onNavigateToNotifications: () -> Unit,
     onNavigateToPaymentHistory: () -> Unit,
@@ -164,16 +166,16 @@ fun TenantDashboardScreen(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         QuickActionButton(
-                            icon = Icons.Default.History,
-                            label = "Rent & Bills",
+                            icon = Icons.Default.Add,
+                            label = "Raise Complaint",
                             modifier = Modifier.weight(1f),
-                            onClick = onNavigateToRentDetails
+                            onClick = onNavigateToRaiseComplaint
                         )
                         QuickActionButton(
-                            icon = Icons.Default.Payment,
-                            label = "Payments",
+                            icon = Icons.Default.ReportProblem,
+                            label = "My Complaints",
                             modifier = Modifier.weight(1f),
-                            onClick = onNavigateToPaymentHistory
+                            onClick = onNavigateToComplaints
                         )
                     }
                 }
@@ -184,16 +186,16 @@ fun TenantDashboardScreen(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         QuickActionButton(
-                            icon = Icons.Default.ReportProblem,
-                            label = "Complaints",
+                            icon = Icons.Default.History,
+                            label = "Rent & Bills",
                             modifier = Modifier.weight(1f),
-                            onClick = onNavigateToComplaints
+                            onClick = onNavigateToRentDetails
                         )
                         QuickActionButton(
-                            icon = Icons.Default.CalendarToday,
-                            label = "Move-Out",
+                            icon = Icons.Default.Payment,
+                            label = "Payments",
                             modifier = Modifier.weight(1f),
-                            onClick = onNavigateToVacate
+                            onClick = onNavigateToPaymentHistory
                         )
                     }
                 }

@@ -200,7 +200,7 @@ class PaymentQR(Base):
     __table_args__ = (Index("ix_payment_qr_active", "is_active"),)
 
 
-# 7. COMPLAINTS: Text-only tenant complaints
+# 7. COMPLAINTS: Tenant complaints with categories and attachments
 class Complaint(Base):
     __tablename__ = "complaints"
 
@@ -208,10 +208,13 @@ class Complaint(Base):
     tenant_stay_id: Mapped[int] = mapped_column(
         BigInteger, ForeignKey("tenant_stays.id", ondelete="RESTRICT"), nullable=False
     )
+    title: Mapped[str] = mapped_column(String(150), nullable=False, server_default=text("''"))
+    category: Mapped[str] = mapped_column(String(50), nullable=False, server_default=text("'Other'"))
     description: Mapped[str] = mapped_column(Text, nullable=False)
     status: Mapped[str] = mapped_column(
         String(20), nullable=False, server_default=text("'OPEN'")
     )
+    attachment_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
     created_at: Mapped[DateTime] = mapped_column(DateTime, nullable=False, server_default=func.now())
     updated_at: Mapped[DateTime] = mapped_column(
         DateTime, nullable=False, server_default=func.now(), onupdate=func.now()
@@ -219,8 +222,12 @@ class Complaint(Base):
 
     __table_args__ = (
         CheckConstraint(
-            "status IN ('OPEN', 'IN PROGRESS')",
+            "status IN ('OPEN', 'IN PROGRESS', 'RESOLVED')",
             name="ck_complaints_status",
+        ),
+        CheckConstraint(
+            "category IN ('Plumbing', 'Electrical', 'Cleaning', 'Maintenance', 'Other')",
+            name="ck_complaints_category",
         ),
         Index("ix_complaints_status_created", "status", "created_at"),
     )

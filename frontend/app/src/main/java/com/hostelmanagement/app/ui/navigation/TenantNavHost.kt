@@ -21,6 +21,7 @@ import com.hostelmanagement.app.ui.components.AppBottomBar
 import com.hostelmanagement.app.ui.components.BottomNavItem
 import com.hostelmanagement.app.ui.tenant.billing.TenantRentDetailsScreen
 import com.hostelmanagement.app.ui.tenant.complaints.TenantComplaintsScreen
+import com.hostelmanagement.app.ui.tenant.complaints.TenantRaiseComplaintScreen
 import com.hostelmanagement.app.ui.tenant.dashboard.TenantDashboardScreen
 import com.hostelmanagement.app.ui.tenant.notifications.TenantNotificationsScreen
 import com.hostelmanagement.app.ui.tenant.payments.TenantPayScreen
@@ -90,6 +91,7 @@ fun TenantNavHost(
                     onNavigateToRentDetails = { navController.navigate(Screen.TenantRentDetails.route) },
                     onNavigateToRoomInfo = { navController.navigate(Screen.TenantRoomInfo.route) },
                     onNavigateToComplaints = { navController.navigate(Screen.TenantComplaints.route) },
+                    onNavigateToRaiseComplaint = { navController.navigate(Screen.TenantRaiseComplaint.route) },
                     onNavigateToVacate = { navController.navigate(Screen.TenantVacate.route) },
                     onNavigateToNotifications = { navController.navigate(Screen.TenantNotifications.route) },
                     onNavigateToPaymentHistory = { navController.navigate(Screen.TenantPayments.route) }
@@ -143,7 +145,15 @@ fun TenantNavHost(
 
             composable(Screen.TenantComplaints.route) {
                 TenantComplaintsScreen(
-                    onNavigateBack = { navController.popBackStack() }
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToRaiseComplaint = { navController.navigate(Screen.TenantRaiseComplaint.route) }
+                )
+            }
+
+            composable(Screen.TenantRaiseComplaint.route) {
+                TenantRaiseComplaintScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onComplaintSubmitted = { navController.popBackStack() }
                 )
             }
 

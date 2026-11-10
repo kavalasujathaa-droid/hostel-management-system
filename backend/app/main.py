@@ -71,9 +71,11 @@ def create_application() -> FastAPI:
     (uploads_dir / "qr").mkdir(parents=True, exist_ok=True)
     application.mount("/uploads", StaticFiles(directory=str(uploads_dir)), name="uploads")
 
-    # Secure internal storage (payment proofs are NEVER exposed via static files)
+    # Secure internal storage (payment proofs & complaints are NEVER exposed via static files)
     proofs_dir = BACKEND_DIR / "storage" / "payment_proofs"
     proofs_dir.mkdir(parents=True, exist_ok=True)
+    complaints_dir = BACKEND_DIR / "storage" / "complaints"
+    complaints_dir.mkdir(parents=True, exist_ok=True)
 
     # Root endpoint for general discovery
     @application.get("/", tags=["Root"])

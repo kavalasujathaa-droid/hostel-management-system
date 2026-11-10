@@ -106,4 +106,11 @@ class NavigationRoutingTest {
 
         assertFalse(emptySession.isLoggedIn)
     }
+
+    @Test
+    fun complaintRoutes_verifyExactRouteStrings() {
+        assertEquals("tenant_complaints", Screen.TenantComplaints.route)
+        assertEquals("tenant_raise_complaint", Screen.TenantRaiseComplaint.route)
+        assertEquals("owner_complaints", Screen.OwnerComplaints.route)
+    }
 }

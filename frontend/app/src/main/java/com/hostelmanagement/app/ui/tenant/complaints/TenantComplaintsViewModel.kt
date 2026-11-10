@@ -18,6 +18,7 @@ data class TenantComplaintsUiState(
     val isLoading: Boolean = false,
     val isSubmitting: Boolean = false,
     val complaints: List<ComplaintResponseDto> = emptyList(),
+    val selectedStatusFilter: String? = null, // null for all, "OPEN", "IN PROGRESS", "RESOLVED"
     val errorMessage: String? = null,
     val successMessage: String? = null
 )
@@ -34,10 +35,15 @@ class TenantComplaintsViewModel @Inject constructor(
         loadComplaints()
     }
 
-    fun loadComplaints() {
+    fun setStatusFilter(status: String?) {
+        _uiState.update { it.copy(selectedStatusFilter = status) }
+        loadComplaints(status)
+    }
+
+    fun loadComplaints(status: String? = _uiState.value.selectedStatusFilter) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            when (val result = complaintRepository.listComplaints()) {
+            when (val result = complaintRepository.listComplaints(status)) {
                 is Resource.Success -> {
                     _uiState.update {
                         it.copy(
@@ -69,6 +75,8 @@ class TenantComplaintsViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isSubmitting = true, errorMessage = null) }
             val request = ComplaintCreateDto(
+                title = "General Complaint",
+                category = "Other",
                 tenant_stay_id = null,
                 description = trimmed
             )

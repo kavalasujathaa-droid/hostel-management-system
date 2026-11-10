@@ -33,6 +33,7 @@ sealed class Screen(val route: String) {
     data object TenantPayments : Screen("tenant_payments")
     data object TenantRoomInfo : Screen("tenant_room_info")
     data object TenantComplaints : Screen("tenant_complaints")
+    data object TenantRaiseComplaint : Screen("tenant_raise_complaint")
     data object TenantVacate : Screen("tenant_vacate")
     data object TenantNotifications : Screen("tenant_notifications")
     data object TenantProfile : Screen("tenant_profile")

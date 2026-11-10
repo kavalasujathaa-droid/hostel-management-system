@@ -18,7 +18,7 @@ data class OwnerComplaintsUiState(
     val isLoading: Boolean = false,
     val isUpdating: Boolean = false,
     val complaints: List<ComplaintResponseDto> = emptyList(),
-    val selectedStatusFilter: String? = null, // null for all, "OPEN", "IN PROGRESS"
+    val selectedStatusFilter: String? = null, // null for all, "OPEN", "IN PROGRESS", "RESOLVED"
     val errorMessage: String? = null,
     val successMessage: String? = null
 )
@@ -66,7 +66,7 @@ class OwnerComplaintsViewModel @Inject constructor(
     }
 
     fun updateStatus(complaintId: Long, newStatus: String) {
-        if (newStatus != "OPEN" && newStatus != "IN PROGRESS") return
+        if (newStatus != "OPEN" && newStatus != "IN PROGRESS" && newStatus != "RESOLVED") return
         viewModelScope.launch {
             _uiState.update { it.copy(isUpdating = true, errorMessage = null) }
             val request = ComplaintUpdateDto(status = newStatus)
