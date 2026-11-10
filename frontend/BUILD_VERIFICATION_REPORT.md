@@ -80,6 +80,7 @@ The cloud build pipeline is defined in [`.github/workflows/android.yml`](file://
 ┌──────────────────────────▼─────────────────────────────┐
 │            Stage 4: Provision Android SDK 34           │
 │             android-actions/setup-android@v3           │
+│        (platform-tools, android-34, build-tools 34)    │
 └──────────────────────────┬─────────────────────────────┘
                            │
 ┌──────────────────────────▼─────────────────────────────┐
