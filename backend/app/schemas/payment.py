@@ -24,6 +24,7 @@ class PaymentResponse(BaseModel):
     utr: str
     status: str
     rejection_reason: Optional[str] = None
+    proof_image_path: Optional[str] = None
     submitted_at: datetime
     reviewed_at: Optional[datetime] = None
 

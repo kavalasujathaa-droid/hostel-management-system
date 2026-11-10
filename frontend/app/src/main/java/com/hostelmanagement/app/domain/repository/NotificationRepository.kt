@@ -5,7 +5,7 @@ import com.hostelmanagement.app.data.remote.dto.MessageResponseDto
 import com.hostelmanagement.app.data.remote.dto.NotificationResponseDto
 
 interface NotificationRepository {
-    suspend fun listNotifications(): Resource<List<NotificationResponseDto>>
+    suspend fun listNotifications(category: String? = null): Resource<List<NotificationResponseDto>>
     suspend fun markAsRead(notificationId: Long): Resource<MessageResponseDto>
     suspend fun markAllAsRead(): Resource<MessageResponseDto>
 }

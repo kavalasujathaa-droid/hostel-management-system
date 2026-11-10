@@ -27,7 +27,10 @@ def test_argon2id_password_hashing():
 
 def test_owner_initialization_bootstrap(transactional_client: TestClient, db_session: Session):
     """Test one-time owner bootstrap initialization and duplicate block."""
-    from app.models.models import HostelSetting, User
+    from app.models.models import HostelSetting, Payment, PaymentQR, User, VacateRequest
+    db_session.query(Payment).filter(Payment.reviewed_by.isnot(None)).update({"reviewed_by": None})
+    db_session.query(VacateRequest).filter(VacateRequest.reviewed_by.isnot(None)).update({"reviewed_by": None})
+    db_session.query(PaymentQR).delete()
     db_session.query(HostelSetting).delete()
     db_session.query(User).filter(User.role == "OWNER").delete()
     db_session.flush()

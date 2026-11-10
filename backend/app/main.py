@@ -65,11 +65,15 @@ def create_application() -> FastAPI:
     # Mount API Routers
     application.include_router(api_router)
 
-    # Mount Uploads directory for persistent static assets (QR codes)
+    # Mount Uploads directory for persistent static assets (QR codes only)
     uploads_dir = BACKEND_DIR / "uploads"
     uploads_dir.mkdir(parents=True, exist_ok=True)
     (uploads_dir / "qr").mkdir(parents=True, exist_ok=True)
     application.mount("/uploads", StaticFiles(directory=str(uploads_dir)), name="uploads")
+
+    # Secure internal storage (payment proofs are NEVER exposed via static files)
+    proofs_dir = BACKEND_DIR / "storage" / "payment_proofs"
+    proofs_dir.mkdir(parents=True, exist_ok=True)
 
     # Root endpoint for general discovery
     @application.get("/", tags=["Root"])

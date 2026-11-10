@@ -30,6 +30,75 @@ def test_notification_workflow(transactional_client: TestClient, db_session: Ses
     read_all_res = transactional_client.put("/api/v1/notifications/read-all", headers=headers)
     assert read_all_res.status_code == 200
 
+    # Test category filtering
+    create_notification(db_session, tenant.id, "Payment Accepted", "Payment of 5000 verified", "PAYMENT_APPROVED", category="PAYMENT")
+    create_notification(db_session, tenant.id, "Rent Due Reminder", "Due in 2 days", "RENT_DUE_REMINDER", category="REMINDER")
+    create_notification(db_session, tenant.id, "Overdue Notice", "Rent is overdue", "RENT_OVERDUE", category="ALERT")
+    db_session.flush()
+
+    # Filter by PAYMENT
+    res_pay = transactional_client.get("/api/v1/notifications?category=PAYMENT", headers=headers)
+    assert res_pay.status_code == 200
+    assert all(item["category"] == "PAYMENT" for item in res_pay.json())
+
+    # Filter by REMINDERS
+    res_rem = transactional_client.get("/api/v1/notifications?category=REMINDERS", headers=headers)
+    assert res_rem.status_code == 200
+    assert all(item["category"] == "REMINDER" for item in res_rem.json())
+
+    # Filter by ALERTS
+    res_alert = transactional_client.get("/api/v1/notifications?category=ALERTS", headers=headers)
+    assert res_alert.status_code == 200
+    assert all(item["category"] == "ALERT" for item in res_alert.json())
+
+
+def test_idempotent_rent_due_reminders(transactional_client: TestClient, db_session: Session):
+    """Test idempotent automatic generation of rent due reminders and overdue alerts."""
+    from datetime import date, timedelta
+    from app.services.notification_service import generate_rent_due_reminders
+
+    owner = create_test_owner(db_session, email="remind_owner@test.com")
+    owner_headers = auth_headers(owner)
+
+    tenant = create_test_tenant(db_session, email="remind_tenant@test.com")
+    tenant_headers = auth_headers(tenant)
+
+    # Setup room and stay
+    room_res = transactional_client.post(
+        "/api/v1/rooms",
+        json={"room_number": "R-REM", "floor": "1", "capacity": 1},
+        headers=owner_headers,
+    )
+    room_id = room_res.json()["id"]
+
+    transactional_client.post(
+        "/api/v1/stays",
+        json={
+            "tenant_user_id": tenant.id,
+            "room_id": room_id,
+            "joining_date": "2026-11-01",
+            "monthly_rent": 5000.00,
+        },
+        headers=owner_headers,
+    )
+
+    transactional_client.post(
+        "/api/v1/billing/generate",
+        json={"year": 2026, "month": 11},
+        headers=owner_headers,
+    )
+
+    # First trigger: should process reminders
+    trig1 = transactional_client.post("/api/v1/notifications/trigger-reminders", headers=owner_headers)
+    assert trig1.status_code == 200
+    assert trig1.json()["success"] is True
+
+    # Immediate second trigger: should be idempotent (0 additional notifications)
+    trig2 = transactional_client.post("/api/v1/notifications/trigger-reminders", headers=owner_headers)
+    assert trig2.status_code == 200
+    assert trig2.json()["result"]["reminders_sent"] == 0
+    assert trig2.json()["result"]["overdue_sent"] == 0
+
 
 def test_reports_and_dashboard_accuracy(transactional_client: TestClient, db_session: Session):
     """Test owner dashboard stats and financial report aggregations."""

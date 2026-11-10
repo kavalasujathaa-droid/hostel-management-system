@@ -1,6 +1,7 @@
 package com.hostelmanagement.app.ui.owner.notifications
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,12 +15,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DoneAll
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsNone
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -47,6 +50,7 @@ import com.hostelmanagement.app.ui.components.AppCard
 import com.hostelmanagement.app.ui.components.AppTopBar
 import com.hostelmanagement.app.ui.components.EmptyStateView
 import com.hostelmanagement.app.ui.components.LoadingView
+import com.hostelmanagement.app.ui.components.StatusBadge
 
 @Composable
 fun OwnerNotificationsScreen(
@@ -92,49 +96,76 @@ fun OwnerNotificationsScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
-        if (uiState.isLoading && uiState.notifications.isEmpty()) {
-            LoadingView(
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            // Horizontal Notification Filter Chips
+            Row(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                message = "Loading notifications..."
-            )
-        } else if (uiState.notifications.isEmpty()) {
-            EmptyStateView(
-                title = "No Notifications",
-                description = "You're all caught up! No recent alerts or messages.",
-                actionLabel = "Refresh",
-                onAction = { viewModel.loadNotifications() },
-                icon = Icons.Default.NotificationsNone,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            )
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                item {
-                    Spacer(modifier = Modifier.height(6.dp))
-                }
-
-                items(uiState.notifications, key = { it.id }) { notification ->
-                    NotificationItemCard(
-                        notification = notification,
-                        onClick = {
-                            if (!notification.is_read) {
-                                viewModel.markAsRead(notification.id)
-                            }
-                        }
+                NotificationFilter.values().forEach { filter ->
+                    FilterChip(
+                        selected = uiState.selectedFilter == filter,
+                        onClick = { viewModel.selectFilter(filter) },
+                        label = { Text(filter.label) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MaterialTheme.colorScheme.primary,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            labelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     )
                 }
+            }
 
-                item {
-                    Spacer(modifier = Modifier.height(24.dp))
+            if (uiState.isLoading && uiState.notifications.isEmpty()) {
+                LoadingView(
+                    modifier = Modifier.fillMaxSize(),
+                    message = "Loading notifications..."
+                )
+            } else if (uiState.notifications.isEmpty()) {
+                EmptyStateView(
+                    title = "No ${uiState.selectedFilter.label} Notifications",
+                    description = if (uiState.selectedFilter == NotificationFilter.ALL)
+                        "You're all caught up! No recent alerts or messages."
+                    else
+                        "No notifications found under the '${uiState.selectedFilter.label}' filter.",
+                    actionLabel = "Refresh",
+                    onAction = { viewModel.loadNotifications() },
+                    icon = Icons.Default.NotificationsNone,
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    item {
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
+
+                    items(uiState.notifications, key = { it.id }) { notification ->
+                        NotificationItemCard(
+                            notification = notification,
+                            onClick = {
+                                if (!notification.is_read) {
+                                    viewModel.markAsRead(notification.id)
+                                }
+                            }
+                        )
+                    }
+
+                    item {
+                        Spacer(modifier = Modifier.height(24.dp))
+                    }
                 }
             }
         }
@@ -174,13 +205,21 @@ private fun NotificationItemCard(
             }
 
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = notification.title,
-                    style = MaterialTheme.typography.titleSmall.copy(
-                        fontWeight = if (notification.is_read) FontWeight.Normal else FontWeight.Bold
-                    ),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = notification.title,
+                        style = MaterialTheme.typography.titleSmall.copy(
+                            fontWeight = if (notification.is_read) FontWeight.Normal else FontWeight.Bold
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.weight(1f)
+                    )
+                    StatusBadge(status = notification.category)
+                }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = notification.message,

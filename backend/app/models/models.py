@@ -170,6 +170,7 @@ class Payment(Base):
         String(20), nullable=False, server_default=text("'PENDING'")
     )
     rejection_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    proof_image_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
     submitted_at: Mapped[DateTime] = mapped_column(DateTime, nullable=False, server_default=func.now())
     reviewed_at: Mapped[DateTime | None] = mapped_column(DateTime, nullable=True)
 
@@ -264,6 +265,7 @@ class Notification(Base):
     title: Mapped[str] = mapped_column(String(150), nullable=False)
     message: Mapped[str] = mapped_column(Text, nullable=False)
     notification_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    category: Mapped[str] = mapped_column(String(50), nullable=False, server_default=text("'GENERAL'"))
     is_read: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("0"))
     created_at: Mapped[DateTime] = mapped_column(DateTime, nullable=False, server_default=func.now())
 

@@ -32,6 +32,8 @@ uploads/*
 !uploads/qr/.keep
 backend/uploads/*
 !backend/uploads/qr/.keep
+backend/storage/*
+!backend/storage/payment_proofs/.gitkeep
 
 # IDE and OS
 .vscode/

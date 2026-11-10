@@ -159,3 +159,85 @@ def test_payment_approval_and_rejection_lifecycle(transactional_client: TestClie
     final_charge = transactional_client.get(f"/api/v1/billing/charges/{charge_id}", headers=owner_headers).json()
     assert final_charge["status"] == "PAID"
     assert Decimal(str(final_charge["balance"])) == Decimal("0.00")
+
+
+def test_payment_proof_upload_and_secure_retrieval(transactional_client: TestClient, db_session: Session):
+    """Test multipart payment proof upload and role-isolated authenticated image download."""
+    import io
+
+    owner = create_test_owner(db_session, email="proof_owner@test.com")
+    owner_headers = auth_headers(owner)
+
+    tenant1 = create_test_tenant(db_session, email="proof_tenant1@test.com")
+    tenant1_headers = auth_headers(tenant1)
+
+    tenant2 = create_test_tenant(db_session, email="proof_tenant2@test.com")
+    tenant2_headers = auth_headers(tenant2)
+
+    # Setup room and stay for tenant1
+    room_res = transactional_client.post(
+        "/api/v1/rooms",
+        json={"room_number": "P-303", "floor": "3", "capacity": 1},
+        headers=owner_headers,
+    )
+    room_id = room_res.json()["id"]
+
+    transactional_client.post(
+        "/api/v1/stays",
+        json={
+            "tenant_user_id": tenant1.id,
+            "room_id": room_id,
+            "joining_date": "2026-11-01",
+            "monthly_rent": 6000.00,
+        },
+        headers=owner_headers,
+    )
+
+    transactional_client.post(
+        "/api/v1/billing/generate",
+        json={"year": 2026, "month": 11},
+        headers=owner_headers,
+    )
+    charge_id = transactional_client.get("/api/v1/billing/charges", headers=tenant1_headers).json()[0]["id"]
+
+    # 1. Submit payment with multipart screenshot file
+    mock_png_bytes = b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15c4\x00\x00\x00\nIDATx\x9cc\x00\x01\x00\x00\x05\x00\x01\r\n-\xb4\x00\x00\x00\x00IEND\xaeB`\x82"
+    files = {
+        "proof_file": ("screenshot.png", io.BytesIO(mock_png_bytes), "image/png"),
+    }
+    data = {
+        "rent_charge_id": str(charge_id),
+        "amount": "3000.00",
+        "utr": "UTR_WITH_SCREENSHOT_999",
+    }
+
+    upload_res = transactional_client.post(
+        "/api/v1/payments",
+        data=data,
+        files=files,
+        headers=tenant1_headers,
+    )
+    assert upload_res.status_code == 201
+    pay_data = upload_res.json()
+    assert pay_data["proof_image_path"] is not None
+    assert "storage/payment_proofs" in pay_data["proof_image_path"]
+    payment_id = pay_data["id"]
+
+    # 2. Submitting tenant CAN retrieve their own proof
+    t1_fetch = transactional_client.get(f"/api/v1/payments/{payment_id}/proof", headers=tenant1_headers)
+    assert t1_fetch.status_code == 200
+    assert len(t1_fetch.content) == len(mock_png_bytes)
+
+    # 3. Owner CAN retrieve tenant's payment proof
+    owner_fetch = transactional_client.get(f"/api/v1/payments/{payment_id}/proof", headers=owner_headers)
+    assert owner_fetch.status_code == 200
+    assert len(owner_fetch.content) == len(mock_png_bytes)
+
+    # 4. Another tenant CANNOT retrieve this proof (403 Forbidden)
+    t2_fetch = transactional_client.get(f"/api/v1/payments/{payment_id}/proof", headers=tenant2_headers)
+    assert t2_fetch.status_code == 403
+
+    # 5. Unauthenticated request CANNOT retrieve proof (401 Unauthorized)
+    unauth_fetch = transactional_client.get(f"/api/v1/payments/{payment_id}/proof")
+    assert unauth_fetch.status_code == 401
+

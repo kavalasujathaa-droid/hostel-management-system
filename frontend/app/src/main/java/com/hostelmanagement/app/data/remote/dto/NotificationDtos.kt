@@ -6,6 +6,7 @@ data class NotificationResponseDto(
     val title: String,
     val message: String,
     val notification_type: String,
+    val category: String = "GENERAL",
     val is_read: Boolean,
     val created_at: String
 )

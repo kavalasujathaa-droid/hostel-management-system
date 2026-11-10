@@ -132,7 +132,8 @@ class TenantPayViewModelTest {
 
         coEvery {
             paymentRepository.submitPayment(
-                PaymentSubmissionRequestDto(rent_charge_id = 101L, amount = "6000.00", utr = "UTR11223344")
+                PaymentSubmissionRequestDto(rent_charge_id = 101L, amount = "6000.00", utr = "UTR11223344"),
+                any()
             )
         } returns Resource.Success(mockPaymentResponse)
 
@@ -150,7 +151,8 @@ class TenantPayViewModelTest {
 
         coVerify(exactly = 1) {
             paymentRepository.submitPayment(
-                PaymentSubmissionRequestDto(rent_charge_id = 101L, amount = "6000.00", utr = "UTR11223344")
+                PaymentSubmissionRequestDto(rent_charge_id = 101L, amount = "6000.00", utr = "UTR11223344"),
+                any()
             )
         }
     }

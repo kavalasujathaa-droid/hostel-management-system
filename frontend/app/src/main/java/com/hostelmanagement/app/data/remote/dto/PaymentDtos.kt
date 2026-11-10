@@ -20,6 +20,7 @@ data class PaymentResponseDto(
     val utr: String,
     val status: String,
     val rejection_reason: String? = null,
+    val proof_image_path: String? = null,
     val submitted_at: String,
     val reviewed_at: String? = null
 )

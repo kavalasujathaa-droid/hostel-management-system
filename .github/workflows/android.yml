@@ -2,9 +2,9 @@ name: Android CI Cloud Build
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master, feature/smarttracking-upgrade ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, master, feature/smarttracking-upgrade ]
   workflow_dispatch:
 
 jobs:

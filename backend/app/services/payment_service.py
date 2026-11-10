@@ -1,6 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
 from typing import List, Optional
+from fastapi import UploadFile
 from sqlalchemy.orm import Session
 
 from app.core.exceptions import ConflictError, NotFoundError, ValidationError
@@ -8,15 +9,17 @@ from app.models.models import Payment, RentCharge, TenantStay, User
 from app.schemas.payment import PaymentResponse, PaymentReviewRequest, PaymentSubmissionRequest
 from app.services.audit_service import log_audit_event
 from app.services.notification_service import create_notification
+from app.services.payment_proof_service import save_payment_proof
 
 
 def submit_payment(
     db: Session,
     req: PaymentSubmissionRequest,
     tenant_user_id: int,
+    proof_file: Optional[UploadFile] = None,
 ) -> PaymentResponse:
     """
-    Submit a rent payment with UTR.
+    Submit a rent payment with UTR and optional proof image.
     Validates UTR uniqueness, verifies rent charge belongs to tenant's stay, and prevents overpayment.
     """
     # Verify unique UTR
@@ -43,12 +46,17 @@ def submit_payment(
             f"Payment amount of ₹{req.amount} exceeds the remaining balance of ₹{remaining_due}"
         )
 
+    proof_path = None
+    if proof_file is not None:
+        proof_path = save_payment_proof(proof_file)
+
     payment = Payment(
         rent_charge_id=rent_charge.id,
         submitted_by=tenant_user_id,
         amount=req.amount,
         utr=req.utr,
         status="PENDING",
+        proof_image_path=proof_path,
     )
     db.add(payment)
     db.flush()
@@ -63,6 +71,7 @@ def submit_payment(
             "rent_charge_id": rent_charge.id,
             "amount": str(req.amount),
             "utr": req.utr,
+            "has_proof": bool(proof_path),
         },
     )
     db.commit()
@@ -79,6 +88,7 @@ def submit_payment(
         utr=payment.utr,
         status=payment.status,
         rejection_reason=payment.rejection_reason,
+        proof_image_path=payment.proof_image_path,
         submitted_at=payment.submitted_at,
         reviewed_at=payment.reviewed_at,
     )
@@ -176,6 +186,7 @@ def review_payment(
         utr=payment.utr,
         status=payment.status,
         rejection_reason=payment.rejection_reason,
+        proof_image_path=payment.proof_image_path,
         submitted_at=payment.submitted_at,
         reviewed_at=payment.reviewed_at,
     )
@@ -209,6 +220,7 @@ def list_payments(
             utr=p.utr,
             status=p.status,
             rejection_reason=p.rejection_reason,
+            proof_image_path=p.proof_image_path,
             submitted_at=p.submitted_at,
             reviewed_at=p.reviewed_at,
         )

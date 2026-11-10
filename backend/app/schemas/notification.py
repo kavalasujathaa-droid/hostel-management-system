@@ -8,6 +8,7 @@ class NotificationResponse(BaseModel):
     title: str
     message: str
     notification_type: str
+    category: str = "GENERAL"
     is_read: bool
     created_at: datetime
 

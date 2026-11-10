@@ -1,5 +1,7 @@
 package com.hostelmanagement.app.ui.tenant.payments
 
+import android.content.ContentResolver
+import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -16,6 +18,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.math.BigDecimal
 import javax.inject.Inject
 
@@ -27,9 +32,56 @@ data class TenantPayUiState(
     val activeQr: PaymentQRResponseDto? = null,
     val amountInput: String = "",
     val utrInput: String = "",
+    val selectedImageUri: Uri? = null,
+    val selectedImageBytes: ByteArray? = null,
+    val selectedImageName: String? = null,
+    val selectedImageMimeType: String? = null,
     val errorMessage: String? = null,
     val paymentSubmitted: Boolean = false
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as TenantPayUiState
+
+        if (isLoading != other.isLoading) return false
+        if (isSubmitting != other.isSubmitting) return false
+        if (rentChargeId != other.rentChargeId) return false
+        if (rentCharge != other.rentCharge) return false
+        if (activeQr != other.activeQr) return false
+        if (amountInput != other.amountInput) return false
+        if (utrInput != other.utrInput) return false
+        if (selectedImageUri != other.selectedImageUri) return false
+        if (selectedImageBytes != null) {
+            if (other.selectedImageBytes == null) return false
+            if (!selectedImageBytes.contentEquals(other.selectedImageBytes)) return false
+        } else if (other.selectedImageBytes != null) return false
+        if (selectedImageName != other.selectedImageName) return false
+        if (selectedImageMimeType != other.selectedImageMimeType) return false
+        if (errorMessage != other.errorMessage) return false
+        if (paymentSubmitted != other.paymentSubmitted) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = isLoading.hashCode()
+        result = 31 * result + isSubmitting.hashCode()
+        result = 31 * result + rentChargeId.hashCode()
+        result = 31 * result + (rentCharge?.hashCode() ?: 0)
+        result = 31 * result + (activeQr?.hashCode() ?: 0)
+        result = 31 * result + amountInput.hashCode()
+        result = 31 * result + utrInput.hashCode()
+        result = 31 * result + (selectedImageUri?.hashCode() ?: 0)
+        result = 31 * result + (selectedImageBytes?.contentHashCode() ?: 0)
+        result = 31 * result + (selectedImageName?.hashCode() ?: 0)
+        result = 31 * result + (selectedImageMimeType?.hashCode() ?: 0)
+        result = 31 * result + (errorMessage?.hashCode() ?: 0)
+        result = 31 * result + paymentSubmitted.hashCode()
+        return result
+    }
+}
 
 @HiltViewModel
 class TenantPayViewModel @Inject constructor(
@@ -78,6 +130,50 @@ class TenantPayViewModel @Inject constructor(
         _uiState.update { it.copy(utrInput = newUtr) }
     }
 
+    fun onImageSelected(uri: Uri?, contentResolver: ContentResolver) {
+        if (uri == null) return
+        try {
+            val inputStream = contentResolver.openInputStream(uri) ?: run {
+                _uiState.update { it.copy(errorMessage = "Could not open selected screenshot") }
+                return
+            }
+            val bytes = inputStream.use { it.readBytes() }
+
+            if (bytes.size > 5 * 1024 * 1024) {
+                val sizeMb = bytes.size / (1024 * 1024)
+                _uiState.update { it.copy(errorMessage = "Selected screenshot is ${sizeMb}MB, exceeding the 5MB limit. Please choose a smaller image.") }
+                return
+            }
+
+            val mimeType = contentResolver.getType(uri) ?: "image/jpeg"
+            val ext = if (mimeType.contains("png")) "png" else if (mimeType.contains("webp")) "webp" else "jpg"
+            val fileName = "proof_${System.currentTimeMillis()}.$ext"
+
+            _uiState.update {
+                it.copy(
+                    selectedImageUri = uri,
+                    selectedImageBytes = bytes,
+                    selectedImageName = fileName,
+                    selectedImageMimeType = mimeType,
+                    errorMessage = null
+                )
+            }
+        } catch (e: Exception) {
+            _uiState.update { it.copy(errorMessage = "Failed to process screenshot: ${e.localizedMessage}") }
+        }
+    }
+
+    fun onRemoveImage() {
+        _uiState.update {
+            it.copy(
+                selectedImageUri = null,
+                selectedImageBytes = null,
+                selectedImageName = null,
+                selectedImageMimeType = null
+            )
+        }
+    }
+
     fun submitPayment() {
         val amount = _uiState.value.amountInput.trim()
         val utr = _uiState.value.utrInput.trim()
@@ -92,6 +188,16 @@ class TenantPayViewModel @Inject constructor(
             return
         }
 
+        val proofPart = _uiState.value.selectedImageBytes?.let { bytes ->
+            val mediaType = (_uiState.value.selectedImageMimeType ?: "image/jpeg").toMediaTypeOrNull()
+            val requestFile = bytes.toRequestBody(mediaType)
+            MultipartBody.Part.createFormData(
+                "proof_file",
+                _uiState.value.selectedImageName ?: "proof.jpg",
+                requestFile
+            )
+        }
+
         viewModelScope.launch {
             _uiState.update { it.copy(isSubmitting = true, errorMessage = null) }
             val request = PaymentSubmissionRequestDto(
@@ -100,7 +206,7 @@ class TenantPayViewModel @Inject constructor(
                 utr = utr
             )
 
-            when (val result = paymentRepository.submitPayment(request)) {
+            when (val result = paymentRepository.submitPayment(request, proofPart)) {
                 is Resource.Success -> {
                     _uiState.update {
                         it.copy(

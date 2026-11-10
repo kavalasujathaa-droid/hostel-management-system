@@ -13,8 +13,16 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+enum class NotificationFilter(val label: String, val apiKey: String?) {
+    ALL("All", null),
+    PAYMENTS("Payments", "PAYMENT"),
+    REMINDERS("Reminders", "REMINDER"),
+    ALERTS("Alerts", "ALERT")
+}
+
 data class OwnerNotificationsUiState(
     val isLoading: Boolean = false,
+    val selectedFilter: NotificationFilter = NotificationFilter.ALL,
     val notifications: List<NotificationResponseDto> = emptyList(),
     val errorMessage: String? = null,
     val successMessage: String? = null
@@ -32,10 +40,16 @@ class OwnerNotificationsViewModel @Inject constructor(
         loadNotifications()
     }
 
-    fun loadNotifications() {
+    fun selectFilter(filter: NotificationFilter) {
+        if (_uiState.value.selectedFilter == filter) return
+        _uiState.update { it.copy(selectedFilter = filter) }
+        loadNotifications(filter)
+    }
+
+    fun loadNotifications(filter: NotificationFilter = _uiState.value.selectedFilter) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            when (val result = notificationRepository.listNotifications()) {
+            when (val result = notificationRepository.listNotifications(filter.apiKey)) {
                 is Resource.Success -> {
                     _uiState.update {
                         it.copy(

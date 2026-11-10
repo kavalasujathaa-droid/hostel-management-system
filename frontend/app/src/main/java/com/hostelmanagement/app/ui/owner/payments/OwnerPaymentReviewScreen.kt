@@ -3,6 +3,9 @@ package com.hostelmanagement.app.ui.owner.payments
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,15 +13,24 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ZoomIn
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.Payment
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -37,16 +49,22 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
+import com.hostelmanagement.app.BuildConfig
 import com.hostelmanagement.app.core.common.CurrencyFormatter
 import com.hostelmanagement.app.core.common.DateFormatter
 import com.hostelmanagement.app.core.theme.AppDimens
 import com.hostelmanagement.app.core.theme.AppTypography
+import com.hostelmanagement.app.core.theme.BorderSubtle
 import com.hostelmanagement.app.core.theme.PureWhite
 import com.hostelmanagement.app.core.theme.Slate200
 import com.hostelmanagement.app.core.theme.Slate50
@@ -54,6 +72,7 @@ import com.hostelmanagement.app.core.theme.Slate500
 import com.hostelmanagement.app.core.theme.Slate600
 import com.hostelmanagement.app.core.theme.Slate900
 import com.hostelmanagement.app.core.theme.StatusOverdueText
+import com.hostelmanagement.app.data.remote.dto.PaymentResponseDto
 import com.hostelmanagement.app.ui.components.AppButton
 import com.hostelmanagement.app.ui.components.AppCard
 import com.hostelmanagement.app.ui.components.AppTextField
@@ -76,6 +95,7 @@ fun OwnerPaymentReviewScreen(
     val scope = rememberCoroutineScope()
 
     var rejectReason by remember { mutableStateOf("") }
+    var viewingProofPayment by remember { mutableStateOf<PaymentResponseDto?>(null) }
 
     LaunchedEffect(state.successMessage) {
         state.successMessage?.let {
@@ -93,7 +113,7 @@ fun OwnerPaymentReviewScreen(
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = Slate50
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -102,13 +122,12 @@ fun OwnerPaymentReviewScreen(
         ) {
             TabRow(
                 selectedTabIndex = state.selectedTab,
-                containerColor = PureWhite,
-                contentColor = Slate900,
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.primary,
                 indicator = { tabPositions ->
                     TabRowDefaults.SecondaryIndicator(
                         Modifier.tabIndicatorOffset(tabPositions[state.selectedTab]),
-                        color = Slate900,
-                        height = 2.dp
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
             ) {
@@ -118,7 +137,8 @@ fun OwnerPaymentReviewScreen(
                     text = {
                         Text(
                             text = "Pending (${state.pendingPayments.size})",
-                            style = AppTypography.titleMedium
+                            style = AppTypography.titleSmall,
+                            color = if (state.selectedTab == 0) MaterialTheme.colorScheme.primary else Slate600
                         )
                     }
                 )
@@ -127,128 +147,241 @@ fun OwnerPaymentReviewScreen(
                     onClick = { viewModel.selectTab(1) },
                     text = {
                         Text(
-                            text = "Verified History (${state.reviewedPayments.size})",
-                            style = AppTypography.titleMedium
+                            text = "History (${state.historyPayments.size})",
+                            style = AppTypography.titleSmall,
+                            color = if (state.selectedTab == 1) MaterialTheme.colorScheme.primary else Slate600
                         )
                     }
                 )
             }
 
-            val currentList = if (state.selectedTab == 0) state.pendingPayments else state.reviewedPayments
-
             when {
-                state.isLoading -> LoadingView(message = "Loading payments...")
-                state.errorMessage != null && state.payments.isEmpty() -> {
+                state.isLoading -> {
+                    LoadingView(modifier = Modifier.fillMaxSize(), message = "Loading payments...")
+                }
+                state.errorMessage != null && state.pendingPayments.isEmpty() && state.historyPayments.isEmpty() -> {
                     ErrorStateView(
-                        message = state.errorMessage ?: "Failed to load payments",
+                        modifier = Modifier.fillMaxSize(),
+                        message = state.errorMessage ?: "Unknown error occurred",
                         onRetry = viewModel::loadPayments
                     )
                 }
-                currentList.isEmpty() -> {
-                    EmptyStateView(
-                        title = if (state.selectedTab == 0) "No Pending Payments" else "No Payment History",
-                        message = if (state.selectedTab == 0)
-                            "All submitted tenant payments have been verified."
-                        else "No past approved or rejected payments on record.",
-                        icon = Icons.Outlined.Payment
-                    )
-                }
                 else -> {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = AppDimens.Spacing16, vertical = AppDimens.Spacing12),
-                        verticalArrangement = Arrangement.spacedBy(AppDimens.Spacing12)
-                    ) {
-                        items(currentList, key = { it.id }) { payment ->
-                            AppCard(
-                                modifier = Modifier.semantics(mergeDescendants = true) {}
-                            ) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
+                    val currentList = if (state.selectedTab == 0) state.pendingPayments else state.historyPayments
+
+                    if (currentList.isEmpty()) {
+                        EmptyStateView(
+                            modifier = Modifier.fillMaxSize(),
+                            title = if (state.selectedTab == 0) "No Pending Payments" else "No Payment History",
+                            message = if (state.selectedTab == 0)
+                                "All submitted tenant payments have been verified."
+                            else "No past approved or rejected payments on record.",
+                            icon = Icons.Outlined.Payment
+                        )
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = AppDimens.Spacing16, vertical = AppDimens.Spacing12),
+                            verticalArrangement = Arrangement.spacedBy(AppDimens.Spacing12)
+                        ) {
+                            items(currentList, key = { it.id }) { payment ->
+                                AppCard(
+                                    modifier = Modifier.semantics(mergeDescendants = true) {}
                                 ) {
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(
-                                            text = payment.submitted_by_name ?: "Tenant #${payment.submitted_by}",
-                                            style = AppTypography.titleMedium,
-                                            color = Slate900
-                                        )
-                                        Spacer(modifier = Modifier.height(AppDimens.Spacing2))
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Column(modifier = Modifier.weight(1f)) {
                                             Text(
-                                                text = "UTR: ${payment.utr}",
-                                                style = AppTypography.bodyMedium,
-                                                color = Slate900
+                                                text = payment.submitted_by_name ?: "Tenant #${payment.submitted_by}",
+                                                style = AppTypography.titleMedium,
+                                                color = MaterialTheme.colorScheme.onSurface
                                             )
-                                            IconButton(
-                                                onClick = {
-                                                    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                                    clipboard.setPrimaryClip(ClipData.newPlainText("UTR", payment.utr))
-                                                    scope.launch { snackbarHostState.showSnackbar("Copied UTR to clipboard") }
+                                            Spacer(modifier = Modifier.height(AppDimens.Spacing2))
+                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                Text(
+                                                    text = "UTR: ${payment.utr}",
+                                                    style = AppTypography.bodyMedium,
+                                                    color = MaterialTheme.colorScheme.onSurface
+                                                )
+                                                IconButton(
+                                                    onClick = {
+                                                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                                        clipboard.setPrimaryClip(ClipData.newPlainText("UTR", payment.utr))
+                                                        scope.launch { snackbarHostState.showSnackbar("Copied UTR to clipboard") }
+                                                    }
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Outlined.ContentCopy,
+                                                        contentDescription = "Copy UTR",
+                                                        tint = Slate500
+                                                    )
                                                 }
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.Outlined.ContentCopy,
-                                                    contentDescription = "Copy UTR",
-                                                    tint = Slate500
+                                            }
+                                            Text(
+                                                text = "Submitted: ${DateFormatter.formatIsoDateTime(payment.submitted_at)}",
+                                                style = AppTypography.labelSmall,
+                                                color = Slate500
+                                            )
+                                            if (!payment.rejection_reason.isNullOrBlank()) {
+                                                Spacer(modifier = Modifier.height(AppDimens.Spacing4))
+                                                Text(
+                                                    text = "Reason: ${payment.rejection_reason}",
+                                                    style = AppTypography.bodyMedium,
+                                                    color = StatusOverdueText
                                                 )
                                             }
                                         }
-                                        Text(
-                                            text = "Submitted: ${DateFormatter.formatIsoDateTime(payment.submitted_at)}",
-                                            style = AppTypography.labelSmall,
-                                            color = Slate500
-                                        )
-                                        if (!payment.rejection_reason.isNullOrBlank()) {
-                                            Spacer(modifier = Modifier.height(AppDimens.Spacing4))
+
+                                        Column(horizontalAlignment = Alignment.End) {
                                             Text(
-                                                text = "Reason: ${payment.rejection_reason}",
-                                                style = AppTypography.bodyMedium,
-                                                color = StatusOverdueText
+                                                text = CurrencyFormatter.format(payment.amount),
+                                                style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                                color = MaterialTheme.colorScheme.onSurface
+                                            )
+                                            Spacer(modifier = Modifier.height(AppDimens.Spacing4))
+                                            StatusBadge(status = payment.status)
+                                        }
+                                    }
+
+                                    // Payment Screenshot Proof Preview
+                                    if (!payment.proof_image_path.isNullOrBlank()) {
+                                        Spacer(modifier = Modifier.height(AppDimens.Spacing12))
+                                        val proofUrl = "${BuildConfig.BACKEND_URL.trimEnd('/')}/api/v1/payments/${payment.id}/proof"
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clip(RoundedCornerShape(8.dp))
+                                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                                                .clickable { viewingProofPayment = payment }
+                                                .padding(8.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            AsyncImage(
+                                                model = proofUrl,
+                                                contentDescription = "Payment Screenshot Thumbnail",
+                                                modifier = Modifier
+                                                    .size(54.dp)
+                                                    .clip(RoundedCornerShape(6.dp))
+                                                    .border(1.dp, BorderSubtle, RoundedCornerShape(6.dp)),
+                                                contentScale = ContentScale.Crop
+                                            )
+                                            Spacer(modifier = Modifier.width(10.dp))
+                                            Column(modifier = Modifier.weight(1f)) {
+                                                Text(
+                                                    text = "Screenshot Attached",
+                                                    style = AppTypography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                                                    color = MaterialTheme.colorScheme.onSurface
+                                                )
+                                                Text(
+                                                    text = "Tap to view full receipt",
+                                                    style = AppTypography.labelSmall,
+                                                    color = MaterialTheme.colorScheme.primary
+                                                )
+                                            }
+                                            Icon(
+                                                imageVector = Icons.Default.ZoomIn,
+                                                contentDescription = "Enlarge proof",
+                                                tint = MaterialTheme.colorScheme.primary,
+                                                modifier = Modifier.size(22.dp)
                                             )
                                         }
                                     }
 
-                                    Column(horizontalAlignment = Alignment.End) {
-                                        Text(
-                                            text = CurrencyFormatter.format(payment.amount),
-                                            style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                            color = Slate900
-                                        )
-                                        Spacer(modifier = Modifier.height(AppDimens.Spacing4))
-                                        StatusBadge(status = payment.status)
-                                    }
-                                }
-
-                                if (payment.status.equals("PENDING", ignoreCase = true)) {
-                                    Spacer(modifier = Modifier.height(AppDimens.Spacing16))
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(AppDimens.Spacing12)
-                                    ) {
-                                        AppButton(
-                                            text = "Reject",
-                                            onClick = { viewModel.openRejectDialog(payment.id) },
-                                            variant = ButtonVariant.Destructive,
-                                            enabled = !state.isProcessingAction,
-                                            modifier = Modifier.weight(1f)
-                                        )
-                                        AppButton(
-                                            text = "Approve & Mark Paid",
-                                            onClick = { viewModel.approvePayment(payment.id) },
-                                            variant = ButtonVariant.Primary,
-                                            enabled = !state.isProcessingAction,
-                                            modifier = Modifier.weight(1.5f)
-                                        )
+                                    if (payment.status.equals("PENDING", ignoreCase = true)) {
+                                        Spacer(modifier = Modifier.height(AppDimens.Spacing16))
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.spacedBy(AppDimens.Spacing12)
+                                        ) {
+                                            AppButton(
+                                                text = "Reject",
+                                                onClick = { viewModel.openRejectDialog(payment.id) },
+                                                variant = ButtonVariant.Destructive,
+                                                enabled = !state.isProcessingAction,
+                                                modifier = Modifier.weight(1f)
+                                            )
+                                            AppButton(
+                                                text = "Approve & Mark Paid",
+                                                onClick = { viewModel.approvePayment(payment.id) },
+                                                variant = ButtonVariant.Primary,
+                                                enabled = !state.isProcessingAction,
+                                                modifier = Modifier.weight(1.5f)
+                                            )
+                                        }
                                     }
                                 }
                             }
-                        }
 
-                        item { Spacer(modifier = Modifier.height(AppDimens.Spacing16)) }
+                            item { Spacer(modifier = Modifier.height(AppDimens.Spacing16)) }
+                        }
                     }
+                }
+            }
+        }
+    }
+
+    // Modal Dialog: Full Screenshot Lightbox
+    viewingProofPayment?.let { proofPayment ->
+        Dialog(onDismissRequest = { viewingProofPayment = null }) {
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                text = "Payment Screenshot",
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = "UTR: ${proofPayment.utr} • ₹${proofPayment.amount}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Slate600
+                            )
+                        }
+                        IconButton(onClick = { viewingProofPayment = null }) {
+                            Icon(Icons.Default.Close, contentDescription = "Close preview")
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    val fullProofUrl = "${BuildConfig.BACKEND_URL.trimEnd('/')}/api/v1/payments/${proofPayment.id}/proof"
+                    AsyncImage(
+                        model = fullProofUrl,
+                        contentDescription = "Full payment screenshot",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 220.dp, max = 420.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .border(1.dp, BorderSubtle, RoundedCornerShape(8.dp)),
+                        contentScale = ContentScale.Fit
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    AppButton(
+                        text = "Dismiss",
+                        onClick = { viewingProofPayment = null },
+                        modifier = Modifier.fillMaxWidth(),
+                        variant = ButtonVariant.Secondary
+                    )
                 }
             }
         }
@@ -258,7 +391,7 @@ fun OwnerPaymentReviewScreen(
         AlertDialog(
             onDismissRequest = viewModel::closeRejectDialog,
             title = {
-                Text(text = "Reject Payment", style = AppTypography.titleMedium, color = Slate900)
+                Text(text = "Reject Payment", style = AppTypography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
             },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(AppDimens.Spacing12)) {

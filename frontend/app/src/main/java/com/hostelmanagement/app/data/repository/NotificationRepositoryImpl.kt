@@ -16,8 +16,8 @@ class NotificationRepositoryImpl @Inject constructor(
     private val gson: Gson
 ) : NotificationRepository {
 
-    override suspend fun listNotifications(): Resource<List<NotificationResponseDto>> {
-        return safeApiCall(gson) { notificationApi.listNotifications() }
+    override suspend fun listNotifications(category: String?): Resource<List<NotificationResponseDto>> {
+        return safeApiCall(gson) { notificationApi.listNotifications(category) }
     }
 
     override suspend fun markAsRead(notificationId: Long): Resource<MessageResponseDto> {

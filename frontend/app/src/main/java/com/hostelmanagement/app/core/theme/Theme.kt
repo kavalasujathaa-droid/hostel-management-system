@@ -13,43 +13,43 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val LightColorScheme = lightColorScheme(
-    primary = Slate900,
+    primary = Purple600,
     onPrimary = PureWhite,
-    primaryContainer = Slate100,
-    onPrimaryContainer = Slate900,
-    secondary = Slate700,
+    primaryContainer = Purple50,
+    onPrimaryContainer = Purple900,
+    secondary = Purple500,
     onSecondary = PureWhite,
-    secondaryContainer = Slate100,
-    onSecondaryContainer = Slate900,
-    background = Slate50,
-    onBackground = Slate900,
+    secondaryContainer = Purple100,
+    onSecondaryContainer = Purple950,
+    background = PurpleAppBg,
+    onBackground = Purple950,
     surface = PureWhite,
-    onSurface = Slate900,
-    surfaceVariant = Slate100,
+    onSurface = Purple950,
+    surfaceVariant = Purple50,
     onSurfaceVariant = Slate600,
-    outline = Slate300,
-    outlineVariant = Slate200,
+    outline = BorderSubtle,
+    outlineVariant = Purple100,
     error = StatusOverdueText,
     onError = PureWhite
 )
 
 private val DarkColorScheme = darkColorScheme(
-    primary = PureWhite,
-    onPrimary = Slate950,
-    primaryContainer = Slate800,
+    primary = Purple400,
+    onPrimary = Purple950,
+    primaryContainer = Purple900,
     onPrimaryContainer = PureWhite,
-    secondary = Slate400,
-    onSecondary = Slate950,
-    secondaryContainer = Slate800,
+    secondary = Purple300,
+    onSecondary = Purple950,
+    secondaryContainer = Purple800,
     onSecondaryContainer = PureWhite,
-    background = Color(0xFF0B0F19),
+    background = Color(0xFF0F0B1E),
     onBackground = PureWhite,
-    surface = Color(0xFF111827),
+    surface = Color(0xFF171329),
     onSurface = PureWhite,
-    surfaceVariant = Color(0xFF1F2937),
-    onSurfaceVariant = Slate400,
-    outline = Slate700,
-    outlineVariant = Color(0xFF374151),
+    surfaceVariant = Color(0xFF241D3B),
+    onSurfaceVariant = Purple200,
+    outline = Purple800,
+    outlineVariant = Color(0xFF3B2F5C),
     error = Color(0xFFEF4444),
     onError = PureWhite
 )
@@ -65,15 +65,18 @@ fun HostelManagementTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.background.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+            window.statusBarColor = colorScheme.surface.toArgb()
+            window.navigationBarColor = colorScheme.surface.toArgb()
+
+            val windowInsetsController = WindowCompat.getInsetsController(window, view)
+            windowInsetsController.isAppearanceLightStatusBars = !darkTheme
+            windowInsetsController.isAppearanceLightNavigationBars = !darkTheme
         }
     }
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = AppTypography,
-        shapes = AppShapes,
+        typography = Typography,
         content = content
     )
 }
