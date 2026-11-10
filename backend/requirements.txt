@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+gunicorn>=22.0.0
+sqlalchemy>=2.0
+pymysql
+cryptography
+python-dotenv
+alembic
+pydantic-settings
+pytest
+httpx
+argon2-cffi>=23.1.0
+pyjwt>=2.8.0
+python-multipart>=0.0.9
