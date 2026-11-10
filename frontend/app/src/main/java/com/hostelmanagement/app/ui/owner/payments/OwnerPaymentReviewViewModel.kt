@@ -30,6 +30,9 @@ data class OwnerPaymentReviewUiState(
 
     val reviewedPayments: List<PaymentResponseDto>
         get() = payments.filter { !it.status.equals("PENDING", ignoreCase = true) }
+
+    val historyPayments: List<PaymentResponseDto>
+        get() = reviewedPayments
 }
 
 @HiltViewModel

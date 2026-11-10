@@ -91,6 +91,7 @@ class TenantRaiseComplaintViewModelTest {
             updated_at = "2026-11-10T10:00:00"
         )
         coEvery { complaintRepository.createComplaint(any(), any()) } returns Resource.Success(mockResponse)
+        coEvery { complaintRepository.createComplaint(any(), null) } returns Resource.Success(mockResponse)
 
         viewModel.onTitleChanged("Fan not working")
         viewModel.onCategoryChanged("Electrical")
@@ -103,12 +104,13 @@ class TenantRaiseComplaintViewModelTest {
         assertFalse(state.isSubmitting)
         assertTrue(state.isSuccess)
         assertNull(state.errorMessage)
-        coVerify(exactly = 1) { complaintRepository.createComplaint(any(), any()) }
+        coVerify(exactly = 1) { complaintRepository.createComplaint(any(), null) }
     }
 
     @Test
     fun submitComplaint_error_setsErrorMessage() = runTest(testDispatcher) {
         coEvery { complaintRepository.createComplaint(any(), any()) } returns Resource.Error("Server error occurred")
+        coEvery { complaintRepository.createComplaint(any(), null) } returns Resource.Error("Server error occurred")
 
         viewModel.onTitleChanged("Fan not working")
         viewModel.onCategoryChanged("Electrical")

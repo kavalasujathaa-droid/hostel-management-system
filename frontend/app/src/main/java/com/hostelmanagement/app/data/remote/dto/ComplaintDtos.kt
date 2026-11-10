@@ -16,11 +16,11 @@ data class ComplaintResponseDto(
     val tenant_stay_id: Long,
     val tenant_name: String? = null,
     val room_number: String? = null,
-    val title: String = "",
-    val category: String = "Other",
     val description: String,
     val status: String,
-    val attachment_path: String? = null,
     val created_at: String,
-    val updated_at: String
+    val updated_at: String,
+    val title: String = "",
+    val category: String = "Other",
+    val attachment_path: String? = null
 )

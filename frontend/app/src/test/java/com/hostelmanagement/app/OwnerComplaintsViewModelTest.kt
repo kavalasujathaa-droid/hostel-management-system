@@ -34,6 +34,7 @@ class OwnerComplaintsViewModelTest {
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
         coEvery { complaintRepository.listComplaints(any()) } returns Resource.Success(emptyList())
+        coEvery { complaintRepository.listComplaints(null) } returns Resource.Success(emptyList())
         viewModel = OwnerComplaintsViewModel(complaintRepository)
     }
 
