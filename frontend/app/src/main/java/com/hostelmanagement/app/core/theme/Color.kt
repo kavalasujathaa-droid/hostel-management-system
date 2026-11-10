@@ -3,29 +3,37 @@ package com.hostelmanagement.app.core.theme
 import androidx.compose.ui.graphics.Color
 
 // ==========================================
-// SmartTracking Brand Palette Tokens
+// Official SmartTrack Brand Palette Tokens
 // ==========================================
 
-// Core Brand Purple Tokens
-val BrandPrimary = Color(0xFF5946D8)        // Primary Action Purple
-val BrandPrimaryDark = Color(0xFF4332B5)    // Active / Pressed
-val BrandPrimaryLight = Color(0xFF7B6BF0)   // Light Accent
-val BrandContainer = Color(0xFFEFECFF)      // Soft Purple Background Container
-val BrandOnContainer = Color(0xFF20147B)    // Deep Purple on Container
+// Primary Brand Teal Tokens
+val BrandTeal = Color(0xFF149EA5)           // Primary Teal
+val BrandTealDark = Color(0xFF0F7D83)       // Active / Pressed Teal
+val BrandTealLight = Color(0xFF1DBAC2)      // Light Accent Teal
+val SoftTeal = Color(0xFFE7F5F5)            // Soft Teal Container Background
+val SoftTealBorder = Color(0xFFBCE3E5)      // Subtle Teal Border
 
-// Neutral Surfaces & Canvas
-val SurfaceNeutral = Color(0xFFF7F7FA)      // Clean Purple-White Canvas
-val PureWhite = Color(0xFFFFFFFF)           // Card Surfaces & Modals
-val SurfaceVariantNeutral = Color(0xFFF0EFF6) // Secondary Containers
+// Secondary Brand Orange Tokens
+val BrandOrange = Color(0xFFF07832)         // Accent Brand Orange
+val BrandOrangeDark = Color(0xFFD66320)     // Pressed Orange
+val BrandOrangeLight = Color(0xFFFF8B4A)    // Highlight Orange
+val SoftOrange = Color(0xFFFFF1E8)          // Soft Orange Container
+val SoftOrangeBorder = Color(0xFFFFD9C2)    // Subtle Orange Border
+
+// Neutral Canvas & Surfaces
+val CanvasBackground = Color(0xFFF5F8F8)    // Clean App Canvas
+val SurfaceWhite = Color(0xFFFFFFFF)        // Card Surfaces & Modals
+val SurfaceVariantNeutral = Color(0xFFEDF2F2) // Secondary Neutral Surface
 
 // Charcoal Typography Hierarchy
-val TextPrimary = Color(0xFF191927)         // Deep Charcoal Headlines & Titles
-val TextSecondary = Color(0xFF747487)       // Slate Subtitles & Secondary Body
-val TextMuted = Color(0xFF9E9EAF)           // Placeholders & Minor Captions
+val BrandCharcoal = Color(0xFF292A30)       // Deep Brand Charcoal
+val TextPrimary = Color(0xFF202329)         // Primary Headlines & Body
+val TextSecondary = Color(0xFF747B82)       // Secondary Slate Captions
+val TextMuted = Color(0xFF9AA0A6)           // Placeholders & Minor Text
 
 // Borders & Dividers
-val BorderSubtle = Color(0xFFE9E8EF)        // 1dp Hairline Surface Borders
-val BorderStrong = Color(0xFFD6D5E0)        // Active / Focused Borders
+val BorderSubtle = Color(0xFFE5E9E9)        // 1dp Hairline Surface Borders
+val BorderStrong = Color(0xFFCCD2D2)        // Active / Focused Borders
 
 // Semantic Status Tokens
 val StatusPaidBg = Color(0xFFE6F5EE)
@@ -41,37 +49,48 @@ val StatusOverdueBg = Color(0xFFFDECEE)
 val StatusOverdueBorder = Color(0xFFF9B6BC)
 val StatusOverdueText = Color(0xFFD84A55)
 
-val StatusNeutralBg = BrandContainer
-val StatusNeutralBorder = Color(0xFFD9D4FA)
-val StatusNeutralText = BrandPrimary
+val StatusNeutralBg = SoftTeal
+val StatusNeutralBorder = SoftTealBorder
+val StatusNeutralText = BrandTeal
 
 // ==========================================
-// Backward-Compatibility Aliases
+// Compatibility & System Aliases
 // ==========================================
-val Purple950 = TextPrimary
-val Purple900 = BrandOnContainer
-val Purple800 = Color(0xFF3B28A8)
-val Purple700 = BrandPrimaryDark
-val Purple600 = BrandPrimary
-val Purple500 = BrandPrimaryLight
-val Purple400 = Color(0xFFA598F8)
-val Purple300 = Color(0xFFC7BFFB)
-val Purple200 = Color(0xFFDDD8FC)
-val Purple100 = Color(0xFFE6E2FC)
-val Purple50  = BrandContainer
-val PurpleAppBg = SurfaceNeutral
+val BrandPrimary = BrandTeal
+val BrandPrimaryDark = BrandTealDark
+val BrandPrimaryLight = BrandTealLight
+val BrandContainer = SoftTeal
+val BrandOnContainer = BrandTealDark
 
-val Slate950 = TextPrimary
+val SurfaceNeutral = CanvasBackground
+val PureWhite = SurfaceWhite
+
+val Purple950 = BrandCharcoal
+val Purple900 = BrandCharcoal
+val Purple800 = BrandTealDark
+val Purple700 = BrandTealDark
+val Purple600 = BrandTeal
+val Purple500 = BrandTeal
+val Purple400 = BrandTealLight
+val Purple300 = BrandTealLight
+val Purple200 = SoftTealBorder
+val Purple100 = SoftTeal
+val Purple50 = CanvasBackground
+
 val Slate900 = TextPrimary
-val Slate800 = Color(0xFF2D2D3F)
-val Slate700 = Color(0xFF4C4C60)
+val Slate800 = BrandCharcoal
+val Slate700 = BrandCharcoal
 val Slate600 = TextSecondary
 val Slate500 = TextSecondary
 val Slate400 = TextMuted
 val Slate300 = BorderStrong
 val Slate200 = BorderSubtle
-val Slate100 = BrandContainer
-val Slate50  = SurfaceNeutral
+val Slate100 = SurfaceVariantNeutral
+val Slate50 = CanvasBackground
 
-val AccentPrimary = BrandPrimary
-val AccentInteractive = BrandPrimary
+val PrimaryAction = BrandTeal
+val PrimaryActionDark = BrandTealDark
+val BackgroundLight = CanvasBackground
+val SurfaceCard = SurfaceWhite
+val TextTitle = TextPrimary
+val TextBody = TextSecondary

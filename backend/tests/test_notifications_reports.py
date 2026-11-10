@@ -126,3 +126,34 @@ def test_reports_and_dashboard_accuracy(transactional_client: TestClient, db_ses
     fin_data = fin_res.json()
     assert "summary" in fin_data
     assert "monthly_breakdown" in fin_data
+
+
+def test_device_token_registration_and_unregistration(transactional_client: TestClient, db_session: Session):
+    """Test registering and unregistering FCM device tokens."""
+    tenant = create_test_tenant(db_session, email="fcm_tenant@test.com")
+    headers = auth_headers(tenant)
+
+    # Register token
+    reg_res = transactional_client.post(
+        "/api/v1/notifications/device-token",
+        json={"fcm_token": "fcm_test_token_12345", "platform": "ANDROID"},
+        headers=headers,
+    )
+    assert reg_res.status_code == 200
+    assert reg_res.json()["success"] is True
+
+    # Re-register same token (idempotent / update)
+    reg_res2 = transactional_client.post(
+        "/api/v1/notifications/device-token",
+        json={"fcm_token": "fcm_test_token_12345", "platform": "ANDROID"},
+        headers=headers,
+    )
+    assert reg_res2.status_code == 200
+
+    # Unregister token
+    unreg_res = transactional_client.delete(
+        "/api/v1/notifications/device-token?fcm_token=fcm_test_token_12345",
+        headers=headers,
+    )
+    assert unreg_res.status_code == 200
+    assert unreg_res.json()["success"] is True

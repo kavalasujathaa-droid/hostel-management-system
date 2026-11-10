@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.hostelmanagement.app.core.common.Resource
 import com.hostelmanagement.app.core.network.safeApiCall
 import com.hostelmanagement.app.data.remote.api.NotificationApi
+import com.hostelmanagement.app.data.remote.dto.DeviceTokenRegisterDto
 import com.hostelmanagement.app.data.remote.dto.MessageResponseDto
 import com.hostelmanagement.app.data.remote.dto.NotificationResponseDto
 import com.hostelmanagement.app.domain.repository.NotificationRepository
@@ -26,5 +27,17 @@ class NotificationRepositoryImpl @Inject constructor(
 
     override suspend fun markAllAsRead(): Resource<MessageResponseDto> {
         return safeApiCall(gson) { notificationApi.markAllAsRead() }
+    }
+
+    override suspend fun registerDeviceToken(fcmToken: String): Resource<MessageResponseDto> {
+        return safeApiCall(gson) {
+            notificationApi.registerDeviceToken(DeviceTokenRegisterDto(fcm_token = fcmToken, platform = "ANDROID"))
+        }
+    }
+
+    override suspend fun unregisterDeviceToken(fcmToken: String): Resource<MessageResponseDto> {
+        return safeApiCall(gson) {
+            notificationApi.unregisterDeviceToken(fcmToken = fcmToken)
+        }
     }
 }

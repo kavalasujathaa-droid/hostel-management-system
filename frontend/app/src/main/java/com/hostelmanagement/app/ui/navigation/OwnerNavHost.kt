@@ -1,12 +1,18 @@
 package com.hostelmanagement.app.ui.navigation
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.MeetingRoom
 import androidx.compose.material.icons.filled.Payment
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ReportProblem
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -44,7 +50,7 @@ fun OwnerNavHost(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    // 5-Tab Owner Bottom Navigation
+    // 5-Tab Owner Bottom Navigation: Home, Rooms, Payments, Complaints, Profile
     val bottomNavItems = listOf(
         BottomNavItem(
             route = Screen.OwnerDashboard.route,
@@ -69,7 +75,7 @@ fun OwnerNavHost(
         BottomNavItem(
             route = Screen.OwnerSettings.route,
             title = "Profile",
-            icon = Icons.Default.Settings
+            icon = Icons.Default.Person
         )
     )
 
@@ -98,7 +104,31 @@ fun OwnerNavHost(
         NavHost(
             navController = navController,
             startDestination = Screen.OwnerDashboard.route,
-            modifier = Modifier.padding(paddingValues)
+            modifier = Modifier.padding(paddingValues),
+            enterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { fullWidth -> fullWidth },
+                    animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
+                ) + fadeIn(animationSpec = tween(durationMillis = 300))
+            },
+            exitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { fullWidth -> -fullWidth / 4 },
+                    animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
+                ) + fadeOut(animationSpec = tween(durationMillis = 300))
+            },
+            popEnterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { fullWidth -> -fullWidth / 4 },
+                    animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
+                ) + fadeIn(animationSpec = tween(durationMillis = 300))
+            },
+            popExitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { fullWidth -> fullWidth },
+                    animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
+                ) + fadeOut(animationSpec = tween(durationMillis = 300))
+            }
         ) {
             // Tab 1: Dashboard Overview
             composable(Screen.OwnerDashboard.route) {
@@ -116,16 +146,16 @@ fun OwnerNavHost(
                 )
             }
 
-            // Tab 2: Rooms
+            // Tab 2: Rooms Management
             composable(Screen.OwnerRooms.route) {
                 RoomListScreen(
                     onNavigateToRoomDetail = { roomId ->
                         navController.navigate(Screen.OwnerRoomDetail.createRoute(roomId))
-                    }
+                    },
+                    onNavigateBack = { navController.popBackStack() }
                 )
             }
 
-            // Subroute: Room Detail
             composable(
                 route = Screen.OwnerRoomDetail.route,
                 arguments = listOf(navArgument("roomId") { type = NavType.LongType })
@@ -133,25 +163,35 @@ fun OwnerNavHost(
                 val roomId = backStackEntry.arguments?.getLong("roomId") ?: 0L
                 RoomDetailScreen(
                     roomId = roomId,
-                    onNavigateBack = { navController.popBackStack() }
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToTenantDetail = { tenantId ->
+                        navController.navigate(Screen.OwnerTenantDetail.createRoute(tenantId))
+                    }
                 )
             }
 
-            // Tab 3: Payments Review
+            // Tab 3: Payments Review & Management
             composable(Screen.OwnerPayments.route) {
                 OwnerPaymentReviewScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToPaymentQr = { navController.navigate(Screen.OwnerPaymentQr.route) }
+                )
+            }
+
+            composable(Screen.OwnerPaymentQr.route) {
+                OwnerPaymentQrScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
 
-            // Tab 4: Complaints
+            // Tab 4: Complaints Portal
             composable(Screen.OwnerComplaints.route) {
                 OwnerComplaintsScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
 
-            // Tab 5: Settings / Profile
+            // Tab 5: Account, Profile & Settings
             composable(Screen.OwnerSettings.route) {
                 OwnerSettingsScreen(
                     onNavigateBack = { navController.popBackStack() },
@@ -159,12 +199,13 @@ fun OwnerNavHost(
                 )
             }
 
-            // Operational Subroutes from Quick Actions & Shortcuts:
+            // Secondary Owner Screens
             composable(Screen.OwnerTenants.route) {
                 TenantListScreen(
                     onNavigateToTenantDetail = { tenantId ->
                         navController.navigate(Screen.OwnerTenantDetail.createRoute(tenantId))
-                    }
+                    },
+                    onNavigateBack = { navController.popBackStack() }
                 )
             }
 
@@ -180,23 +221,19 @@ fun OwnerNavHost(
             }
 
             composable(Screen.OwnerBilling.route) {
-                OwnerBillingScreen()
-            }
-
-            composable(Screen.OwnerPaymentQr.route) {
-                OwnerPaymentQrScreen(
-                    onNavigateBack = { navController.popBackStack() }
-                )
-            }
-
-            composable(Screen.OwnerVacate.route) {
-                OwnerVacateScreen(
+                OwnerBillingScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
 
             composable(Screen.OwnerReports.route) {
                 OwnerReportsScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+
+            composable(Screen.OwnerVacate.route) {
+                OwnerVacateScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }

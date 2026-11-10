@@ -64,7 +64,7 @@ fun OwnerInitScreen(
         ) {
             AppCard(padding = AppDimens.Spacing20) {
                 Text(
-                    text = "Welcome to SmartTracking",
+                    text = "Welcome to SmartTrack",
                     style = AppTypography.titleLarge.copy(fontWeight = FontWeight.Bold),
                     color = TextPrimary
                 )

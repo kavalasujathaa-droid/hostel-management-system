@@ -1,0 +1,25 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <!-- Teal Location Pin -->
+    <path
+        android:fillColor="#149EA5"
+        android:pathData="M21,12 C15.48,12 11,16.48 11,22 C11,29.5 21,39 21,39 C21,39 31,29.5 31,22 C31,16.48 26.52,12 21,12 Z M21,26 C18.79,26 17,24.21 17,22 C17,19.79 18.79,18 21,18 C23.21,18 25,19.79 25,22 C25,24.21 23.21,26 21,26 Z" />
+    
+    <!-- Orange Wireless Signal Waves -->
+    <path
+        android:strokeColor="#F07832"
+        android:strokeWidth="2.4"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M29,15 C31.5,17 33,20 33,23" />
+
+    <path
+        android:strokeColor="#F07832"
+        android:strokeWidth="2.4"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M33,11 C37,13.5 39.5,18 39.5,23" />
+</vector>

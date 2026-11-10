@@ -50,7 +50,7 @@ def create_notification(
 
 
 def dispatch_fcm_notification(db: Session, user_id: int, title: str, message: str) -> None:
-    """Simulate or execute FCM push delivery to active device tokens."""
+    """Execute FCM push delivery to active device tokens using Firebase Admin SDK or safe fallback."""
     tokens = (
         db.query(DeviceToken)
         .filter(DeviceToken.user_id == user_id, DeviceToken.is_active == True)  # noqa: E712
@@ -59,7 +59,26 @@ def dispatch_fcm_notification(db: Session, user_id: int, title: str, message: st
     if not tokens:
         return
 
-    logger.debug("Dispatched FCM message [%s] to %d device(s) for user %d", title, len(tokens), user_id)
+    # Check if Firebase Admin SDK is available and initialized
+    try:
+        import firebase_admin
+        from firebase_admin import messaging
+
+        token_strings = [t.fcm_token for t in tokens if t.fcm_token]
+        for token_str in token_strings:
+            msg = messaging.Message(
+                notification=messaging.Notification(
+                    title=title,
+                    body=message,
+                ),
+                token=token_str,
+            )
+            messaging.send(msg)
+        logger.info("FCM push successfully dispatched for user %d to %d devices", user_id, len(token_strings))
+    except ImportError:
+        logger.debug("Firebase Admin SDK not installed; simulated FCM dispatch for user %d: %s", user_id, title)
+    except Exception as exc:
+        logger.warning("FCM dispatch error for user %d: %s", user_id, exc)
 
 
 def generate_rent_due_reminders(db: Session, target_date: Optional[date] = None) -> Dict[str, int]:

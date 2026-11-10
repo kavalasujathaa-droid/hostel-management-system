@@ -8,4 +8,6 @@ interface NotificationRepository {
     suspend fun listNotifications(category: String? = null): Resource<List<NotificationResponseDto>>
     suspend fun markAsRead(notificationId: Long): Resource<MessageResponseDto>
     suspend fun markAllAsRead(): Resource<MessageResponseDto>
+    suspend fun registerDeviceToken(fcmToken: String): Resource<MessageResponseDto>
+    suspend fun unregisterDeviceToken(fcmToken: String): Resource<MessageResponseDto>
 }

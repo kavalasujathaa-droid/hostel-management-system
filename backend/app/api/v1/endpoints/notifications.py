@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 from app.core.dependencies import get_current_user, require_owner
 from app.core.exceptions import NotFoundError
 from app.db.session import get_db
-from app.models.models import Notification, User
-from app.schemas.notification import NotificationResponse
+from app.models.models import DeviceToken, Notification, User
+from app.schemas.notification import DeviceTokenRegisterRequest, NotificationResponse
 from app.services.notification_service import generate_rent_due_reminders
 
 router = APIRouter()
@@ -80,3 +80,48 @@ def mark_all_notifications_as_read(
     ).update({"is_read": True})
     db.commit()
     return {"success": True, "message": "All notifications marked as read"}
+
+
+@router.post("/device-token", status_code=status.HTTP_200_OK)
+def register_device_token(
+    payload: DeviceTokenRegisterRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Register or update an FCM device token for push notifications."""
+    existing = db.query(DeviceToken).filter(DeviceToken.fcm_token == payload.fcm_token).first()
+    if existing:
+        existing.user_id = current_user.id
+        existing.platform = payload.platform.upper()
+        existing.is_active = True
+    else:
+        new_token = DeviceToken(
+            user_id=current_user.id,
+            fcm_token=payload.fcm_token,
+            platform=payload.platform.upper(),
+            is_active=True,
+        )
+        db.add(new_token)
+    db.commit()
+    return {"success": True, "message": "Device token registered successfully"}
+
+
+@router.delete("/device-token", status_code=status.HTTP_200_OK)
+def unregister_device_token(
+    fcm_token: str = Query(..., description="FCM device token to unregister"),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Deactivate or remove an FCM device token on logout."""
+    token = (
+        db.query(DeviceToken)
+        .filter(
+            DeviceToken.fcm_token == fcm_token,
+            DeviceToken.user_id == current_user.id,
+        )
+        .first()
+    )
+    if token:
+        token.is_active = False
+        db.commit()
+    return {"success": True, "message": "Device token unregistered successfully"}

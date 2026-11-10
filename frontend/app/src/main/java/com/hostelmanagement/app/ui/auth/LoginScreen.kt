@@ -61,6 +61,7 @@ import com.hostelmanagement.app.core.theme.TextSecondary
 import com.hostelmanagement.app.ui.components.AppButton
 import com.hostelmanagement.app.ui.components.AppCard
 import com.hostelmanagement.app.ui.components.AppTextField
+import com.hostelmanagement.app.ui.components.SmartTrackBrandHeader
 
 @Composable
 fun LoginScreen(
@@ -90,42 +91,12 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // SmartTracking Brand Header
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(72.dp)
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(BrandPrimary),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Apartment,
-                        contentDescription = "SmartTracking Logo",
-                        tint = PureWhite,
-                        modifier = Modifier.size(40.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(AppDimens.Spacing16))
-
-                Text(
-                    text = "SmartTracking",
-                    style = AppTypography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                    color = TextPrimary
-                )
-
-                Spacer(modifier = Modifier.height(AppDimens.Spacing4))
-
-                Text(
-                    text = "Hostel Management System",
-                    style = AppTypography.bodyMedium,
-                    color = TextSecondary
-                )
-            }
+            // Official SmartTrack Brand Header
+            SmartTrackBrandHeader(
+                iconSize = 68.dp,
+                showSubtitle = true,
+                subtitleText = "Hostel Management System"
+            )
 
             Spacer(modifier = Modifier.height(AppDimens.Spacing32))
 

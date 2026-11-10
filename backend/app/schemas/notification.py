@@ -13,3 +13,8 @@ class NotificationResponse(BaseModel):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class DeviceTokenRegisterRequest(BaseModel):
+    fcm_token: str
+    platform: str = "ANDROID"

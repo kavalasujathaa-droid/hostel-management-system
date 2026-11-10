@@ -1,8 +1,12 @@
 package com.hostelmanagement.app.data.remote.api
 
+import com.hostelmanagement.app.data.remote.dto.DeviceTokenRegisterDto
 import com.hostelmanagement.app.data.remote.dto.MessageResponseDto
 import com.hostelmanagement.app.data.remote.dto.NotificationResponseDto
+import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -19,4 +23,10 @@ interface NotificationApi {
 
     @PUT("notifications/read-all")
     suspend fun markAllAsRead(): MessageResponseDto
+
+    @POST("notifications/device-token")
+    suspend fun registerDeviceToken(@Body request: DeviceTokenRegisterDto): MessageResponseDto
+
+    @DELETE("notifications/device-token")
+    suspend fun unregisterDeviceToken(@Query("fcm_token") fcmToken: String): MessageResponseDto
 }

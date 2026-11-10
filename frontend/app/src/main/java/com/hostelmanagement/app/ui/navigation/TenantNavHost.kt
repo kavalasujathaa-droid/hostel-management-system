@@ -1,5 +1,11 @@
 package com.hostelmanagement.app.ui.navigation
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Dashboard
@@ -41,7 +47,7 @@ fun TenantNavHost(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    // 5-Tab Tenant Bottom Navigation
+    // 5-Tab Tenant Bottom Navigation: Home, Payments, Complaints, Alerts, Profile
     val bottomNavItems = listOf(
         BottomNavItem(
             route = Screen.TenantDashboard.route,
@@ -95,47 +101,74 @@ fun TenantNavHost(
         NavHost(
             navController = navController,
             startDestination = Screen.TenantDashboard.route,
-            modifier = Modifier.padding(paddingValues)
+            modifier = Modifier.padding(paddingValues),
+            enterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { fullWidth -> fullWidth },
+                    animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
+                ) + fadeIn(animationSpec = tween(durationMillis = 300))
+            },
+            exitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { fullWidth -> -fullWidth / 4 },
+                    animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
+                ) + fadeOut(animationSpec = tween(durationMillis = 300))
+            },
+            popEnterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { fullWidth -> -fullWidth / 4 },
+                    animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
+                ) + fadeIn(animationSpec = tween(durationMillis = 300))
+            },
+            popExitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { fullWidth -> fullWidth },
+                    animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
+                ) + fadeOut(animationSpec = tween(durationMillis = 300))
+            }
         ) {
-            // Tab 1: Tenant Dashboard (Home)
+            // Tab 1: Tenant Dashboard
             composable(Screen.TenantDashboard.route) {
                 TenantDashboardScreen(
                     onNavigateToPay = { rentChargeId ->
                         navController.navigate(Screen.TenantPay.createRoute(rentChargeId))
                     },
-                    onNavigateToRentDetails = { navController.navigate(Screen.TenantRentDetails.route) },
-                    onNavigateToRoomInfo = { navController.navigate(Screen.TenantRoomInfo.route) },
+                    onNavigateToPaymentHistory = { navController.navigate(Screen.TenantPayments.route) },
                     onNavigateToComplaints = { navController.navigate(Screen.TenantComplaints.route) },
                     onNavigateToRaiseComplaint = { navController.navigate(Screen.TenantRaiseComplaint.route) },
+                    onNavigateToRoomInfo = { navController.navigate(Screen.TenantRoom.route) },
+                    onNavigateToBilling = { navController.navigate(Screen.TenantBilling.route) },
                     onNavigateToVacate = { navController.navigate(Screen.TenantVacate.route) },
-                    onNavigateToNotifications = { navController.navigate(Screen.TenantNotifications.route) },
-                    onNavigateToPaymentHistory = { navController.navigate(Screen.TenantPayments.route) }
+                    onNavigateToNotifications = { navController.navigate(Screen.TenantNotifications.route) }
                 )
             }
 
-            // Tab 2: Payment History
+            // Tab 2: Payments History
             composable(Screen.TenantPayments.route) {
                 TenantPaymentHistoryScreen(
-                    onNavigateBack = { navController.popBackStack() }
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToPay = { rentChargeId ->
+                        navController.navigate(Screen.TenantPay.createRoute(rentChargeId))
+                    }
                 )
             }
 
             // Tab 3: Complaints Portal
             composable(Screen.TenantComplaints.route) {
                 TenantComplaintsScreen(
-                    onNavigateBack = { navController.popBackStack() },
-                    onNavigateToRaiseComplaint = { navController.navigate(Screen.TenantRaiseComplaint.route) }
+                    onNavigateToRaiseComplaint = { navController.navigate(Screen.TenantRaiseComplaint.route) },
+                    onNavigateBack = { navController.popBackStack() }
                 )
             }
 
-            // Tab 4: Notifications / Alerts
+            // Tab 4: Alerts & Notifications Center
             composable(Screen.TenantNotifications.route) {
                 TenantNotificationsScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
 
-            // Tab 5: Tenant Profile
+            // Tab 5: Resident Profile & Settings
             composable(Screen.TenantProfile.route) {
                 TenantProfileScreen(
                     onNavigateBack = { navController.popBackStack() },
@@ -143,40 +176,41 @@ fun TenantNavHost(
                 )
             }
 
-            // Subroutes
-            composable(Screen.TenantRentDetails.route) {
-                TenantRentDetailsScreen(
+            // Dedicated Tenant Flow Screens
+            composable(Screen.TenantRaiseComplaint.route) {
+                TenantRaiseComplaintScreen(
                     onNavigateBack = { navController.popBackStack() },
-                    onNavigateToPay = { rentChargeId ->
-                        navController.navigate(Screen.TenantPay.createRoute(rentChargeId))
-                    }
+                    onComplaintSubmitted = { navController.popBackStack() }
                 )
             }
 
             composable(
                 route = Screen.TenantPay.route,
-                arguments = listOf(navArgument("rentChargeId") { type = NavType.LongType })
-            ) {
+                arguments = listOf(navArgument("rentChargeId") {
+                    type = NavType.LongType
+                    defaultValue = 0L
+                })
+            ) { backStackEntry ->
+                val chargeId = backStackEntry.arguments?.getLong("rentChargeId") ?: 0L
                 TenantPayScreen(
+                    rentChargeId = chargeId,
                     onNavigateBack = { navController.popBackStack() },
-                    onNavigateToHistory = {
-                        navController.navigate(Screen.TenantPayments.route) {
-                            popUpTo(Screen.TenantDashboard.route)
-                        }
-                    }
+                    onPaymentSubmitted = { navController.navigate(Screen.TenantPayments.route) }
                 )
             }
 
-            composable(Screen.TenantRoomInfo.route) {
+            composable(Screen.TenantRoom.route) {
                 TenantRoomInfoScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
 
-            composable(Screen.TenantRaiseComplaint.route) {
-                TenantRaiseComplaintScreen(
+            composable(Screen.TenantBilling.route) {
+                TenantRentDetailsScreen(
                     onNavigateBack = { navController.popBackStack() },
-                    onComplaintSubmitted = { navController.popBackStack() }
+                    onNavigateToPay = { rentChargeId ->
+                        navController.navigate(Screen.TenantPay.createRoute(rentChargeId))
+                    }
                 )
             }
 

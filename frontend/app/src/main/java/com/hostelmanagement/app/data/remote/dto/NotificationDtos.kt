@@ -10,3 +10,8 @@ data class NotificationResponseDto(
     val is_read: Boolean,
     val created_at: String
 )
+
+data class DeviceTokenRegisterDto(
+    val fcm_token: String,
+    val platform: String = "ANDROID"
+)
