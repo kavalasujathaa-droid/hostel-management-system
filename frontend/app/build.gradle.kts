@@ -1,4 +1,4 @@
-plugins {
+﻿plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
@@ -22,8 +22,8 @@ android {
             useSupportLibrary = true
         }
 
-        buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8000/api/v1/\"")
-        buildConfigField("String", "BACKEND_URL", "\"http://10.0.2.2:8000/\"")
+        buildConfigField("String", "BASE_URL", "\"http://192.168.1.5:8000/api/v1/\"")
+        buildConfigField("String", "BACKEND_URL", "\"http://192.168.1.5:8000/\"")
     }
 
     buildTypes {
@@ -37,8 +37,8 @@ android {
             buildConfigField("String", "BACKEND_URL", "\"https://api.yourhostel.com/\"")
         }
         debug {
-            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8000/api/v1/\"")
-            buildConfigField("String", "BACKEND_URL", "\"http://10.0.2.2:8000/\"")
+            buildConfigField("String", "BASE_URL", "\"http://192.168.1.5:8000/api/v1/\"")
+            buildConfigField("String", "BACKEND_URL", "\"http://192.168.1.5:8000/\"")
         }
     }
 
@@ -106,3 +106,4 @@ dependencies {
 
     debugImplementation(libs.androidx.compose.ui.tooling)
 }
+
