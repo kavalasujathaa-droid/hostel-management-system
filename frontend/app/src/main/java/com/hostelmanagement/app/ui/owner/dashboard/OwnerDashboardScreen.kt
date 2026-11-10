@@ -15,32 +15,42 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.automirrored.outlined.ExitToApp
 import androidx.compose.material.icons.outlined.Assessment
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.CheckCircleOutline
 import androidx.compose.material.icons.outlined.MeetingRoom
 import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material.icons.outlined.PeopleOutline
+import androidx.compose.material.icons.outlined.Payment
+import androidx.compose.material.icons.outlined.People
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material.icons.outlined.QrCode
 import androidx.compose.material.icons.outlined.ReceiptLong
 import androidx.compose.material.icons.outlined.ReportProblem
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -50,21 +60,24 @@ import com.hostelmanagement.app.core.common.DateFormatter
 import com.hostelmanagement.app.core.theme.AppDimens
 import com.hostelmanagement.app.core.theme.AppShapes
 import com.hostelmanagement.app.core.theme.AppTypography
+import com.hostelmanagement.app.core.theme.BorderSubtle
+import com.hostelmanagement.app.core.theme.BrandContainer
+import com.hostelmanagement.app.core.theme.BrandPrimary
 import com.hostelmanagement.app.core.theme.PureWhite
-import com.hostelmanagement.app.core.theme.Slate100
-import com.hostelmanagement.app.core.theme.Slate200
-import com.hostelmanagement.app.core.theme.Slate400
-import com.hostelmanagement.app.core.theme.Slate50
-import com.hostelmanagement.app.core.theme.Slate500
-import com.hostelmanagement.app.core.theme.Slate600
-import com.hostelmanagement.app.core.theme.Slate900
 import com.hostelmanagement.app.core.theme.StatusOverdueText
+import com.hostelmanagement.app.core.theme.SurfaceNeutral
+import com.hostelmanagement.app.core.theme.SurfaceVariantNeutral
+import com.hostelmanagement.app.core.theme.TextMuted
+import com.hostelmanagement.app.core.theme.TextPrimary
+import com.hostelmanagement.app.core.theme.TextSecondary
 import com.hostelmanagement.app.ui.components.AppCard
-import com.hostelmanagement.app.ui.components.AppTopBar
 import com.hostelmanagement.app.ui.components.ErrorStateView
 import com.hostelmanagement.app.ui.components.LoadingView
+import com.hostelmanagement.app.ui.components.MetricCard
+import com.hostelmanagement.app.ui.components.SectionHeader
 import com.hostelmanagement.app.ui.components.StatusBadge
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OwnerDashboardScreen(
     onNavigateToRooms: () -> Unit,
@@ -83,36 +96,64 @@ fun OwnerDashboardScreen(
 
     Scaffold(
         topBar = {
-            AppTopBar(
-                title = "Hostel Overview",
-                subtitle = "Owner Operations Dashboard",
-                actions = {
-                    IconButton(onClick = onNavigateToNotifications) {
-                        BadgedBox(
-                            badge = {
-                                if ((state.stats?.open_complaints_count ?: 0) > 0) {
-                                    Badge(containerColor = StatusOverdueText)
-                                }
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Notifications,
-                                contentDescription = "Notifications",
-                                tint = Slate900
+            Column(modifier = Modifier.fillMaxWidth()) {
+                TopAppBar(
+                    title = {
+                        Column {
+                            Text(
+                                text = "Hi, Owner 👋",
+                                style = AppTypography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                                color = TextPrimary
+                            )
+                            Text(
+                                text = "Hostel Overview",
+                                style = AppTypography.bodySmall,
+                                color = TextSecondary
                             )
                         }
-                    }
-                    IconButton(onClick = onNavigateToSettings) {
-                        Icon(
-                            imageVector = Icons.Outlined.Settings,
-                            contentDescription = "Hostel Settings",
-                            tint = Slate900
-                        )
-                    }
-                }
-            )
+                    },
+                    actions = {
+                        IconButton(onClick = onNavigateToNotifications) {
+                            BadgedBox(
+                                badge = {
+                                    if ((state.stats?.open_complaints_count ?: 0) > 0) {
+                                        Badge(containerColor = StatusOverdueText)
+                                    }
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Notifications,
+                                    contentDescription = "Notifications",
+                                    tint = TextPrimary
+                                )
+                            }
+                        }
+                        IconButton(onClick = onNavigateToSettings) {
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(CircleShape)
+                                    .background(BrandContainer),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Person,
+                                    contentDescription = "Hostel Settings",
+                                    tint = BrandPrimary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = PureWhite,
+                        titleContentColor = TextPrimary
+                    )
+                )
+                HorizontalDivider(thickness = AppDimens.HairlineBorder, color = BorderSubtle)
+            }
         },
-        containerColor = Slate50
+        containerColor = SurfaceNeutral
     ) { paddingValues ->
         when {
             state.isLoading -> LoadingView(message = "Loading hostel overview...")
@@ -131,84 +172,186 @@ fun OwnerDashboardScreen(
                         .padding(horizontal = AppDimens.Spacing16, vertical = AppDimens.Spacing12),
                     verticalArrangement = Arrangement.spacedBy(AppDimens.Spacing16)
                 ) {
-                    // 1. Essential Metrics Strip
+                    // 1. 2x2 Metric Cards Grid
                     item {
-                        AppCard {
-                            Text(
-                                text = "CURRENT CAPACITY & DUES",
-                                style = AppTypography.labelSmall,
-                                color = Slate500
-                            )
-                            Spacer(modifier = Modifier.height(AppDimens.Spacing12))
+                        Column(verticalArrangement = Arrangement.spacedBy(AppDimens.Spacing10)) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                horizontalArrangement = Arrangement.spacedBy(AppDimens.Spacing10)
                             ) {
-                                MetricColumn(
-                                    title = "Bed Occupancy",
-                                    primaryValue = "${stats.total_active_tenants} / ${stats.total_capacity}",
-                                    secondaryValue = "${stats.occupancy_rate_percentage}% full"
+                                MetricCard(
+                                    title = "Tenants",
+                                    value = "${stats.total_active_tenants}",
+                                    icon = Icons.Outlined.People,
+                                    iconBgColor = Color(0xFFEBF3FE),
+                                    iconTintColor = Color(0xFF2563EB),
+                                    modifier = Modifier.weight(1f),
+                                    onClick = onNavigateToTenants
                                 )
-                                MetricColumn(
+                                MetricCard(
+                                    title = "Rooms",
+                                    value = "${stats.total_rooms}",
+                                    icon = Icons.Outlined.MeetingRoom,
+                                    iconBgColor = Color(0xFFEFECFF),
+                                    iconTintColor = BrandPrimary,
+                                    modifier = Modifier.weight(1f),
+                                    onClick = onNavigateToRooms
+                                )
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(AppDimens.Spacing10)
+                            ) {
+                                MetricCard(
                                     title = "Available Beds",
-                                    primaryValue = "${stats.available_beds}",
-                                    secondaryValue = "across ${stats.total_rooms} rooms"
+                                    value = "${stats.available_beds}",
+                                    icon = Icons.Outlined.CheckCircle,
+                                    iconBgColor = Color(0xFFE6F5EE),
+                                    iconTintColor = Color(0xFF16845B),
+                                    modifier = Modifier.weight(1f),
+                                    onClick = onNavigateToRooms
                                 )
-                                MetricColumn(
-                                    title = "Pending Approvals",
-                                    primaryValue = "${stats.pending_payments_count}",
-                                    secondaryValue = CurrencyFormatter.format(stats.pending_payments_amount)
+                                MetricCard(
+                                    title = "Pending (${stats.pending_payments_count})",
+                                    value = CurrencyFormatter.format(stats.pending_payments_amount),
+                                    icon = Icons.Outlined.ReceiptLong,
+                                    iconBgColor = Color(0xFFFDECEE),
+                                    iconTintColor = Color(0xFFD84A55),
+                                    modifier = Modifier.weight(1f),
+                                    onClick = onNavigateToPayments
                                 )
                             }
                         }
                     }
 
-                    // 2. Action Required (Pending Payment Approvals)
+                    // 2. Bed Occupancy Progress Card
                     item {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Action Required: Pending Payments",
-                                style = AppTypography.titleMedium,
-                                color = Slate900
+                        AppCard(padding = AppDimens.Spacing16) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Hostel Bed Occupancy",
+                                    style = AppTypography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                                    color = TextPrimary
+                                )
+                                Text(
+                                    text = "${stats.occupancy_rate_percentage.toInt()}% Occupied",
+                                    style = AppTypography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                                    color = BrandPrimary
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(AppDimens.Spacing10))
+                            LinearProgressIndicator(
+                                progress = { (stats.occupancy_rate_percentage / 100.0).toFloat().coerceIn(0f, 1f) },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(8.dp)
+                                    .clip(RoundedCornerShape(4.dp)),
+                                color = BrandPrimary,
+                                trackColor = SurfaceVariantNeutral
                             )
-                            Text(
-                                text = "View All (${state.pendingPayments.size})",
-                                style = AppTypography.bodyMedium,
-                                color = Slate600,
-                                modifier = Modifier.clickable(onClick = onNavigateToPayments)
-                            )
+                            Spacer(modifier = Modifier.height(AppDimens.Spacing8))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = "${stats.total_active_tenants} active residents",
+                                    style = AppTypography.bodySmall,
+                                    color = TextSecondary
+                                )
+                                Text(
+                                    text = "${stats.available_beds} beds free / ${stats.total_capacity} total",
+                                    style = AppTypography.bodySmall,
+                                    color = TextSecondary
+                                )
+                            }
                         }
+                    }
+
+                    // 3. Quick Actions 2x2 Grid
+                    item {
+                        SectionHeader(title = "Quick Actions")
+                    }
+
+                    item {
+                        Column(verticalArrangement = Arrangement.spacedBy(AppDimens.Spacing10)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(AppDimens.Spacing10)
+                            ) {
+                                OwnerQuickActionButton(
+                                    title = "Add Tenant",
+                                    icon = Icons.Outlined.PersonAdd,
+                                    modifier = Modifier.weight(1f),
+                                    onClick = onNavigateToTenants
+                                )
+                                OwnerQuickActionButton(
+                                    title = "Add Room",
+                                    icon = Icons.Outlined.MeetingRoom,
+                                    modifier = Modifier.weight(1f),
+                                    onClick = onNavigateToRooms
+                                )
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(AppDimens.Spacing10)
+                            ) {
+                                OwnerQuickActionButton(
+                                    title = "Record Payment",
+                                    icon = Icons.Outlined.Payment,
+                                    modifier = Modifier.weight(1f),
+                                    onClick = onNavigateToPayments
+                                )
+                                OwnerQuickActionButton(
+                                    title = "View Reports",
+                                    icon = Icons.Outlined.Assessment,
+                                    modifier = Modifier.weight(1f),
+                                    onClick = onNavigateToReports
+                                )
+                            }
+                        }
+                    }
+
+                    // 4. Action Required: Pending Payments
+                    item {
+                        SectionHeader(
+                            title = "Action Required: Payments",
+                            actionText = if (state.pendingPayments.isNotEmpty()) "View All (${state.pendingPayments.size})" else null,
+                            onActionClick = onNavigateToPayments
+                        )
                     }
 
                     if (state.pendingPayments.isEmpty()) {
                         item {
-                            AppCard {
+                            AppCard(padding = AppDimens.Spacing16) {
                                 Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.padding(vertical = AppDimens.Spacing4)
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Icon(
                                         imageVector = Icons.Outlined.CheckCircleOutline,
                                         contentDescription = null,
-                                        tint = Slate400,
-                                        modifier = Modifier.size(20.dp)
+                                        tint = Color(0xFF16845B),
+                                        modifier = Modifier.size(22.dp)
                                     )
-                                    Spacer(modifier = Modifier.width(AppDimens.Spacing8))
+                                    Spacer(modifier = Modifier.width(AppDimens.Spacing10))
                                     Text(
-                                        text = "No pending payments. All tenant receipts are verified.",
+                                        text = "All tenant payment submissions are verified and up to date.",
                                         style = AppTypography.bodyMedium,
-                                        color = Slate500
+                                        color = TextSecondary
                                     )
                                 }
                             }
                         }
                     } else {
-                        items(state.pendingPayments.take(3)) { payment ->
-                            AppCard(onClick = onNavigateToPayments) {
+                        items(state.pendingPayments.take(3), key = { it.id }) { payment ->
+                            AppCard(
+                                onClick = onNavigateToPayments,
+                                padding = AppDimens.Spacing14
+                            ) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -217,21 +360,21 @@ fun OwnerDashboardScreen(
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(
                                             text = payment.submitted_by_name ?: "Tenant #${payment.submitted_by}",
-                                            style = AppTypography.titleMedium,
-                                            color = Slate900
+                                            style = AppTypography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                                            color = TextPrimary
                                         )
                                         Spacer(modifier = Modifier.height(AppDimens.Spacing2))
                                         Text(
-                                            text = "UTR: ${payment.utr} · ${DateFormatter.formatIsoDateTime(payment.submitted_at)}",
-                                            style = AppTypography.bodyMedium,
-                                            color = Slate500
+                                            text = "UTR: ${payment.utr} • ${DateFormatter.formatIsoDateTime(payment.submitted_at)}",
+                                            style = AppTypography.bodySmall,
+                                            color = TextSecondary
                                         )
                                     }
                                     Column(horizontalAlignment = Alignment.End) {
                                         Text(
                                             text = CurrencyFormatter.format(payment.amount),
                                             style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                            color = Slate900
+                                            color = TextPrimary
                                         )
                                         Spacer(modifier = Modifier.height(AppDimens.Spacing4))
                                         StatusBadge(status = payment.status)
@@ -241,66 +384,44 @@ fun OwnerDashboardScreen(
                         }
                     }
 
-                    // 3. Operational Navigation Shortcuts
+                    // 5. Operations Hub
                     item {
-                        Text(
-                            text = "Operations Hub",
-                            style = AppTypography.titleMedium,
-                            color = Slate900
-                        )
+                        SectionHeader(title = "Operations Hub")
                     }
 
                     item {
                         Column(verticalArrangement = Arrangement.spacedBy(AppDimens.Spacing8)) {
-                            NavShortcutRow(
-                                title = "Room Management & Vacancy",
-                                subtitle = "${stats.total_rooms} rooms · ${stats.available_beds} beds available",
-                                icon = Icons.Outlined.MeetingRoom,
-                                onClick = onNavigateToRooms
+                            OwnerOperationsRow(
+                                title = "Complaints & Maintenance",
+                                subtitle = "${stats.open_complaints_count} open maintenance tickets",
+                                icon = Icons.Outlined.ReportProblem,
+                                badgeCount = stats.open_complaints_count,
+                                onClick = onNavigateToComplaints
                             )
-                            NavShortcutRow(
-                                title = "Tenant Directory & Stays",
-                                subtitle = "${stats.total_active_tenants} active residents",
-                                icon = Icons.Outlined.PeopleOutline,
-                                onClick = onNavigateToTenants
-                            )
-                            NavShortcutRow(
-                                title = "Rent Billing & Monthly Cycle",
-                                subtitle = "Generate monthly charges and track balances",
+                            OwnerOperationsRow(
+                                title = "Rent Billing Cycle",
+                                subtitle = "Generate charges and track tenant dues",
                                 icon = Icons.Outlined.ReceiptLong,
                                 onClick = onNavigateToBilling
                             )
-                            NavShortcutRow(
+                            OwnerOperationsRow(
                                 title = "UPI QR Code Settings",
-                                subtitle = "Manage active QR code image for tenant payments",
+                                subtitle = "Manage QR code for tenant payments",
                                 icon = Icons.Outlined.QrCode,
                                 onClick = onNavigateToPaymentQr
                             )
-                            NavShortcutRow(
-                                title = "Complaints Queue",
-                                subtitle = "${stats.open_complaints_count} open maintenance issues",
-                                icon = Icons.Outlined.ReportProblem,
-                                onClick = onNavigateToComplaints
-                            )
-                            NavShortcutRow(
-                                title = "Financial Reports & Revenue",
-                                subtitle = "Monthly billing vs collection breakdown",
-                                icon = Icons.Outlined.Assessment,
-                                onClick = onNavigateToReports
-                            )
-                            NavShortcutRow(
-                                title = "Vacate Notices & Approvals",
+                            OwnerOperationsRow(
+                                title = "Vacate Notices",
                                 subtitle = "${stats.pending_vacate_requests_count} pending move-out requests",
                                 icon = Icons.AutoMirrored.Outlined.ExitToApp,
+                                badgeCount = stats.pending_vacate_requests_count,
                                 onClick = onNavigateToVacate
                             )
-                            NavShortcutRow(
-                                title = "Hostel Settings & Account",
-                                subtitle = "Profile, password, and hostel policies",
-                                icon = Icons.Outlined.Settings,
-                                onClick = onNavigateToSettings
-                            )
                         }
+                    }
+
+                    item {
+                        Spacer(modifier = Modifier.height(AppDimens.Spacing16))
                     }
                 }
             }
@@ -309,54 +430,72 @@ fun OwnerDashboardScreen(
 }
 
 @Composable
-private fun MetricColumn(
+private fun OwnerQuickActionButton(
     title: String,
-    primaryValue: String,
-    secondaryValue: String
+    icon: ImageVector,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
 ) {
-    Column {
-        Text(
-            text = title,
-            style = AppTypography.bodyMedium,
-            color = Slate500
-        )
-        Spacer(modifier = Modifier.height(AppDimens.Spacing4))
-        Text(
-            text = primaryValue,
-            style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
-            color = Slate900
-        )
-        Spacer(modifier = Modifier.height(AppDimens.Spacing2))
-        Text(
-            text = secondaryValue,
-            style = AppTypography.labelSmall,
-            color = Slate600
-        )
+    AppCard(
+        modifier = modifier,
+        padding = AppDimens.Spacing14,
+        onClick = onClick,
+        shape = AppShapes.medium
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(42.dp)
+                    .background(BrandContainer, CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = BrandPrimary,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(AppDimens.Spacing8))
+            Text(
+                text = title,
+                style = AppTypography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                color = TextPrimary
+            )
+        }
     }
 }
 
 @Composable
-private fun NavShortcutRow(
+private fun OwnerOperationsRow(
     title: String,
     subtitle: String,
     icon: ImageVector,
+    badgeCount: Int = 0,
     onClick: () -> Unit
 ) {
-    AppCard(onClick = onClick) {
+    AppCard(
+        onClick = onClick,
+        padding = AppDimens.Spacing14
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(36.dp)
-                    .background(Slate100, AppShapes.small),
+                    .size(38.dp)
+                    .background(BrandContainer, RoundedCornerShape(10.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = Slate900,
+                    tint = BrandPrimary,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -364,20 +503,35 @@ private fun NavShortcutRow(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
-                    style = AppTypography.titleMedium,
-                    color = Slate900
+                    style = AppTypography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                    color = TextPrimary
                 )
                 Text(
                     text = subtitle,
-                    style = AppTypography.bodyMedium,
-                    color = Slate500
+                    style = AppTypography.bodySmall,
+                    color = TextSecondary
                 )
+            }
+            if (badgeCount > 0) {
+                Box(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(StatusOverdueText)
+                        .padding(horizontal = 8.dp, vertical = 2.dp)
+                ) {
+                    Text(
+                        text = "$badgeCount",
+                        style = AppTypography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                        color = PureWhite
+                    )
+                }
+                Spacer(modifier = Modifier.width(AppDimens.Spacing8))
             }
             Icon(
                 imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
                 contentDescription = null,
-                tint = Slate400,
-                modifier = Modifier.size(18.dp)
+                tint = TextMuted,
+                modifier = Modifier.size(16.dp)
             )
         }
     }

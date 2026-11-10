@@ -15,30 +15,42 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.MeetingRoom
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Payment
-import androidx.compose.material.icons.filled.ReportProblem
+import androidx.compose.material.icons.automirrored.outlined.ArrowForward
+import androidx.compose.material.icons.outlined.AddComment
+import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.outlined.MeetingRoom
+import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.Payment
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.ReportProblem
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -47,18 +59,36 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hostelmanagement.app.core.common.CurrencyFormatter
 import com.hostelmanagement.app.core.common.DateFormatter
-import com.hostelmanagement.app.core.theme.Slate500
+import com.hostelmanagement.app.core.theme.AppDimens
+import com.hostelmanagement.app.core.theme.AppShapes
+import com.hostelmanagement.app.core.theme.AppTypography
+import com.hostelmanagement.app.core.theme.BorderSubtle
+import com.hostelmanagement.app.core.theme.BrandContainer
+import com.hostelmanagement.app.core.theme.BrandPrimary
+import com.hostelmanagement.app.core.theme.PureWhite
+import com.hostelmanagement.app.core.theme.StatusOverdueBg
+import com.hostelmanagement.app.core.theme.StatusOverdueText
+import com.hostelmanagement.app.core.theme.StatusPaidBg
+import com.hostelmanagement.app.core.theme.StatusPaidText
+import com.hostelmanagement.app.core.theme.StatusPendingBg
+import com.hostelmanagement.app.core.theme.StatusPendingText
+import com.hostelmanagement.app.core.theme.SurfaceNeutral
+import com.hostelmanagement.app.core.theme.TextMuted
+import com.hostelmanagement.app.core.theme.TextPrimary
+import com.hostelmanagement.app.core.theme.TextSecondary
 import com.hostelmanagement.app.data.remote.dto.PaymentResponseDto
 import com.hostelmanagement.app.data.remote.dto.RentChargeResponseDto
 import com.hostelmanagement.app.data.remote.dto.TenantStayResponseDto
 import com.hostelmanagement.app.ui.components.AppButton
 import com.hostelmanagement.app.ui.components.AppCard
-import com.hostelmanagement.app.ui.components.AppTopBar
+import com.hostelmanagement.app.ui.components.ButtonVariant
 import com.hostelmanagement.app.ui.components.EmptyStateView
 import com.hostelmanagement.app.ui.components.LoadingView
+import com.hostelmanagement.app.ui.components.SectionHeader
 import com.hostelmanagement.app.ui.components.StatusBadge
 import java.math.BigDecimal
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TenantDashboardScreen(
     onNavigateToPay: (Long) -> Unit,
@@ -80,23 +110,62 @@ fun TenantDashboardScreen(
         }
     }
 
+    val stay = uiState.activeStay
+    val roomDisplay = if (stay?.room_number != null) "Room ${stay.room_number}" else "Hostel Resident"
+
     Scaffold(
         topBar = {
-            AppTopBar(
-                title = "Tenant Portal",
-                actions = {
-                    IconButton(onClick = onNavigateToNotifications) {
-                        Icon(
-                            imageVector = Icons.Default.Notifications,
-                            contentDescription = "Notifications",
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                }
-            )
+            Column(modifier = Modifier.fillMaxWidth()) {
+                TopAppBar(
+                    title = {
+                        Column {
+                            Text(
+                                text = "Hi, Resident 👋",
+                                style = AppTypography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                                color = TextPrimary
+                            )
+                            Text(
+                                text = roomDisplay,
+                                style = AppTypography.bodySmall,
+                                color = TextSecondary
+                            )
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = onNavigateToNotifications) {
+                            Icon(
+                                imageVector = Icons.Outlined.Notifications,
+                                contentDescription = "Notifications",
+                                tint = TextPrimary
+                            )
+                        }
+                        IconButton(onClick = onNavigateToRoomInfo) {
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(CircleShape)
+                                    .background(BrandContainer),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Person,
+                                    contentDescription = "My Stay Info",
+                                    tint = BrandPrimary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = PureWhite,
+                        titleContentColor = TextPrimary
+                    )
+                )
+                HorizontalDivider(thickness = AppDimens.HairlineBorder, color = BorderSubtle)
+            }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = SurfaceNeutral
     ) { paddingValues ->
         if (uiState.isLoading && uiState.activeStay == null && uiState.recentPayments.isEmpty()) {
             LoadingView(
@@ -110,125 +179,160 @@ fun TenantDashboardScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                    .padding(horizontal = AppDimens.Spacing16, vertical = AppDimens.Spacing12),
+                verticalArrangement = Arrangement.spacedBy(AppDimens.Spacing16)
             ) {
-                item {
-                    Spacer(modifier = Modifier.height(4.dp))
-                }
-
-                // 1. Rent Due Banner / Hero Card
+                // 1. "This Month's Rent" Hero Card
                 item {
                     val unpaid = uiState.unpaidRentCharge
                     if (unpaid != null && uiState.totalOutstanding > BigDecimal.ZERO) {
-                        RentDueHeroCard(
+                        TenantRentDueHeroCard(
                             rentCharge = unpaid,
                             totalOutstanding = uiState.totalOutstanding,
                             onPayClick = { onNavigateToPay(unpaid.id) }
                         )
                     } else {
-                        AllDuesClearedCard(onViewHistoryClick = onNavigateToRentDetails)
+                        TenantAllDuesClearedCard(onViewHistoryClick = onNavigateToRentDetails)
                     }
                 }
 
-                // 2. Active Room Stay Card
+                // 2. Quick Actions
                 item {
-                    val stay = uiState.activeStay
-                    if (stay != null) {
-                        RoomStayCard(
-                            stay = stay,
-                            onClick = onNavigateToRoomInfo
-                        )
-                    } else {
-                        EmptyStateView(
-                            title = "No Active Room Stay",
-                            description = "You are currently not assigned to an active room.",
-                            actionLabel = null,
-                            onAction = null,
-                            icon = Icons.Default.MeetingRoom,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                }
-
-                // 3. Quick Action Grid
-                item {
-                    Text(
-                        text = "Quick Actions",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
+                    SectionHeader(title = "Quick Actions")
                 }
 
                 item {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        horizontalArrangement = Arrangement.spacedBy(AppDimens.Spacing10)
                     ) {
-                        QuickActionButton(
-                            icon = Icons.Default.Add,
-                            label = "Raise Complaint",
+                        val unpaidChargeId = uiState.unpaidRentCharge?.id
+                        TenantQuickActionCard(
+                            title = "My Payments",
+                            icon = Icons.Outlined.History,
+                            modifier = Modifier.weight(1f),
+                            onClick = onNavigateToPaymentHistory
+                        )
+                        TenantQuickActionCard(
+                            title = "Upload Proof",
+                            icon = Icons.Outlined.Image,
+                            modifier = Modifier.weight(1f),
+                            onClick = {
+                                if (unpaidChargeId != null) {
+                                    onNavigateToPay(unpaidChargeId)
+                                } else {
+                                    onNavigateToPaymentHistory()
+                                }
+                            }
+                        )
+                    }
+                }
+
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(AppDimens.Spacing10)
+                    ) {
+                        TenantQuickActionCard(
+                            title = "Raise Complaint",
+                            icon = Icons.Outlined.AddComment,
                             modifier = Modifier.weight(1f),
                             onClick = onNavigateToRaiseComplaint
                         )
-                        QuickActionButton(
-                            icon = Icons.Default.ReportProblem,
-                            label = "My Complaints",
+                        TenantQuickActionCard(
+                            title = "Room & Stay",
+                            icon = Icons.Outlined.MeetingRoom,
                             modifier = Modifier.weight(1f),
-                            onClick = onNavigateToComplaints
+                            onClick = onNavigateToRoomInfo
                         )
                     }
                 }
 
+                // 3. Active Room Stay Summary
+                if (stay != null) {
+                    item {
+                        AppCard(
+                            onClick = onNavigateToRoomInfo,
+                            padding = AppDimens.Spacing16
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(38.dp)
+                                            .background(BrandContainer, RoundedCornerShape(10.dp)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.MeetingRoom,
+                                            contentDescription = null,
+                                            tint = BrandPrimary,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(AppDimens.Spacing12))
+                                    Column {
+                                        Text(
+                                            text = "Room ${stay.room_number ?: "-"}",
+                                            style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                            color = TextPrimary
+                                        )
+                                        Text(
+                                            text = "Monthly Rent: ${CurrencyFormatter.format(stay.monthly_rent)}",
+                                            style = AppTypography.bodySmall,
+                                            color = TextSecondary
+                                        )
+                                    }
+                                }
+                                StatusBadge(status = stay.status)
+                            }
+                        }
+                    }
+                }
+
+                // 4. Recent Activity
                 item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        QuickActionButton(
-                            icon = Icons.Default.History,
-                            label = "Rent & Bills",
-                            modifier = Modifier.weight(1f),
-                            onClick = onNavigateToRentDetails
-                        )
-                        QuickActionButton(
-                            icon = Icons.Default.Payment,
-                            label = "Payments",
-                            modifier = Modifier.weight(1f),
+                    SectionHeader(
+                        title = "Recent Activity",
+                        actionText = if (uiState.recentPayments.isNotEmpty()) "View All" else null,
+                        onActionClick = onNavigateToPaymentHistory
+                    )
+                }
+
+                if (uiState.recentPayments.isEmpty()) {
+                    item {
+                        AppCard(padding = AppDimens.Spacing16) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Payment,
+                                    contentDescription = null,
+                                    tint = TextMuted,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                                Spacer(modifier = Modifier.width(AppDimens.Spacing10))
+                                Text(
+                                    text = "No recent payment transactions recorded yet.",
+                                    style = AppTypography.bodyMedium,
+                                    color = TextSecondary
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    items(uiState.recentPayments, key = { it.id }) { payment ->
+                        TenantActivityCard(
+                            payment = payment,
                             onClick = onNavigateToPaymentHistory
                         )
                     }
                 }
 
-                // 4. Recent Payment Activity
-                if (uiState.recentPayments.isNotEmpty()) {
-                    item {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Recent Payments",
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-                            Text(
-                                text = "View All",
-                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.clickable(onClick = onNavigateToPaymentHistory)
-                            )
-                        }
-                    }
-
-                    items(uiState.recentPayments, key = { it.id }) { payment ->
-                        TenantPaymentItemCard(payment = payment)
-                    }
-                }
-
                 item {
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(AppDimens.Spacing16))
                 }
             }
         }
@@ -236,97 +340,107 @@ fun TenantDashboardScreen(
 }
 
 @Composable
-private fun RentDueHeroCard(
+private fun TenantRentDueHeroCard(
     rentCharge: RentChargeResponseDto,
     totalOutstanding: BigDecimal,
     onPayClick: () -> Unit
 ) {
-    AppCard(modifier = Modifier.fillMaxWidth()) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-                .semantics(mergeDescendants = true) {
-                    contentDescription = "Outstanding rent due: ${CurrencyFormatter.format(totalOutstanding)}, status ${rentCharge.status}"
-                }
+    AppCard(
+        padding = AppDimens.Spacing20,
+        containerColor = PureWhite,
+        borderColor = BorderSubtle
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            Text(
+                text = "This Month's Rent",
+                style = AppTypography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = TextSecondary
+            )
+            Surface(
+                color = StatusOverdueBg,
+                shape = AppShapes.small,
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF9B6BC))
             ) {
                 Text(
-                    text = "Outstanding Rent",
-                    style = MaterialTheme.typography.titleSmall,
-                    color = Slate500
+                    text = "Due Soon",
+                    style = AppTypography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                    color = StatusOverdueText,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                 )
-                StatusBadge(text = rentCharge.status, status = rentCharge.status)
             }
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Text(
-                text = CurrencyFormatter.format(totalOutstanding),
-                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.onSurface
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = "Period: ${rentCharge.period_start} to ${rentCharge.period_end}",
-                style = MaterialTheme.typography.bodySmall,
-                color = Slate500
-            )
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            AppButton(
-                text = "Pay Rent Now",
-                onClick = onPayClick,
-                modifier = Modifier.fillMaxWidth(),
-                icon = Icons.Default.Payment
-            )
         }
+
+        Spacer(modifier = Modifier.height(AppDimens.Spacing8))
+
+        Text(
+            text = CurrencyFormatter.format(totalOutstanding),
+            style = AppTypography.headlineLarge.copy(fontWeight = FontWeight.Bold),
+            color = TextPrimary
+        )
+
+        Spacer(modifier = Modifier.height(AppDimens.Spacing4))
+
+        Text(
+            text = "Billing Period: ${rentCharge.period_start} to ${rentCharge.period_end}",
+            style = AppTypography.bodySmall,
+            color = TextSecondary
+        )
+
+        Spacer(modifier = Modifier.height(AppDimens.Spacing16))
+
+        AppButton(
+            text = "Pay Rent",
+            onClick = onPayClick,
+            modifier = Modifier.fillMaxWidth(),
+            icon = Icons.Outlined.Payment
+        )
     }
 }
 
 @Composable
-private fun AllDuesClearedCard(onViewHistoryClick: () -> Unit) {
-    AppCard(modifier = Modifier.fillMaxWidth()) {
+private fun TenantAllDuesClearedCard(onViewHistoryClick: () -> Unit) {
+    AppCard(padding = AppDimens.Spacing20) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.CheckCircle,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(24.dp)
-                )
-                Spacer(modifier = Modifier.width(12.dp))
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .background(StatusPaidBg, CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.CheckCircle,
+                        contentDescription = null,
+                        tint = StatusPaidText,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.width(AppDimens.Spacing12))
                 Column {
                     Text(
                         text = "All Dues Cleared",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                        color = MaterialTheme.colorScheme.onSurface
+                        style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = TextPrimary
                     )
                     Text(
-                        text = "No pending rent balances.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Slate500
+                        text = "No pending rent balances this month.",
+                        style = AppTypography.bodySmall,
+                        color = TextSecondary
                     )
                 }
             }
-
             Text(
                 text = "Bills",
-                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                color = MaterialTheme.colorScheme.primary,
+                style = AppTypography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                color = BrandPrimary,
                 modifier = Modifier.clickable(onClick = onViewHistoryClick)
             )
         }
@@ -334,135 +448,112 @@ private fun AllDuesClearedCard(onViewHistoryClick: () -> Unit) {
 }
 
 @Composable
-private fun RoomStayCard(
-    stay: TenantStayResponseDto,
-    onClick: () -> Unit
-) {
-    AppCard(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-                .semantics(mergeDescendants = true) {
-                    contentDescription = "Room ${stay.room_number ?: "-"}, monthly rent ${CurrencyFormatter.format(stay.monthly_rent)}, joined ${DateFormatter.formatDate(stay.joining_date)}"
-                }
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.MeetingRoom,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Room ${stay.room_number ?: "-"}",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-                StatusBadge(text = stay.status, status = stay.status)
-            }
-
-            HorizontalDivider(modifier = Modifier.padding(vertical = 10.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column {
-                    Text(text = "Monthly Rent", style = MaterialTheme.typography.labelSmall, color = Slate500)
-                    Text(
-                        text = CurrencyFormatter.format(stay.monthly_rent),
-                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-                Column {
-                    Text(text = "Joined", style = MaterialTheme.typography.labelSmall, color = Slate500)
-                    Text(
-                        text = DateFormatter.formatDate(stay.joining_date),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun QuickActionButton(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String,
+private fun TenantQuickActionCard(
+    title: String,
+    icon: ImageVector,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     AppCard(
-        modifier = modifier.clickable(onClick = onClick)
+        modifier = modifier,
+        padding = AppDimens.Spacing16,
+        onClick = onClick,
+        shape = AppShapes.medium
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(14.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(24.dp)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .background(BrandContainer, CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = BrandPrimary,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(AppDimens.Spacing8))
             Text(
-                text = label,
-                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
-                color = MaterialTheme.colorScheme.onSurface
+                text = title,
+                style = AppTypography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                color = TextPrimary
             )
         }
     }
 }
 
 @Composable
-private fun TenantPaymentItemCard(payment: PaymentResponseDto) {
-    AppCard(modifier = Modifier.fillMaxWidth()) {
+private fun TenantActivityCard(
+    payment: PaymentResponseDto,
+    onClick: () -> Unit
+) {
+    AppCard(
+        onClick = onClick,
+        padding = AppDimens.Spacing14
+    ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp)
-                .semantics(mergeDescendants = true) {
-                    contentDescription = "Payment ${CurrencyFormatter.format(payment.amount)}, UTR ${payment.utr}, status ${payment.status}"
-                },
-            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
-                Text(
-                    text = CurrencyFormatter.format(payment.amount),
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = "UTR: ${payment.utr}",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Slate500
-                )
-                Text(
-                    text = DateFormatter.formatDateTime(payment.submitted_at),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Slate500
+            Box(
+                modifier = Modifier
+                    .size(38.dp)
+                    .background(
+                        if (payment.status.equals("PAID", ignoreCase = true) || payment.status.equals("APPROVED", ignoreCase = true))
+                            StatusPaidBg
+                        else if (payment.status.equals("PENDING", ignoreCase = true))
+                            StatusPendingBg
+                        else
+                            StatusOverdueBg,
+                        CircleShape
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = if (payment.status.equals("PAID", ignoreCase = true) || payment.status.equals("APPROVED", ignoreCase = true))
+                        Icons.Outlined.Check
+                    else if (payment.status.equals("PENDING", ignoreCase = true))
+                        Icons.Outlined.History
+                    else
+                        Icons.Outlined.ReportProblem,
+                    contentDescription = null,
+                    tint = if (payment.status.equals("PAID", ignoreCase = true) || payment.status.equals("APPROVED", ignoreCase = true))
+                        StatusPaidText
+                    else if (payment.status.equals("PENDING", ignoreCase = true))
+                        StatusPendingText
+                    else
+                        StatusOverdueText,
+                    modifier = Modifier.size(18.dp)
                 )
             }
-            StatusBadge(text = payment.status, status = payment.status)
+
+            Spacer(modifier = Modifier.width(AppDimens.Spacing12))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Payment • ${CurrencyFormatter.format(payment.amount)}",
+                    style = AppTypography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                    color = TextPrimary
+                )
+                Text(
+                    text = "${payment.status.lowercase().replaceFirstChar { it.uppercase() }} • ${DateFormatter.formatDateTime(payment.submitted_at)}",
+                    style = AppTypography.bodySmall,
+                    color = TextSecondary
+                )
+            }
+
+            Icon(
+                imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
+                contentDescription = null,
+                tint = TextMuted,
+                modifier = Modifier.size(16.dp)
+            )
         }
     }
 }

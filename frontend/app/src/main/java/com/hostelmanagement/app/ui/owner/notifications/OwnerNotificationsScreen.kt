@@ -1,5 +1,6 @@
 package com.hostelmanagement.app.ui.owner.notifications
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -19,13 +20,17 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.DoneAll
-import androidx.compose.material.icons.filled.NotificationsNone
+import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.DoneAll
+import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.NotificationsActive
+import androidx.compose.material.icons.outlined.NotificationsNone
+import androidx.compose.material.icons.outlined.Payment
+import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -37,6 +42,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -44,7 +51,22 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hostelmanagement.app.core.common.DateFormatter
-import com.hostelmanagement.app.core.theme.Slate500
+import com.hostelmanagement.app.core.theme.AppDimens
+import com.hostelmanagement.app.core.theme.AppShapes
+import com.hostelmanagement.app.core.theme.AppTypography
+import com.hostelmanagement.app.core.theme.BorderSubtle
+import com.hostelmanagement.app.core.theme.BrandContainer
+import com.hostelmanagement.app.core.theme.BrandPrimary
+import com.hostelmanagement.app.core.theme.PureWhite
+import com.hostelmanagement.app.core.theme.StatusOverdueBg
+import com.hostelmanagement.app.core.theme.StatusOverdueText
+import com.hostelmanagement.app.core.theme.StatusPaidBg
+import com.hostelmanagement.app.core.theme.StatusPaidText
+import com.hostelmanagement.app.core.theme.StatusPendingBg
+import com.hostelmanagement.app.core.theme.StatusPendingText
+import com.hostelmanagement.app.core.theme.SurfaceNeutral
+import com.hostelmanagement.app.core.theme.TextPrimary
+import com.hostelmanagement.app.core.theme.TextSecondary
 import com.hostelmanagement.app.data.remote.dto.NotificationResponseDto
 import com.hostelmanagement.app.ui.components.AppCard
 import com.hostelmanagement.app.ui.components.AppTopBar
@@ -84,9 +106,9 @@ fun OwnerNotificationsScreen(
                     if (uiState.notifications.any { !it.is_read }) {
                         IconButton(onClick = { viewModel.markAllAsRead() }) {
                             Icon(
-                                imageVector = Icons.Default.DoneAll,
+                                imageVector = Icons.Outlined.DoneAll,
                                 contentDescription = "Mark all notifications as read",
-                                tint = MaterialTheme.colorScheme.onSurface
+                                tint = BrandPrimary
                             )
                         }
                     }
@@ -94,32 +116,46 @@ fun OwnerNotificationsScreen(
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = SurfaceNeutral
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Horizontal Notification Filter Chips
+            // Horizontal Filter Pills Row
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .padding(horizontal = AppDimens.Spacing16, vertical = AppDimens.Spacing8)
                     .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(AppDimens.Spacing8)
             ) {
                 NotificationFilter.values().forEach { filter ->
+                    val isSelected = uiState.selectedFilter == filter
                     FilterChip(
-                        selected = uiState.selectedFilter == filter,
+                        selected = isSelected,
                         onClick = { viewModel.selectFilter(filter) },
-                        label = { Text(filter.label) },
+                        label = {
+                            Text(
+                                text = filter.label,
+                                style = AppTypography.labelMedium.copy(
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                )
+                            )
+                        },
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.primary,
-                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            labelColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                            selectedContainerColor = BrandPrimary,
+                            selectedLabelColor = PureWhite,
+                            containerColor = PureWhite,
+                            labelColor = TextSecondary
+                        ),
+                        border = FilterChipDefaults.filterChipBorder(
+                            enabled = true,
+                            selected = isSelected,
+                            borderColor = if (isSelected) BrandPrimary else BorderSubtle
+                        ),
+                        shape = AppShapes.small
                     )
                 }
             }
@@ -135,25 +171,25 @@ fun OwnerNotificationsScreen(
                     description = if (uiState.selectedFilter == NotificationFilter.ALL)
                         "You're all caught up! No recent alerts or messages."
                     else
-                        "No notifications found under the '${uiState.selectedFilter.label}' filter.",
+                        "No notifications found under the '${uiState.selectedFilter.label}' category.",
                     actionLabel = "Refresh",
                     onAction = { viewModel.loadNotifications() },
-                    icon = Icons.Default.NotificationsNone,
+                    icon = Icons.Outlined.NotificationsNone,
                     modifier = Modifier.fillMaxSize()
                 )
             } else {
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                        .padding(horizontal = AppDimens.Spacing16),
+                    verticalArrangement = Arrangement.spacedBy(AppDimens.Spacing10)
                 ) {
                     item {
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(AppDimens.Spacing4))
                     }
 
                     items(uiState.notifications, key = { it.id }) { notification ->
-                        NotificationItemCard(
+                        NotificationCardItem(
                             notification = notification,
                             onClick = {
                                 if (!notification.is_read) {
@@ -164,7 +200,7 @@ fun OwnerNotificationsScreen(
                     }
 
                     item {
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(AppDimens.Spacing24))
                     }
                 }
             }
@@ -173,36 +209,47 @@ fun OwnerNotificationsScreen(
 }
 
 @Composable
-private fun NotificationItemCard(
+private fun NotificationCardItem(
     notification: NotificationResponseDto,
     onClick: () -> Unit
 ) {
+    val titleLower = notification.title.lowercase()
+    val isPaymentApproved = titleLower.contains("approved") || titleLower.contains("verified")
+    val isDelayed = titleLower.contains("delay") || titleLower.contains("overdue")
+    val isDue = titleLower.contains("due") || titleLower.contains("reminder")
+
+    val (iconBg, iconTint, iconVector) = when {
+        isPaymentApproved -> Triple(StatusPaidBg, StatusPaidText, Icons.Outlined.Check)
+        isDelayed -> Triple(StatusPendingBg, StatusPendingText, Icons.Outlined.WarningAmber)
+        isDue -> Triple(StatusOverdueBg, StatusOverdueText, Icons.Outlined.NotificationsActive)
+        else -> Triple(BrandContainer, BrandPrimary, Icons.Outlined.Notifications)
+    }
+
     AppCard(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickable(onClick = onClick),
+        padding = AppDimens.Spacing14
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(14.dp)
-                .semantics(mergeDescendants = true) {
-                    contentDescription = "Notification: ${notification.title}, ${notification.message}, ${DateFormatter.formatDateTime(notification.created_at)}, ${if (notification.is_read) "read" else "unread"}"
-                },
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.Top
         ) {
-            if (!notification.is_read) {
-                Surface(
-                    modifier = Modifier
-                        .padding(top = 4.dp)
-                        .size(8.dp),
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.primary
-                ) {}
-                Spacer(modifier = Modifier.width(10.dp))
-            } else {
-                Spacer(modifier = Modifier.width(4.dp))
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(iconBg, CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = iconVector,
+                    contentDescription = null,
+                    tint = iconTint,
+                    modifier = Modifier.size(20.dp)
+                )
             }
+
+            Spacer(modifier = Modifier.width(AppDimens.Spacing12))
 
             Column(modifier = Modifier.weight(1f)) {
                 Row(
@@ -212,26 +259,43 @@ private fun NotificationItemCard(
                 ) {
                     Text(
                         text = notification.title,
-                        style = MaterialTheme.typography.titleSmall.copy(
-                            fontWeight = if (notification.is_read) FontWeight.Normal else FontWeight.Bold
+                        style = AppTypography.titleSmall.copy(
+                            fontWeight = if (!notification.is_read) FontWeight.Bold else FontWeight.SemiBold
                         ),
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = TextPrimary,
                         modifier = Modifier.weight(1f)
+                    )
+                    if (!notification.is_read) {
+                        Surface(
+                            modifier = Modifier.size(8.dp),
+                            shape = CircleShape,
+                            color = BrandPrimary
+                        ) {}
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(AppDimens.Spacing4))
+
+                Text(
+                    text = notification.message,
+                    style = AppTypography.bodySmall,
+                    color = TextSecondary
+                )
+
+                Spacer(modifier = Modifier.height(AppDimens.Spacing6))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = DateFormatter.formatDateTime(notification.created_at),
+                        style = AppTypography.labelSmall,
+                        color = TextSecondary
                     )
                     StatusBadge(status = notification.category)
                 }
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = notification.message,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = if (notification.is_read) Slate500 else MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(
-                    text = DateFormatter.formatDateTime(notification.created_at),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Slate500
-                )
             }
         }
     }

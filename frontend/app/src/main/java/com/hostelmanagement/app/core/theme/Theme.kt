@@ -13,43 +13,45 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple600,
+    primary = BrandPrimary,
     onPrimary = PureWhite,
-    primaryContainer = Purple50,
-    onPrimaryContainer = Purple900,
-    secondary = Purple500,
+    primaryContainer = BrandContainer,
+    onPrimaryContainer = BrandOnContainer,
+    secondary = BrandPrimaryDark,
     onSecondary = PureWhite,
-    secondaryContainer = Purple100,
-    onSecondaryContainer = Purple950,
-    background = PurpleAppBg,
-    onBackground = Purple950,
+    secondaryContainer = BrandContainer,
+    onSecondaryContainer = BrandOnContainer,
+    background = SurfaceNeutral,
+    onBackground = TextPrimary,
     surface = PureWhite,
-    onSurface = Purple950,
-    surfaceVariant = Purple50,
-    onSurfaceVariant = Slate600,
+    onSurface = TextPrimary,
+    surfaceVariant = SurfaceVariantNeutral,
+    onSurfaceVariant = TextSecondary,
     outline = BorderSubtle,
-    outlineVariant = Purple100,
+    outlineVariant = BorderStrong,
     error = StatusOverdueText,
-    onError = PureWhite
+    onError = PureWhite,
+    errorContainer = StatusOverdueBg,
+    onErrorContainer = StatusOverdueText
 )
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple400,
-    onPrimary = Purple950,
-    primaryContainer = Purple900,
+    primary = BrandPrimaryLight,
+    onPrimary = PureWhite,
+    primaryContainer = BrandOnContainer,
     onPrimaryContainer = PureWhite,
-    secondary = Purple300,
-    onSecondary = Purple950,
-    secondaryContainer = Purple800,
+    secondary = BrandPrimary,
+    onSecondary = PureWhite,
+    secondaryContainer = Color(0xFF261D64),
     onSecondaryContainer = PureWhite,
-    background = Color(0xFF0F0B1E),
+    background = Color(0xFF0F0E17),
     onBackground = PureWhite,
-    surface = Color(0xFF171329),
+    surface = Color(0xFF181726),
     onSurface = PureWhite,
-    surfaceVariant = Color(0xFF241D3B),
-    onSurfaceVariant = Purple200,
-    outline = Purple800,
-    outlineVariant = Color(0xFF3B2F5C),
+    surfaceVariant = Color(0xFF252338),
+    onSurfaceVariant = TextMuted,
+    outline = Color(0xFF3B3857),
+    outlineVariant = Color(0xFF4F4C70),
     error = Color(0xFFEF4444),
     onError = PureWhite
 )
@@ -77,6 +79,7 @@ fun HostelManagementTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = AppTypography,
+        shapes = AppShapes,
         content = content
     )
 }

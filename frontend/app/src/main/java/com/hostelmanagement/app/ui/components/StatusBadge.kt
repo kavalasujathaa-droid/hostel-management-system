@@ -36,10 +36,18 @@ fun StatusBadge(
     val matchKey = status.uppercase()
 
     val (bgColor, borderColor, textColor) = when {
-        matchKey in listOf("PAID", "APPROVED", "ACTIVE") || upper in listOf("PAID", "APPROVED", "ACTIVE") -> Triple(StatusPaidBg, StatusPaidBorder, StatusPaidText)
-        matchKey in listOf("PENDING", "OPEN") || upper in listOf("PENDING", "OPEN") -> Triple(StatusPendingBg, StatusPendingBorder, StatusPendingText)
-        matchKey in listOf("UNPAID", "OVERDUE", "REJECTED", "FULL") || upper in listOf("UNPAID", "OVERDUE", "REJECTED", "FULL") -> Triple(StatusOverdueBg, StatusOverdueBorder, StatusOverdueText)
-        matchKey.contains("FREE") || matchKey == "AVAILABLE" || upper.contains("FREE") || upper == "AVAILABLE" -> Triple(StatusPaidBg, StatusPaidBorder, StatusPaidText)
+        matchKey in listOf("PAID", "APPROVED", "ACTIVE") || upper in listOf("PAID", "APPROVED", "ACTIVE") ->
+            Triple(StatusPaidBg, StatusPaidBorder, StatusPaidText)
+
+        matchKey in listOf("PENDING", "OPEN", "IN PROGRESS") || upper in listOf("PENDING", "OPEN", "IN PROGRESS") ->
+            Triple(StatusPendingBg, StatusPendingBorder, StatusPendingText)
+
+        matchKey in listOf("UNPAID", "OVERDUE", "REJECTED", "FULL", "VACATED") || upper in listOf("UNPAID", "OVERDUE", "REJECTED", "FULL", "VACATED") ->
+            Triple(StatusOverdueBg, StatusOverdueBorder, StatusOverdueText)
+
+        matchKey.contains("FREE") || matchKey == "AVAILABLE" || upper.contains("FREE") || upper == "AVAILABLE" ->
+            Triple(StatusPaidBg, StatusPaidBorder, StatusPaidText)
+
         else -> Triple(StatusNeutralBg, StatusNeutralBorder, StatusNeutralText)
     }
 

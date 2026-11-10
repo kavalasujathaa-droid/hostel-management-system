@@ -1,6 +1,8 @@
 package com.hostelmanagement.app.ui.tenant.vacate
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarMonth
@@ -37,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -44,12 +48,16 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hostelmanagement.app.core.common.DateFormatter
-import com.hostelmanagement.app.core.theme.Slate500
+import com.hostelmanagement.app.core.theme.BrandContainer
+import com.hostelmanagement.app.core.theme.BrandPrimary
+import com.hostelmanagement.app.core.theme.TextPrimary
+import com.hostelmanagement.app.core.theme.TextSecondary
 import com.hostelmanagement.app.data.remote.dto.VacateRequestResponseDto
 import com.hostelmanagement.app.ui.components.AppButton
 import com.hostelmanagement.app.ui.components.AppCard
 import com.hostelmanagement.app.ui.components.AppTopBar
 import com.hostelmanagement.app.ui.components.LoadingView
+import com.hostelmanagement.app.ui.components.SectionHeader
 import com.hostelmanagement.app.ui.components.StatusBadge
 import java.util.Calendar
 import java.util.Locale
@@ -135,12 +143,7 @@ fun TenantVacateScreen(
 
                 if (uiState.requests.isNotEmpty()) {
                     item {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "Notice History",
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
+                        SectionHeader(title = "Notice History")
                     }
 
                     items(uiState.requests, key = { it.id }) { req ->
@@ -171,12 +174,12 @@ fun TenantVacateScreen(
                         showDatePicker = false
                     }
                 ) {
-                    Text("OK")
+                    Text("OK", color = BrandPrimary, fontWeight = FontWeight.SemiBold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDatePicker = false }) {
-                    Text("Cancel")
+                    Text("Cancel", color = TextSecondary)
                 }
             }
         ) {
@@ -201,32 +204,41 @@ private fun ActiveNoticeCard(notice: VacateRequestResponseDto) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Move-Out Notice",
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(BrandContainer),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.CalendarToday,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                            tint = BrandPrimary
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(
+                        text = "Active Move-Out Notice",
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = TextPrimary
+                    )
+                }
                 StatusBadge(text = notice.status, status = notice.status)
             }
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.CalendarToday,
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                    tint = Slate500
+            Column {
+                Text(text = "Vacating Date", style = MaterialTheme.typography.labelSmall, color = TextSecondary)
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = DateFormatter.formatDate(notice.requested_vacating_date),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = TextPrimary
                 )
-                Spacer(modifier = Modifier.width(8.dp))
-                Column {
-                    Text(text = "Vacating Date", style = MaterialTheme.typography.labelSmall, color = Slate500)
-                    Text(
-                        text = DateFormatter.formatDate(notice.requested_vacating_date),
-                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
             }
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -238,7 +250,7 @@ private fun ActiveNoticeCard(notice: VacateRequestResponseDto) {
                     "Your notice has been approved. Your stay will conclude on the scheduled vacating date."
                 },
                 style = MaterialTheme.typography.bodySmall,
-                color = Slate500
+                color = TextSecondary
             )
         }
     }
@@ -258,17 +270,25 @@ private fun NewVacateNoticeCard(
                 .padding(16.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(BrandContainer),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = null,
+                        tint = BrandPrimary,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.width(10.dp))
                 Text(
                     text = "Submit Move-Out Notice",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = TextPrimary
                 )
             }
 
@@ -277,7 +297,7 @@ private fun NewVacateNoticeCard(
             Text(
                 text = "Please submit your move-out notice at least 30 days prior to your intended vacating date as per hostel policy.",
                 style = MaterialTheme.typography.bodySmall,
-                color = Slate500
+                color = TextSecondary
             )
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
@@ -288,21 +308,23 @@ private fun NewVacateNoticeCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text(text = "Intended Vacating Date", style = MaterialTheme.typography.labelSmall, color = Slate500)
+                    Text(text = "Intended Vacating Date", style = MaterialTheme.typography.labelSmall, color = TextSecondary)
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = DateFormatter.formatDate(selectedDate.toString()),
+                        text = DateFormatter.formatDate(selectedDate),
                         style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = TextPrimary
                     )
                 }
                 TextButton(onClick = onPickDateClick) {
                     Icon(
                         imageVector = Icons.Default.CalendarMonth,
                         contentDescription = null,
-                        modifier = Modifier.size(18.dp)
+                        modifier = Modifier.size(18.dp),
+                        tint = BrandPrimary
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Change")
+                    Text("Change", color = BrandPrimary, fontWeight = FontWeight.SemiBold)
                 }
             }
 
@@ -334,7 +356,7 @@ private fun NoticeHistoryCard(notice: VacateRequestResponseDto) {
                 Text(
                     text = "Target Date: ${DateFormatter.formatDate(notice.requested_vacating_date)}",
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = TextPrimary
                 )
                 StatusBadge(text = notice.status, status = notice.status)
             }
@@ -344,7 +366,7 @@ private fun NoticeHistoryCard(notice: VacateRequestResponseDto) {
             Text(
                 text = "Submitted ${DateFormatter.formatDateTime(notice.requested_at)}",
                 style = MaterialTheme.typography.labelSmall,
-                color = Slate500
+                color = TextSecondary
             )
 
             if (!notice.rejection_reason.isNullOrBlank()) {

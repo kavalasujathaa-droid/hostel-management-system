@@ -14,14 +14,13 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import com.hostelmanagement.app.core.theme.AppDimens
 import com.hostelmanagement.app.core.theme.AppTypography
+import com.hostelmanagement.app.core.theme.BorderSubtle
 import com.hostelmanagement.app.core.theme.PureWhite
-import com.hostelmanagement.app.core.theme.Slate200
-import com.hostelmanagement.app.core.theme.Slate500
-import com.hostelmanagement.app.core.theme.Slate900
-
-import androidx.compose.ui.graphics.vector.ImageVector
+import com.hostelmanagement.app.core.theme.TextPrimary
+import com.hostelmanagement.app.core.theme.TextSecondary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,13 +43,13 @@ fun AppTopBar(
                     Text(
                         text = title,
                         style = AppTypography.titleLarge,
-                        color = Slate900
+                        color = TextPrimary
                     )
                     if (!subtitle.isNullOrBlank()) {
                         Text(
                             text = subtitle,
-                            style = AppTypography.bodyMedium,
-                            color = Slate500
+                            style = AppTypography.bodySmall,
+                            color = TextSecondary
                         )
                     }
                 }
@@ -61,7 +60,7 @@ fun AppTopBar(
                         Icon(
                             imageVector = icon,
                             contentDescription = "Navigate back",
-                            tint = Slate900
+                            tint = TextPrimary
                         )
                     }
                 }
@@ -69,11 +68,11 @@ fun AppTopBar(
             actions = actions,
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = PureWhite,
-                titleContentColor = Slate900,
-                navigationIconContentColor = Slate900,
-                actionIconContentColor = Slate900
+                titleContentColor = TextPrimary,
+                navigationIconContentColor = TextPrimary,
+                actionIconContentColor = TextPrimary
             )
         )
-        HorizontalDivider(thickness = AppDimens.HairlineBorder, color = Slate200)
+        HorizontalDivider(thickness = AppDimens.HairlineBorder, color = BorderSubtle)
     }
 }

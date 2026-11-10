@@ -15,14 +15,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hostelmanagement.app.core.theme.AppDimens
 import com.hostelmanagement.app.core.theme.AppTypography
-import com.hostelmanagement.app.core.theme.Slate50
 import com.hostelmanagement.app.core.theme.StatusOverdueText
+import com.hostelmanagement.app.core.theme.SurfaceNeutral
+import com.hostelmanagement.app.core.theme.TextPrimary
+import com.hostelmanagement.app.core.theme.TextSecondary
 import com.hostelmanagement.app.ui.components.AppButton
 import com.hostelmanagement.app.ui.components.AppCard
 import com.hostelmanagement.app.ui.components.AppTextField
@@ -50,16 +53,30 @@ fun OwnerInitScreen(
                 onNavigateBack = onNavigateBack
             )
         },
-        containerColor = Slate50
+        containerColor = SurfaceNeutral
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
-                .padding(AppDimens.Spacing16)
+                .padding(horizontal = AppDimens.Spacing16, vertical = AppDimens.Spacing16)
         ) {
-            AppCard {
+            AppCard(padding = AppDimens.Spacing20) {
+                Text(
+                    text = "Welcome to SmartTracking",
+                    style = AppTypography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = TextPrimary
+                )
+                Spacer(modifier = Modifier.height(AppDimens.Spacing4))
+                Text(
+                    text = "Set up your hostel profile to start managing rooms, tenants, and collections.",
+                    style = AppTypography.bodySmall,
+                    color = TextSecondary
+                )
+
+                Spacer(modifier = Modifier.height(AppDimens.Spacing20))
+
                 AppTextField(
                     value = state.hostelName,
                     onValueChange = viewModel::onHostelNameChange,
@@ -130,7 +147,7 @@ fun OwnerInitScreen(
                     Spacer(modifier = Modifier.height(AppDimens.Spacing16))
                     Text(
                         text = state.errorMessage ?: "",
-                        style = AppTypography.bodyMedium,
+                        style = AppTypography.bodySmall,
                         color = StatusOverdueText
                     )
                 }

@@ -1,8 +1,6 @@
 package com.hostelmanagement.app.ui.owner.reports
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,15 +15,13 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AccountBalanceWallet
-import androidx.compose.material.icons.filled.Assessment
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.PendingActions
+import androidx.compose.material.icons.outlined.Assessment
+import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.PendingActions
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -36,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -44,15 +41,24 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hostelmanagement.app.core.common.CurrencyFormatter
-import com.hostelmanagement.app.core.theme.Slate500
-import com.hostelmanagement.app.core.theme.Slate900
+import com.hostelmanagement.app.core.theme.AppDimens
+import com.hostelmanagement.app.core.theme.AppShapes
+import com.hostelmanagement.app.core.theme.AppTypography
+import com.hostelmanagement.app.core.theme.BorderSubtle
+import com.hostelmanagement.app.core.theme.BrandPrimary
+import com.hostelmanagement.app.core.theme.PureWhite
+import com.hostelmanagement.app.core.theme.StatusOverdueText
+import com.hostelmanagement.app.core.theme.StatusPaidText
+import com.hostelmanagement.app.core.theme.SurfaceNeutral
+import com.hostelmanagement.app.core.theme.TextPrimary
+import com.hostelmanagement.app.core.theme.TextSecondary
 import com.hostelmanagement.app.data.remote.dto.MonthlyFinancialRecordDto
 import com.hostelmanagement.app.ui.components.AppCard
 import com.hostelmanagement.app.ui.components.AppTopBar
 import com.hostelmanagement.app.ui.components.EmptyStateView
 import com.hostelmanagement.app.ui.components.LoadingView
+import com.hostelmanagement.app.ui.components.SectionHeader
 import java.util.Calendar
-import java.util.Locale
 
 @Composable
 fun OwnerReportsScreen(
@@ -77,32 +83,47 @@ fun OwnerReportsScreen(
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = SurfaceNeutral
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Year filter chips
             val currentYear = remember { Calendar.getInstance().get(Calendar.YEAR) }
             val years = remember(currentYear) { listOf(currentYear, currentYear - 1, currentYear - 2) }
 
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    .padding(horizontal = AppDimens.Spacing16, vertical = AppDimens.Spacing8),
+                horizontalArrangement = Arrangement.spacedBy(AppDimens.Spacing8)
             ) {
                 items(years) { year ->
+                    val isSelected = uiState.selectedYear == year
                     FilterChip(
-                        selected = uiState.selectedYear == year,
+                        selected = isSelected,
                         onClick = { viewModel.setYear(year) },
-                        label = { Text(year.toString()) },
+                        label = {
+                            Text(
+                                text = year.toString(),
+                                style = AppTypography.labelMedium.copy(
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                )
+                            )
+                        },
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.primary,
-                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary
-                        )
+                            selectedContainerColor = BrandPrimary,
+                            selectedLabelColor = PureWhite,
+                            containerColor = PureWhite,
+                            labelColor = TextSecondary
+                        ),
+                        border = FilterChipDefaults.filterChipBorder(
+                            enabled = true,
+                            selected = isSelected,
+                            borderColor = if (isSelected) BrandPrimary else BorderSubtle
+                        ),
+                        shape = AppShapes.small
                     )
                 }
             }
@@ -118,7 +139,7 @@ fun OwnerReportsScreen(
                     description = "No financial records found for year ${uiState.selectedYear}.",
                     actionLabel = "Retry",
                     onAction = { viewModel.loadReport() },
-                    icon = Icons.Default.Assessment,
+                    icon = Icons.Outlined.Assessment,
                     modifier = Modifier.fillMaxSize()
                 )
             } else {
@@ -126,16 +147,12 @@ fun OwnerReportsScreen(
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                        .padding(horizontal = AppDimens.Spacing16),
+                    verticalArrangement = Arrangement.spacedBy(AppDimens.Spacing16)
                 ) {
                     item {
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "Annual Summary (${uiState.selectedYear})",
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
+                        Spacer(modifier = Modifier.height(AppDimens.Spacing4))
+                        SectionHeader(title = "Annual Summary (${uiState.selectedYear})")
                     }
 
                     item {
@@ -143,21 +160,16 @@ fun OwnerReportsScreen(
                     }
 
                     item {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "Monthly Breakdown",
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
+                        SectionHeader(title = "Monthly Breakdown")
                     }
 
                     if (report.monthly_breakdown.isEmpty()) {
                         item {
                             Text(
                                 text = "No monthly records found for this year.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Slate500,
-                                modifier = Modifier.padding(vertical = 8.dp)
+                                style = AppTypography.bodyMedium,
+                                color = TextSecondary,
+                                modifier = Modifier.padding(vertical = AppDimens.Spacing8)
                             )
                         }
                     } else {
@@ -167,7 +179,7 @@ fun OwnerReportsScreen(
                     }
 
                     item {
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(AppDimens.Spacing24))
                     }
                 }
             }
@@ -177,34 +189,36 @@ fun OwnerReportsScreen(
 
 @Composable
 private fun AnnualSummaryCard(summary: MonthlyFinancialRecordDto) {
-    AppCard(modifier = Modifier.fillMaxWidth()) {
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        padding = AppDimens.Spacing16
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
                 .semantics(mergeDescendants = true) {
                     contentDescription = "Annual summary: Total billed ${CurrencyFormatter.format(summary.total_billed)}, collected ${CurrencyFormatter.format(summary.total_collected)}, outstanding ${CurrencyFormatter.format(summary.total_outstanding)}"
                 }
         ) {
             ReportKpiRow(
-                icon = Icons.Default.Assessment,
+                icon = Icons.Outlined.Assessment,
                 label = "Total Billed",
                 value = CurrencyFormatter.format(summary.total_billed),
-                valueColor = MaterialTheme.colorScheme.onSurface
+                valueColor = TextPrimary
             )
-            HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
+            HorizontalDivider(thickness = AppDimens.HairlineBorder, color = BorderSubtle, modifier = Modifier.padding(vertical = AppDimens.Spacing12))
             ReportKpiRow(
-                icon = Icons.Default.CheckCircle,
+                icon = Icons.Outlined.CheckCircle,
                 label = "Total Collected",
                 value = CurrencyFormatter.format(summary.total_collected),
-                valueColor = MaterialTheme.colorScheme.primary
+                valueColor = StatusPaidText
             )
-            HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
+            HorizontalDivider(thickness = AppDimens.HairlineBorder, color = BorderSubtle, modifier = Modifier.padding(vertical = AppDimens.Spacing12))
             ReportKpiRow(
-                icon = Icons.Default.PendingActions,
+                icon = Icons.Outlined.PendingActions,
                 label = "Outstanding Balance",
                 value = CurrencyFormatter.format(summary.total_outstanding),
-                valueColor = MaterialTheme.colorScheme.error
+                valueColor = StatusOverdueText
             )
         }
     }
@@ -215,7 +229,7 @@ private fun ReportKpiRow(
     icon: ImageVector,
     label: String,
     value: String,
-    valueColor: androidx.compose.ui.graphics.Color
+    valueColor: Color
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -227,18 +241,18 @@ private fun ReportKpiRow(
                 imageVector = icon,
                 contentDescription = null,
                 modifier = Modifier.size(20.dp),
-                tint = Slate500
+                tint = TextSecondary
             )
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(AppDimens.Spacing8))
             Text(
                 text = label,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Slate500
+                style = AppTypography.bodyMedium,
+                color = TextSecondary
             )
         }
         Text(
             text = value,
-            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+            style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
             color = valueColor
         )
     }
@@ -254,47 +268,49 @@ private fun MonthlyRecordCard(record: MonthlyFinancialRecordDto) {
         if (record.month in 1..12) monthNames[record.month - 1] else "Month ${record.month}"
     }
 
-    AppCard(modifier = Modifier.fillMaxWidth()) {
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        padding = AppDimens.Spacing14
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(14.dp)
                 .semantics(mergeDescendants = true) {
                     contentDescription = "$monthName financial record: Billed ${CurrencyFormatter.format(record.total_billed)}, collected ${CurrencyFormatter.format(record.total_collected)}, outstanding ${CurrencyFormatter.format(record.total_outstanding)}"
                 }
         ) {
             Text(
                 text = monthName,
-                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-                color = MaterialTheme.colorScheme.onSurface
+                style = AppTypography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                color = TextPrimary
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(AppDimens.Spacing8))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column {
-                    Text(text = "Billed", style = MaterialTheme.typography.labelSmall, color = Slate500)
+                    Text(text = "Billed", style = AppTypography.labelSmall, color = TextSecondary)
                     Text(
                         text = CurrencyFormatter.format(record.total_billed),
-                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
-                        color = MaterialTheme.colorScheme.onSurface
+                        style = AppTypography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                        color = TextPrimary
                     )
                 }
                 Column {
-                    Text(text = "Collected", style = MaterialTheme.typography.labelSmall, color = Slate500)
+                    Text(text = "Collected", style = AppTypography.labelSmall, color = TextSecondary)
                     Text(
                         text = CurrencyFormatter.format(record.total_collected),
-                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
-                        color = MaterialTheme.colorScheme.primary
+                        style = AppTypography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                        color = StatusPaidText
                     )
                 }
                 Column {
-                    Text(text = "Outstanding", style = MaterialTheme.typography.labelSmall, color = Slate500)
+                    Text(text = "Outstanding", style = AppTypography.labelSmall, color = TextSecondary)
                     Text(
                         text = CurrencyFormatter.format(record.total_outstanding),
-                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
-                        color = MaterialTheme.colorScheme.error
+                        style = AppTypography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                        color = StatusOverdueText
                     )
                 }
             }

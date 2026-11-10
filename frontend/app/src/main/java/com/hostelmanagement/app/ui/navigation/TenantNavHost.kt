@@ -3,8 +3,10 @@ package com.hostelmanagement.app.ui.navigation
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Dashboard
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Payment
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ReportProblem
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -17,6 +19,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.hostelmanagement.app.core.theme.SurfaceNeutral
 import com.hostelmanagement.app.ui.components.AppBottomBar
 import com.hostelmanagement.app.ui.components.BottomNavItem
 import com.hostelmanagement.app.ui.tenant.billing.TenantRentDetailsScreen
@@ -38,16 +41,27 @@ fun TenantNavHost(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
+    // 5-Tab Tenant Bottom Navigation
     val bottomNavItems = listOf(
         BottomNavItem(
             route = Screen.TenantDashboard.route,
-            title = "Dashboard",
+            title = "Home",
             icon = Icons.Default.Dashboard
         ),
         BottomNavItem(
             route = Screen.TenantPayments.route,
             title = "Payments",
             icon = Icons.Default.Payment
+        ),
+        BottomNavItem(
+            route = Screen.TenantComplaints.route,
+            title = "Complaints",
+            icon = Icons.Default.ReportProblem
+        ),
+        BottomNavItem(
+            route = Screen.TenantNotifications.route,
+            title = "Alerts",
+            icon = Icons.Default.Notifications
         ),
         BottomNavItem(
             route = Screen.TenantProfile.route,
@@ -59,6 +73,7 @@ fun TenantNavHost(
     val showBottomBar = currentRoute in bottomNavItems.map { it.route }
 
     Scaffold(
+        containerColor = SurfaceNeutral,
         bottomBar = {
             if (showBottomBar) {
                 AppBottomBar(
@@ -82,7 +97,7 @@ fun TenantNavHost(
             startDestination = Screen.TenantDashboard.route,
             modifier = Modifier.padding(paddingValues)
         ) {
-            // Tab 1: Tenant Dashboard
+            // Tab 1: Tenant Dashboard (Home)
             composable(Screen.TenantDashboard.route) {
                 TenantDashboardScreen(
                     onNavigateToPay = { rentChargeId ->
@@ -105,7 +120,22 @@ fun TenantNavHost(
                 )
             }
 
-            // Tab 3: Tenant Profile
+            // Tab 3: Complaints Portal
+            composable(Screen.TenantComplaints.route) {
+                TenantComplaintsScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToRaiseComplaint = { navController.navigate(Screen.TenantRaiseComplaint.route) }
+                )
+            }
+
+            // Tab 4: Notifications / Alerts
+            composable(Screen.TenantNotifications.route) {
+                TenantNotificationsScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+
+            // Tab 5: Tenant Profile
             composable(Screen.TenantProfile.route) {
                 TenantProfileScreen(
                     onNavigateBack = { navController.popBackStack() },
@@ -143,13 +173,6 @@ fun TenantNavHost(
                 )
             }
 
-            composable(Screen.TenantComplaints.route) {
-                TenantComplaintsScreen(
-                    onNavigateBack = { navController.popBackStack() },
-                    onNavigateToRaiseComplaint = { navController.navigate(Screen.TenantRaiseComplaint.route) }
-                )
-            }
-
             composable(Screen.TenantRaiseComplaint.route) {
                 TenantRaiseComplaintScreen(
                     onNavigateBack = { navController.popBackStack() },
@@ -159,12 +182,6 @@ fun TenantNavHost(
 
             composable(Screen.TenantVacate.route) {
                 TenantVacateScreen(
-                    onNavigateBack = { navController.popBackStack() }
-                )
-            }
-
-            composable(Screen.TenantNotifications.route) {
-                TenantNotificationsScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }

@@ -10,19 +10,25 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.hostelmanagement.app.core.theme.AppDimens
 import com.hostelmanagement.app.core.theme.AppShapes
+import com.hostelmanagement.app.core.theme.BorderSubtle
 import com.hostelmanagement.app.core.theme.PureWhite
-import com.hostelmanagement.app.core.theme.Slate200
 
 @Composable
 fun AppCard(
     modifier: Modifier = Modifier,
     padding: Dp = AppDimens.Spacing16,
+    containerColor: Color = PureWhite,
+    borderColor: Color = BorderSubtle,
+    shape: Shape = AppShapes.medium,
     onClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
@@ -38,10 +44,10 @@ fun AppCard(
         modifier = modifier
             .fillMaxWidth()
             .then(clickableModifier),
-        shape = AppShapes.medium,
-        colors = CardDefaults.cardColors(containerColor = PureWhite),
-        border = BorderStroke(AppDimens.HairlineBorder, Slate200),
-        elevation = CardDefaults.cardElevation(defaultElevation = AppDimens.Spacing2 * 0)
+        shape = shape,
+        colors = CardDefaults.cardColors(containerColor = containerColor),
+        border = BorderStroke(AppDimens.HairlineBorder, borderColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
             modifier = Modifier

@@ -18,16 +18,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AddPhotoAlternate
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.QrCode2
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material.icons.outlined.AddPhotoAlternate
+import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.QrCode2
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -50,15 +46,23 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.hostelmanagement.app.BuildConfig
 import com.hostelmanagement.app.core.common.DateFormatter
+import com.hostelmanagement.app.core.theme.AppDimens
+import com.hostelmanagement.app.core.theme.AppShapes
+import com.hostelmanagement.app.core.theme.AppTypography
 import com.hostelmanagement.app.core.theme.BorderSubtle
-import com.hostelmanagement.app.core.theme.Slate500
-import com.hostelmanagement.app.core.theme.Slate900
+import com.hostelmanagement.app.core.theme.BrandPrimary
+import com.hostelmanagement.app.core.theme.PureWhite
+import com.hostelmanagement.app.core.theme.StatusPaidText
+import com.hostelmanagement.app.core.theme.SurfaceNeutral
+import com.hostelmanagement.app.core.theme.TextPrimary
+import com.hostelmanagement.app.core.theme.TextSecondary
 import com.hostelmanagement.app.data.remote.dto.PaymentQRResponseDto
 import com.hostelmanagement.app.ui.components.AppButton
 import com.hostelmanagement.app.ui.components.AppCard
 import com.hostelmanagement.app.ui.components.AppTopBar
 import com.hostelmanagement.app.ui.components.EmptyStateView
 import com.hostelmanagement.app.ui.components.LoadingView
+import com.hostelmanagement.app.ui.components.SectionHeader
 import com.hostelmanagement.app.ui.components.StatusBadge
 
 @Composable
@@ -91,13 +95,13 @@ fun OwnerPaymentQrScreen(
     Scaffold(
         topBar = {
             AppTopBar(
-                title = "Payment QR Codes",
+                title = "Payment QR Settings",
                 navigationIcon = Icons.AutoMirrored.Filled.ArrowBack,
                 onNavigationClick = onNavigateBack
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = SurfaceNeutral
     ) { paddingValues ->
         if (uiState.isLoading && uiState.activeQr == null && uiState.qrHistory.isEmpty()) {
             LoadingView(
@@ -111,21 +115,16 @@ fun OwnerPaymentQrScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                    .padding(horizontal = AppDimens.Spacing16),
+                verticalArrangement = Arrangement.spacedBy(AppDimens.Spacing16)
             ) {
                 item {
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(AppDimens.Spacing4))
+                    SectionHeader(title = "Active Payment QR")
                     Text(
-                        text = "Active Payment QR",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "This QR code is shown to tenants when submitting monthly rent payments.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Slate500
+                        text = "This QR code is displayed to residents when paying rent via UPI.",
+                        style = AppTypography.bodySmall,
+                        color = TextSecondary
                     )
                 }
 
@@ -136,13 +135,13 @@ fun OwnerPaymentQrScreen(
                     } else {
                         EmptyStateView(
                             title = "No Active QR Code",
-                            description = "Upload a UPI QR code to allow tenants to pay rent easily.",
+                            description = "Upload a UPI QR code image so tenants can easily scan and pay.",
                             actionLabel = null,
                             onAction = null,
-                            icon = Icons.Default.QrCode2,
+                            icon = Icons.Outlined.QrCode2,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 16.dp)
+                                .padding(vertical = AppDimens.Spacing16)
                         )
                     }
                 }
@@ -153,26 +152,21 @@ fun OwnerPaymentQrScreen(
                         onClick = { imagePickerLauncher.launch("image/*") },
                         modifier = Modifier.fillMaxWidth(),
                         isLoading = uiState.isUploading,
-                        icon = Icons.Default.AddPhotoAlternate
+                        icon = Icons.Outlined.AddPhotoAlternate
                     )
                 }
 
                 item {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "QR Code History",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
+                    SectionHeader(title = "QR Code History")
                 }
 
                 if (uiState.qrHistory.isEmpty()) {
                     item {
                         Text(
-                            text = "No history recorded yet.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Slate500,
-                            modifier = Modifier.padding(vertical = 8.dp)
+                            text = "No previous QR codes on file.",
+                            style = AppTypography.bodyMedium,
+                            color = TextSecondary,
+                            modifier = Modifier.padding(vertical = AppDimens.Spacing8)
                         )
                     }
                 } else {
@@ -182,7 +176,7 @@ fun OwnerPaymentQrScreen(
                 }
 
                 item {
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(AppDimens.Spacing24))
                 }
             }
         }
@@ -197,11 +191,12 @@ private fun ActiveQrCard(qr: PaymentQRResponseDto) {
         "$base$path"
     }
 
-    AppCard(modifier = Modifier.fillMaxWidth()) {
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        padding = AppDimens.Spacing20
+    ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
@@ -209,22 +204,22 @@ private fun ActiveQrCard(qr: PaymentQRResponseDto) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                StatusBadge(text = "ACTIVE", status = "ACTIVE")
+                StatusBadge(status = "ACTIVE")
                 Text(
                     text = "Added ${DateFormatter.formatDateTime(qr.created_at)}",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Slate500
+                    style = AppTypography.labelSmall,
+                    color = TextSecondary
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(AppDimens.Spacing16))
 
             Box(
                 modifier = Modifier
                     .size(220.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.surface)
-                    .border(1.dp, BorderSubtle, RoundedCornerShape(8.dp)),
+                    .clip(AppShapes.medium)
+                    .background(PureWhite)
+                    .border(1.dp, BorderSubtle, AppShapes.medium),
                 contentAlignment = Alignment.Center
             ) {
                 AsyncImage(
@@ -235,23 +230,23 @@ private fun ActiveQrCard(qr: PaymentQRResponseDto) {
                 )
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(AppDimens.Spacing12))
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.CheckCircle,
+                    imageVector = Icons.Outlined.CheckCircle,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(16.dp)
+                    tint = StatusPaidText,
+                    modifier = Modifier.size(18.dp)
                 )
-                Spacer(modifier = Modifier.width(6.dp))
+                Spacer(modifier = Modifier.width(AppDimens.Spacing6))
                 Text(
-                    text = "QR Verified and Live",
-                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
-                    color = MaterialTheme.colorScheme.onSurface
+                    text = "Active & visible to all tenants",
+                    style = AppTypography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                    color = TextPrimary
                 )
             }
         }
@@ -260,34 +255,31 @@ private fun ActiveQrCard(qr: PaymentQRResponseDto) {
 
 @Composable
 private fun QrHistoryItem(qr: PaymentQRResponseDto) {
-    AppCard(modifier = Modifier.fillMaxWidth()) {
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        padding = AppDimens.Spacing14
+    ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp)
-                .semantics(mergeDescendants = true) {
-                    contentDescription = "QR Code ID ${qr.id}, status ${if (qr.is_active) "Active" else "Archived"}, created ${DateFormatter.formatDateTime(qr.created_at)}"
-                },
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
                 Text(
                     text = "QR Code #${qr.id}",
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                    color = MaterialTheme.colorScheme.onSurface
+                    style = AppTypography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                    color = TextPrimary
                 )
-                Spacer(modifier = Modifier.height(2.dp))
+                Spacer(modifier = Modifier.height(AppDimens.Spacing2))
                 Text(
                     text = DateFormatter.formatDateTime(qr.created_at),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Slate500
+                    style = AppTypography.labelSmall,
+                    color = TextSecondary
                 )
             }
 
             StatusBadge(
-                text = if (qr.is_active) "ACTIVE" else "ARCHIVED",
-                status = if (qr.is_active) "ACTIVE" else "INACTIVE"
+                status = if (qr.is_active) "ACTIVE" else "ARCHIVED"
             )
         }
     }

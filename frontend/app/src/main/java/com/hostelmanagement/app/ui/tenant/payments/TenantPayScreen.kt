@@ -18,21 +18,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AccountBalance
-import androidx.compose.material.icons.filled.AddPhotoAlternate
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.CurrencyRupee
-import androidx.compose.material.icons.filled.QrCode2
+import androidx.compose.material.icons.outlined.AccountBalance
+import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.CloudUpload
+import androidx.compose.material.icons.outlined.CurrencyRupee
+import androidx.compose.material.icons.outlined.QrCode2
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -40,14 +42,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -57,13 +59,28 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.hostelmanagement.app.BuildConfig
 import com.hostelmanagement.app.core.common.CurrencyFormatter
+import com.hostelmanagement.app.core.theme.AppDimens
+import com.hostelmanagement.app.core.theme.AppShapes
+import com.hostelmanagement.app.core.theme.AppTypography
 import com.hostelmanagement.app.core.theme.BorderSubtle
-import com.hostelmanagement.app.core.theme.Slate500
+import com.hostelmanagement.app.core.theme.BrandContainer
+import com.hostelmanagement.app.core.theme.BrandPrimary
+import com.hostelmanagement.app.core.theme.PureWhite
+import com.hostelmanagement.app.core.theme.StatusOverdueText
+import com.hostelmanagement.app.core.theme.StatusPaidBg
+import com.hostelmanagement.app.core.theme.StatusPaidText
+import com.hostelmanagement.app.core.theme.SurfaceNeutral
+import com.hostelmanagement.app.core.theme.SurfaceVariantNeutral
+import com.hostelmanagement.app.core.theme.TextMuted
+import com.hostelmanagement.app.core.theme.TextPrimary
+import com.hostelmanagement.app.core.theme.TextSecondary
+import com.hostelmanagement.app.data.remote.dto.PaymentQRResponseDto
 import com.hostelmanagement.app.ui.components.AppButton
 import com.hostelmanagement.app.ui.components.AppCard
 import com.hostelmanagement.app.ui.components.AppTextField
 import com.hostelmanagement.app.ui.components.AppTopBar
 import com.hostelmanagement.app.ui.components.LoadingView
+import com.hostelmanagement.app.ui.components.SectionHeader
 import com.hostelmanagement.app.ui.components.StatusBadge
 
 @Composable
@@ -75,6 +92,7 @@ fun TenantPayScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
+    var selectedPaymentMethod by remember { mutableStateOf("UPI") }
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -92,13 +110,13 @@ fun TenantPayScreen(
     Scaffold(
         topBar = {
             AppTopBar(
-                title = "Submit Rent Payment",
+                title = "Pay Rent",
                 navigationIcon = Icons.AutoMirrored.Filled.ArrowBack,
                 onNavigationClick = onNavigateBack
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = SurfaceNeutral
     ) { paddingValues ->
         if (uiState.isLoading) {
             LoadingView(
@@ -112,7 +130,7 @@ fun TenantPayScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .padding(16.dp),
+                    .padding(AppDimens.Spacing24),
                 utr = uiState.utrInput,
                 amount = uiState.amountInput,
                 onViewHistoryClick = onNavigateToHistory
@@ -122,198 +140,221 @@ fun TenantPayScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                    .padding(horizontal = AppDimens.Spacing16, vertical = AppDimens.Spacing12),
+                verticalArrangement = Arrangement.spacedBy(AppDimens.Spacing16)
             ) {
-                item {
-                    Spacer(modifier = Modifier.height(4.dp))
-                }
-
-                // UPI QR Code Card
-                item {
-                    ActiveQrScanCard(qr = uiState.activeQr)
-                }
-
-                // Invoice Summary Card
+                // 1. Amount Due Card
                 val charge = uiState.rentCharge
-                if (charge != null) {
-                    item {
-                        AppCard(modifier = Modifier.fillMaxWidth()) {
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = "Invoice #${charge.id}",
-                                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                    StatusBadge(text = charge.status, status = charge.status)
-                                }
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = "Period: ${charge.period_start} to ${charge.period_end}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = Slate500
-                                )
-                                HorizontalDivider(modifier = Modifier.padding(vertical = 10.dp))
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    Text(text = "Remaining Balance Due:", style = MaterialTheme.typography.bodyMedium)
-                                    Text(
-                                        text = CurrencyFormatter.format(charge.balance),
-                                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                        color = MaterialTheme.colorScheme.error
-                                    )
-                                }
+                item {
+                    AppCard(padding = AppDimens.Spacing20) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Amount Due",
+                                style = AppTypography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                                color = TextSecondary
+                            )
+                            if (charge != null) {
+                                StatusBadge(status = charge.status)
                             }
+                        }
+
+                        Spacer(modifier = Modifier.height(AppDimens.Spacing6))
+
+                        val displayAmount = if (charge != null) CurrencyFormatter.format(charge.balance) else "₹${uiState.amountInput}"
+                        Text(
+                            text = displayAmount,
+                            style = AppTypography.headlineLarge.copy(fontWeight = FontWeight.Bold),
+                            color = TextPrimary
+                        )
+
+                        if (charge != null) {
+                            Spacer(modifier = Modifier.height(AppDimens.Spacing4))
+                            Text(
+                                text = "Invoice #${charge.id} • ${charge.period_start} to ${charge.period_end}",
+                                style = AppTypography.bodySmall,
+                                color = TextSecondary
+                            )
                         }
                     }
                 }
 
-                // Payment Form
+                // 2. Payment Method Selector
                 item {
-                    Text(
-                        text = "Enter Transaction Details",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
+                    SectionHeader(title = "Payment Method")
                 }
 
                 item {
-                    AppTextField(
-                        value = uiState.amountInput,
-                        onValueChange = { viewModel.onAmountChanged(it) },
-                        label = "Payment Amount",
-                        placeholder = "e.g. 5000",
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.CurrencyRupee,
-                                contentDescription = null,
-                                tint = Slate500
-                            )
-                        },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-
-                item {
-                    AppTextField(
-                        value = uiState.utrInput,
-                        onValueChange = { viewModel.onUtrChanged(it) },
-                        label = "Bank UTR / Transaction Reference",
-                        placeholder = "12-digit transaction UTR number",
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.AccountBalance,
-                                contentDescription = null,
-                                tint = Slate500
-                            )
-                        },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Ascii,
-                            capitalization = KeyboardCapitalization.Characters
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-
-                // Payment Screenshot Upload Section
-                item {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Text(
-                            text = "Payment Proof Screenshot (Optional)",
-                            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-                            color = MaterialTheme.colorScheme.onBackground
+                    AppCard(padding = AppDimens.Spacing12) {
+                        PaymentMethodRow(
+                            title = "UPI (GPay / PhonePe / Paytm / BHIM)",
+                            selected = selectedPaymentMethod == "UPI",
+                            onClick = { selectedPaymentMethod = "UPI" }
                         )
-                        Spacer(modifier = Modifier.height(6.dp))
+                        HorizontalDivider(thickness = AppDimens.HairlineBorder, color = BorderSubtle, modifier = Modifier.padding(vertical = AppDimens.Spacing8))
+                        PaymentMethodRow(
+                            title = "Bank Transfer (NEFT / IMPS)",
+                            selected = selectedPaymentMethod == "Bank",
+                            onClick = { selectedPaymentMethod = "Bank" }
+                        )
+                        HorizontalDivider(thickness = AppDimens.HairlineBorder, color = BorderSubtle, modifier = Modifier.padding(vertical = AppDimens.Spacing8))
+                        PaymentMethodRow(
+                            title = "Other Offline Mode",
+                            selected = selectedPaymentMethod == "Other",
+                            onClick = { selectedPaymentMethod = "Other" }
+                        )
+                    }
+                }
 
-                        if (uiState.selectedImageUri != null) {
-                            AppCard(modifier = Modifier.fillMaxWidth()) {
-                                Row(
+                // 3. UPI QR Code Display (if UPI chosen)
+                if (selectedPaymentMethod == "UPI") {
+                    item {
+                        ActiveQrCard(qr = uiState.activeQr)
+                    }
+                }
+
+                // 4. Upload Payment Screenshot
+                item {
+                    SectionHeader(title = "Upload Payment Screenshot *")
+                }
+
+                item {
+                    if (uiState.selectedImageUri != null) {
+                        AppCard(padding = AppDimens.Spacing12) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                AsyncImage(
+                                    model = uiState.selectedImageUri,
+                                    contentDescription = "Selected screenshot preview",
                                     modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(12.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    AsyncImage(
-                                        model = uiState.selectedImageUri,
-                                        contentDescription = "Selected screenshot preview",
-                                        modifier = Modifier
-                                            .size(64.dp)
-                                            .clip(RoundedCornerShape(8.dp))
-                                            .border(1.dp, BorderSubtle, RoundedCornerShape(8.dp)),
-                                        contentScale = ContentScale.Crop
+                                        .size(64.dp)
+                                        .clip(AppShapes.small)
+                                        .border(1.dp, BorderSubtle, AppShapes.small),
+                                    contentScale = ContentScale.Crop
+                                )
+                                Spacer(modifier = Modifier.width(AppDimens.Spacing12))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = uiState.selectedImageName ?: "payment_screenshot.jpg",
+                                        style = AppTypography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                                        color = TextPrimary,
+                                        maxLines = 1
                                     )
-                                    Spacer(modifier = Modifier.width(12.dp))
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(
-                                            text = uiState.selectedImageName ?: "payment_screenshot.jpg",
-                                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                                            color = MaterialTheme.colorScheme.onSurface,
-                                            maxLines = 1
-                                        )
-                                        Text(
-                                            text = "Attached for verification",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.primary
-                                        )
-                                    }
-                                    IconButton(onClick = { viewModel.onRemoveImage() }) {
-                                        Icon(
-                                            imageVector = Icons.Default.Close,
-                                            contentDescription = "Remove screenshot",
-                                            tint = MaterialTheme.colorScheme.error
-                                        )
-                                    }
+                                    Spacer(modifier = Modifier.height(AppDimens.Spacing2))
+                                    Text(
+                                        text = "Attached for owner verification",
+                                        style = AppTypography.bodySmall,
+                                        color = BrandPrimary
+                                    )
+                                }
+                                IconButton(onClick = { viewModel.onRemoveImage() }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = "Remove screenshot",
+                                        tint = StatusOverdueText
+                                    )
                                 }
                             }
-                        } else {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clip(RoundedCornerShape(10.dp))
-                                    .border(1.dp, BorderSubtle, RoundedCornerShape(10.dp))
-                                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-                                    .clickable { imagePickerLauncher.launch("image/*") }
-                                    .padding(16.dp),
-                                contentAlignment = Alignment.Center
+                        }
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(AppShapes.medium)
+                                .border(1.dp, BorderSubtle, AppShapes.medium)
+                                .background(PureWhite)
+                                .clickable { imagePickerLauncher.launch("image/*") }
+                                .padding(vertical = AppDimens.Spacing24, horizontal = AppDimens.Spacing16),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
                             ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Center
+                                Box(
+                                    modifier = Modifier
+                                        .size(52.dp)
+                                        .background(BrandContainer, CircleShape),
+                                    contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Default.AddPhotoAlternate,
+                                        imageVector = Icons.Outlined.CloudUpload,
                                         contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(24.dp)
+                                        tint = BrandPrimary,
+                                        modifier = Modifier.size(28.dp)
                                     )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Column {
-                                        Text(
-                                            text = "Attach Payment Screenshot",
-                                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                                            color = MaterialTheme.colorScheme.primary
-                                        )
-                                        Text(
-                                            text = "Supports JPEG, PNG, WEBP (Max 5MB)",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = Slate500
-                                        )
-                                    }
                                 }
+                                Spacer(modifier = Modifier.height(AppDimens.Spacing10))
+                                Text(
+                                    text = "Tap to upload screenshot",
+                                    style = AppTypography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                                    color = BrandPrimary
+                                )
+                                Spacer(modifier = Modifier.height(AppDimens.Spacing4))
+                                Text(
+                                    text = "PNG, JPG (Max 5 MB)",
+                                    style = AppTypography.bodySmall,
+                                    color = TextSecondary
+                                )
                             }
                         }
                     }
                 }
 
-                // Submission Progress Indicator
+                // 5. Payment Transaction Details
+                item {
+                    SectionHeader(title = "Transaction Details")
+                }
+
+                item {
+                    AppCard(padding = AppDimens.Spacing16) {
+                        AppTextField(
+                            value = uiState.amountInput,
+                            onValueChange = { viewModel.onAmountChanged(it) },
+                            label = "Payment Amount (₹)",
+                            placeholder = "e.g. 6000",
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Outlined.CurrencyRupee,
+                                    contentDescription = null,
+                                    tint = TextMuted,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(modifier = Modifier.height(AppDimens.Spacing16))
+
+                        AppTextField(
+                            value = uiState.utrInput,
+                            onValueChange = { viewModel.onUtrChanged(it) },
+                            label = "Bank UTR / Transaction Reference",
+                            placeholder = "12-digit UTR reference number",
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Outlined.AccountBalance,
+                                    contentDescription = null,
+                                    tint = TextMuted,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            },
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Ascii,
+                                capitalization = KeyboardCapitalization.Characters
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+
+                // 6. Submitting Progress
                 if (uiState.isSubmitting) {
                     item {
                         Column(
@@ -325,22 +366,23 @@ fun TenantPayScreen(
                                     .fillMaxWidth()
                                     .height(4.dp)
                                     .clip(RoundedCornerShape(2.dp)),
-                                color = MaterialTheme.colorScheme.primary,
-                                trackColor = MaterialTheme.colorScheme.surfaceVariant
+                                color = BrandPrimary,
+                                trackColor = SurfaceVariantNeutral
                             )
-                            Spacer(modifier = Modifier.height(6.dp))
+                            Spacer(modifier = Modifier.height(AppDimens.Spacing6))
                             Text(
-                                text = if (uiState.selectedImageUri != null) "Uploading proof screenshot & submitting..." else "Submitting payment...",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Slate500
+                                text = if (uiState.selectedImageUri != null) "Uploading proof & submitting payment..." else "Submitting payment...",
+                                style = AppTypography.bodySmall,
+                                color = TextSecondary
                             )
                         }
                     }
                 }
 
+                // 7. Submit Payment Button
                 item {
                     AppButton(
-                        text = "Submit Payment for Verification",
+                        text = "Submit Payment",
                         onClick = { viewModel.submitPayment() },
                         modifier = Modifier.fillMaxWidth(),
                         isLoading = uiState.isSubmitting,
@@ -349,7 +391,7 @@ fun TenantPayScreen(
                 }
 
                 item {
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(AppDimens.Spacing24))
                 }
             }
         }
@@ -357,27 +399,57 @@ fun TenantPayScreen(
 }
 
 @Composable
-private fun ActiveQrScanCard(qr: com.hostelmanagement.app.data.remote.dto.PaymentQRResponseDto?) {
-    AppCard(modifier = Modifier.fillMaxWidth()) {
+private fun PaymentMethodRow(
+    title: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = AppDimens.Spacing4),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(
+            selected = selected,
+            onClick = onClick,
+            colors = RadioButtonDefaults.colors(
+                selectedColor = BrandPrimary,
+                unselectedColor = TextMuted
+            )
+        )
+        Spacer(modifier = Modifier.width(AppDimens.Spacing8))
+        Text(
+            text = title,
+            style = AppTypography.bodyLarge.copy(
+                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal
+            ),
+            color = if (selected) TextPrimary else TextSecondary
+        )
+    }
+}
+
+@Composable
+private fun ActiveQrCard(qr: PaymentQRResponseDto?) {
+    AppCard(padding = AppDimens.Spacing16) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "UPI QR Code",
-                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.onSurface
+                text = "Scan to Pay via UPI",
+                style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                color = TextPrimary
             )
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(AppDimens.Spacing2))
             Text(
-                text = "Scan with Google Pay, PhonePe, Paytm, or BHIM",
-                style = MaterialTheme.typography.bodySmall,
-                color = Slate500
+                text = "Use Google Pay, PhonePe, Paytm, or BHIM",
+                style = AppTypography.bodySmall,
+                color = TextSecondary
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(AppDimens.Spacing14))
 
             if (qr != null) {
                 val fullImageUrl = remember(qr.image_path) {
@@ -389,9 +461,9 @@ private fun ActiveQrScanCard(qr: com.hostelmanagement.app.data.remote.dto.Paymen
                 Box(
                     modifier = Modifier
                         .size(200.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .border(1.dp, BorderSubtle, RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colorScheme.surface),
+                        .clip(AppShapes.medium)
+                        .border(1.dp, BorderSubtle, AppShapes.medium)
+                        .background(PureWhite),
                     contentAlignment = Alignment.Center
                 ) {
                     AsyncImage(
@@ -399,34 +471,33 @@ private fun ActiveQrScanCard(qr: com.hostelmanagement.app.data.remote.dto.Paymen
                         contentDescription = "Active UPI QR Code",
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(8.dp),
+                            .padding(AppDimens.Spacing8),
                         contentScale = ContentScale.Fit
                     )
                 }
             } else {
                 Box(
                     modifier = Modifier
-                        .size(200.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .border(1.dp, BorderSubtle, RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                        .size(180.dp)
+                        .clip(AppShapes.medium)
+                        .background(BrandContainer),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(AppDimens.Spacing16)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.QrCode2,
+                            imageVector = Icons.Outlined.QrCode2,
                             contentDescription = null,
-                            tint = Slate500,
+                            tint = BrandPrimary,
                             modifier = Modifier.size(48.dp)
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(AppDimens.Spacing8))
                         Text(
                             text = "No UPI QR uploaded yet",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Slate500
+                            style = AppTypography.bodySmall,
+                            color = TextSecondary
                         )
                     }
                 }
@@ -450,29 +521,34 @@ private fun PaymentSuccessView(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Icon(
-                imageVector = Icons.Default.CheckCircle,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
+            Box(
                 modifier = Modifier
-                    .size(72.dp)
-                    .semantics { contentDescription = "Payment submitted successfully" }
-            )
-            Spacer(modifier = Modifier.height(16.dp))
+                    .size(80.dp)
+                    .background(StatusPaidBg, CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.CheckCircle,
+                    contentDescription = null,
+                    tint = StatusPaidText,
+                    modifier = Modifier.size(48.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(AppDimens.Spacing20))
             Text(
                 text = "Payment Submitted!",
-                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.onBackground
+                style = AppTypography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                color = TextPrimary
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(AppDimens.Spacing8))
             Text(
-                text = "Your payment of ₹$amount with UTR $utr has been submitted for owner verification.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Slate500,
-                modifier = Modifier.padding(horizontal = 24.dp)
+                text = "Your payment of ₹$amount (UTR: $utr) has been submitted for owner verification.",
+                style = AppTypography.bodyMedium,
+                color = TextSecondary,
+                modifier = Modifier.padding(horizontal = AppDimens.Spacing16)
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(AppDimens.Spacing32))
 
             AppButton(
                 text = "View Payment History",

@@ -15,7 +15,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -37,14 +36,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hostelmanagement.app.core.common.DateFormatter
 import com.hostelmanagement.app.core.theme.AppDimens
+import com.hostelmanagement.app.core.theme.AppShapes
 import com.hostelmanagement.app.core.theme.AppTypography
+import com.hostelmanagement.app.core.theme.BrandPrimary
 import com.hostelmanagement.app.core.theme.PureWhite
-import com.hostelmanagement.app.core.theme.Slate200
-import com.hostelmanagement.app.core.theme.Slate50
-import com.hostelmanagement.app.core.theme.Slate500
-import com.hostelmanagement.app.core.theme.Slate600
-import com.hostelmanagement.app.core.theme.Slate900
-import com.hostelmanagement.app.core.theme.StatusOverdueText
+import com.hostelmanagement.app.core.theme.SurfaceNeutral
+import com.hostelmanagement.app.core.theme.TextPrimary
+import com.hostelmanagement.app.core.theme.TextSecondary
 import com.hostelmanagement.app.ui.components.AppButton
 import com.hostelmanagement.app.ui.components.AppCard
 import com.hostelmanagement.app.ui.components.AppTextField
@@ -52,6 +50,7 @@ import com.hostelmanagement.app.ui.components.AppTopBar
 import com.hostelmanagement.app.ui.components.ButtonVariant
 import com.hostelmanagement.app.ui.components.ErrorStateView
 import com.hostelmanagement.app.ui.components.LoadingView
+import com.hostelmanagement.app.ui.components.SectionHeader
 import com.hostelmanagement.app.ui.components.StatusBadge
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -97,7 +96,7 @@ fun RoomDetailScreen(
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = Slate50
+        containerColor = SurfaceNeutral
     ) { paddingValues ->
         when {
             state.isLoading -> LoadingView(message = "Loading room details...")
@@ -118,11 +117,11 @@ fun RoomDetailScreen(
                 ) {
                     // Room Summary Card
                     item {
-                        AppCard {
+                        AppCard(padding = AppDimens.Spacing20) {
                             Text(
                                 text = "CAPACITY & STATUS",
-                                style = AppTypography.labelSmall,
-                                color = Slate500
+                                style = AppTypography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                color = BrandPrimary
                             )
                             Spacer(modifier = Modifier.height(AppDimens.Spacing8))
                             Row(
@@ -133,14 +132,14 @@ fun RoomDetailScreen(
                                 Column {
                                     Text(
                                         text = "${room.active_occupants} / ${room.capacity} Beds Occupied",
-                                        style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                        color = Slate900
+                                        style = AppTypography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                                        color = TextPrimary
                                     )
                                     Spacer(modifier = Modifier.height(AppDimens.Spacing2))
                                     Text(
                                         text = "${room.available_beds} bed(s) available for assignment",
-                                        style = AppTypography.bodyMedium,
-                                        color = Slate500
+                                        style = AppTypography.bodySmall,
+                                        color = TextSecondary
                                     )
                                 }
                                 StatusBadge(status = if (room.available_beds > 0) "AVAILABLE" else "FULL")
@@ -160,26 +159,22 @@ fun RoomDetailScreen(
 
                     // Occupants Section
                     item {
-                        Text(
-                            text = "Current Occupants (${room.occupants?.size ?: 0})",
-                            style = AppTypography.titleMedium,
-                            color = Slate900
-                        )
+                        SectionHeader(title = "Current Occupants (${room.occupants?.size ?: 0})")
                     }
 
                     if (room.occupants.isNullOrEmpty()) {
                         item {
-                            AppCard {
+                            AppCard(padding = AppDimens.Spacing16) {
                                 Text(
                                     text = "No tenants currently assigned to this room.",
                                     style = AppTypography.bodyMedium,
-                                    color = Slate500
+                                    color = TextSecondary
                                 )
                             }
                         }
                     } else {
                         items(room.occupants, key = { it.stay_id }) { occupant ->
-                            AppCard {
+                            AppCard(padding = AppDimens.Spacing14) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -188,20 +183,20 @@ fun RoomDetailScreen(
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(
                                             text = occupant.full_name,
-                                            style = AppTypography.titleMedium,
-                                            color = Slate900
+                                            style = AppTypography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                                            color = TextPrimary
                                         )
                                         Spacer(modifier = Modifier.height(AppDimens.Spacing2))
                                         Text(
                                             text = occupant.email,
-                                            style = AppTypography.bodyMedium,
-                                            color = Slate500
+                                            style = AppTypography.bodySmall,
+                                            color = TextSecondary
                                         )
                                         Spacer(modifier = Modifier.height(AppDimens.Spacing2))
                                         Text(
                                             text = "Joined: ${DateFormatter.formatIsoDate(occupant.joining_date)}",
-                                            style = AppTypography.bodyMedium,
-                                            color = Slate500
+                                            style = AppTypography.labelSmall,
+                                            color = TextSecondary
                                         )
                                     }
                                     StatusBadge(status = "ACTIVE")
@@ -223,6 +218,10 @@ fun RoomDetailScreen(
                             )
                         }
                     }
+
+                    item {
+                        Spacer(modifier = Modifier.height(AppDimens.Spacing24))
+                    }
                 }
             }
         }
@@ -233,14 +232,18 @@ fun RoomDetailScreen(
         AlertDialog(
             onDismissRequest = viewModel::closeAssignBedDialog,
             title = {
-                Text(text = "Assign Bed in Room ${state.room?.room_number}", style = AppTypography.titleMedium, color = Slate900)
+                Text(
+                    text = "Assign Bed in Room ${state.room?.room_number}",
+                    style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = TextPrimary
+                )
             },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(AppDimens.Spacing12)) {
                     Text(
                         text = "Select Tenant",
-                        style = AppTypography.titleMedium,
-                        color = Slate900
+                        style = AppTypography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                        color = TextPrimary
                     )
 
                     ExposedDropdownMenuBox(
@@ -301,11 +304,11 @@ fun RoomDetailScreen(
             },
             dismissButton = {
                 TextButton(onClick = viewModel::closeAssignBedDialog) {
-                    Text("Cancel", color = Slate600)
+                    Text("Cancel", color = TextSecondary)
                 }
             },
             containerColor = PureWhite,
-            shape = com.hostelmanagement.app.core.theme.AppShapes.medium
+            shape = AppShapes.large
         )
     }
 }

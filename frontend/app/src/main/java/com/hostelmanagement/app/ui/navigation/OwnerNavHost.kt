@@ -4,8 +4,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.MeetingRoom
-import androidx.compose.material.icons.filled.People
-import androidx.compose.material.icons.filled.ReceiptLong
+import androidx.compose.material.icons.filled.Payment
+import androidx.compose.material.icons.filled.ReportProblem
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,6 +19,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.hostelmanagement.app.core.theme.SurfaceNeutral
 import com.hostelmanagement.app.ui.components.AppBottomBar
 import com.hostelmanagement.app.ui.components.BottomNavItem
 import com.hostelmanagement.app.ui.owner.billing.OwnerBillingScreen
@@ -42,10 +44,11 @@ fun OwnerNavHost(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
+    // 5-Tab Owner Bottom Navigation
     val bottomNavItems = listOf(
         BottomNavItem(
             route = Screen.OwnerDashboard.route,
-            title = "Overview",
+            title = "Home",
             icon = Icons.Default.Dashboard
         ),
         BottomNavItem(
@@ -54,20 +57,26 @@ fun OwnerNavHost(
             icon = Icons.Default.MeetingRoom
         ),
         BottomNavItem(
-            route = Screen.OwnerTenants.route,
-            title = "Tenants",
-            icon = Icons.Default.People
+            route = Screen.OwnerPayments.route,
+            title = "Payments",
+            icon = Icons.Default.Payment
         ),
         BottomNavItem(
-            route = Screen.OwnerBilling.route,
-            title = "Billing",
-            icon = Icons.Default.ReceiptLong
+            route = Screen.OwnerComplaints.route,
+            title = "Complaints",
+            icon = Icons.Default.ReportProblem
+        ),
+        BottomNavItem(
+            route = Screen.OwnerSettings.route,
+            title = "Profile",
+            icon = Icons.Default.Settings
         )
     )
 
     val showBottomBar = currentRoute in bottomNavItems.map { it.route }
 
     Scaffold(
+        containerColor = SurfaceNeutral,
         bottomBar = {
             if (showBottomBar) {
                 AppBottomBar(
@@ -128,7 +137,29 @@ fun OwnerNavHost(
                 )
             }
 
-            // Tab 3: Tenants
+            // Tab 3: Payments Review
+            composable(Screen.OwnerPayments.route) {
+                OwnerPaymentReviewScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+
+            // Tab 4: Complaints
+            composable(Screen.OwnerComplaints.route) {
+                OwnerComplaintsScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+
+            // Tab 5: Settings / Profile
+            composable(Screen.OwnerSettings.route) {
+                OwnerSettingsScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onLogoutSuccess = onLogoutSuccess
+                )
+            }
+
+            // Operational Subroutes from Quick Actions & Shortcuts:
             composable(Screen.OwnerTenants.route) {
                 TenantListScreen(
                     onNavigateToTenantDetail = { tenantId ->
@@ -137,7 +168,6 @@ fun OwnerNavHost(
                 )
             }
 
-            // Subroute: Tenant Detail
             composable(
                 route = Screen.OwnerTenantDetail.route,
                 arguments = listOf(navArgument("tenantId") { type = NavType.LongType })
@@ -149,26 +179,12 @@ fun OwnerNavHost(
                 )
             }
 
-            // Tab 4: Billing
             composable(Screen.OwnerBilling.route) {
                 OwnerBillingScreen()
             }
 
-            // Subroutes from Dashboard shortcuts:
-            composable(Screen.OwnerPayments.route) {
-                OwnerPaymentReviewScreen(
-                    onNavigateBack = { navController.popBackStack() }
-                )
-            }
-
             composable(Screen.OwnerPaymentQr.route) {
                 OwnerPaymentQrScreen(
-                    onNavigateBack = { navController.popBackStack() }
-                )
-            }
-
-            composable(Screen.OwnerComplaints.route) {
-                OwnerComplaintsScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
@@ -188,13 +204,6 @@ fun OwnerNavHost(
             composable(Screen.OwnerNotifications.route) {
                 OwnerNotificationsScreen(
                     onNavigateBack = { navController.popBackStack() }
-                )
-            }
-
-            composable(Screen.OwnerSettings.route) {
-                OwnerSettingsScreen(
-                    onNavigateBack = { navController.popBackStack() },
-                    onLogoutSuccess = onLogoutSuccess
                 )
             }
         }

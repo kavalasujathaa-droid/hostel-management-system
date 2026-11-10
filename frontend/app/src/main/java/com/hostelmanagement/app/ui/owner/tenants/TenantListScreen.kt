@@ -36,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -44,12 +45,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hostelmanagement.app.core.theme.AppDimens
 import com.hostelmanagement.app.core.theme.AppShapes
 import com.hostelmanagement.app.core.theme.AppTypography
+import com.hostelmanagement.app.core.theme.BrandPrimary
 import com.hostelmanagement.app.core.theme.PureWhite
-import com.hostelmanagement.app.core.theme.Slate200
-import com.hostelmanagement.app.core.theme.Slate50
-import com.hostelmanagement.app.core.theme.Slate500
-import com.hostelmanagement.app.core.theme.Slate600
-import com.hostelmanagement.app.core.theme.Slate900
+import com.hostelmanagement.app.core.theme.SurfaceNeutral
+import com.hostelmanagement.app.core.theme.TextMuted
+import com.hostelmanagement.app.core.theme.TextPrimary
+import com.hostelmanagement.app.core.theme.TextSecondary
 import com.hostelmanagement.app.ui.components.AppButton
 import com.hostelmanagement.app.ui.components.AppCard
 import com.hostelmanagement.app.ui.components.AppTextField
@@ -102,14 +103,14 @@ fun TenantListScreen(
                         Icon(
                             imageVector = Icons.Outlined.Add,
                             contentDescription = "Register Tenant",
-                            tint = Slate900
+                            tint = TextPrimary
                         )
                     }
                 }
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = Slate50
+        containerColor = SurfaceNeutral
     ) { paddingValues ->
         when {
             state.isLoading -> LoadingView(message = "Loading tenants...")
@@ -145,7 +146,8 @@ fun TenantListScreen(
                             Icon(
                                 imageVector = Icons.Outlined.Search,
                                 contentDescription = null,
-                                tint = Slate500
+                                tint = TextMuted,
+                                modifier = Modifier.size(20.dp)
                             )
                         }
                     )
@@ -159,7 +161,8 @@ fun TenantListScreen(
                         items(state.filteredTenants, key = { it.id }) { tenant ->
                             AppCard(
                                 onClick = { onNavigateToTenantDetail(tenant.id) },
-                                modifier = Modifier.semantics(mergeDescendants = true) {}
+                                modifier = Modifier.semantics(mergeDescendants = true) {},
+                                padding = AppDimens.Spacing16
                             ) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
@@ -169,21 +172,21 @@ fun TenantListScreen(
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(
                                             text = tenant.full_name,
-                                            style = AppTypography.titleMedium,
-                                            color = Slate900
+                                            style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                            color = TextPrimary
                                         )
                                         Spacer(modifier = Modifier.height(AppDimens.Spacing2))
                                         Text(
                                             text = tenant.email,
-                                            style = AppTypography.bodyMedium,
-                                            color = Slate500
+                                            style = AppTypography.bodySmall,
+                                            color = TextSecondary
                                         )
                                         if (!tenant.phone.isNullOrBlank()) {
                                             Spacer(modifier = Modifier.height(AppDimens.Spacing2))
                                             Text(
                                                 text = "Phone: ${tenant.phone}",
-                                                style = AppTypography.bodyMedium,
-                                                color = Slate500
+                                                style = AppTypography.bodySmall,
+                                                color = TextSecondary
                                             )
                                         }
                                     }
@@ -192,7 +195,7 @@ fun TenantListScreen(
                             }
                         }
 
-                        item { Spacer(modifier = Modifier.height(AppDimens.Spacing16)) }
+                        item { Spacer(modifier = Modifier.height(AppDimens.Spacing24)) }
                     }
                 }
             }
@@ -203,7 +206,11 @@ fun TenantListScreen(
         AlertDialog(
             onDismissRequest = viewModel::closeRegisterDialog,
             title = {
-                Text(text = "Register New Tenant", style = AppTypography.titleMedium, color = Slate900)
+                Text(
+                    text = "Register New Tenant",
+                    style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = TextPrimary
+                )
             },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(AppDimens.Spacing12)) {
@@ -239,7 +246,11 @@ fun TenantListScreen(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
                     )
 
-                    Text(text = "Optional Room Assignment", style = AppTypography.labelSmall, color = Slate500)
+                    Text(
+                        text = "Optional Room Assignment",
+                        style = AppTypography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                        color = TextPrimary
+                    )
 
                     ExposedDropdownMenuBox(
                         expanded = isRoomDropdownExpanded,
@@ -318,11 +329,11 @@ fun TenantListScreen(
             },
             dismissButton = {
                 TextButton(onClick = viewModel::closeRegisterDialog) {
-                    Text("Cancel", color = Slate600)
+                    Text("Cancel", color = TextSecondary)
                 }
             },
             containerColor = PureWhite,
-            shape = AppShapes.medium
+            shape = AppShapes.large
         )
     }
 }

@@ -11,13 +11,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import com.hostelmanagement.app.core.theme.AppDimens
 import com.hostelmanagement.app.core.theme.AppTypography
+import com.hostelmanagement.app.core.theme.BorderSubtle
+import com.hostelmanagement.app.core.theme.BrandContainer
+import com.hostelmanagement.app.core.theme.BrandPrimary
 import com.hostelmanagement.app.core.theme.PureWhite
-import com.hostelmanagement.app.core.theme.Slate100
-import com.hostelmanagement.app.core.theme.Slate200
-import com.hostelmanagement.app.core.theme.Slate400
-import com.hostelmanagement.app.core.theme.Slate900
+import com.hostelmanagement.app.core.theme.TextSecondary
 
 data class BottomNavItem(
     val route: String,
@@ -33,10 +34,10 @@ fun AppBottomBar(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
-        HorizontalDivider(thickness = AppDimens.HairlineBorder, color = Slate200)
+        HorizontalDivider(thickness = AppDimens.HairlineBorder, color = BorderSubtle)
         NavigationBar(
             containerColor = PureWhite,
-            tonalElevation = AppDimens.Spacing2 * 0
+            tonalElevation = 0.dp
         ) {
             items.forEach { item ->
                 val selected = currentRoute == item.route
@@ -56,11 +57,11 @@ fun AppBottomBar(
                         )
                     },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = Slate900,
-                        selectedTextColor = Slate900,
-                        unselectedIconColor = Slate400,
-                        unselectedTextColor = Slate400,
-                        indicatorColor = Slate100
+                        selectedIconColor = BrandPrimary,
+                        selectedTextColor = BrandPrimary,
+                        unselectedIconColor = TextSecondary,
+                        unselectedTextColor = TextSecondary,
+                        indicatorColor = BrandContainer
                     )
                 )
             }

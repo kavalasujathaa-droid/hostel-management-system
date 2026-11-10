@@ -19,19 +19,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AddPhotoAlternate
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.outlined.AddPhotoAlternate
+import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -51,20 +49,22 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.hostelmanagement.app.core.theme.AppDimens
+import com.hostelmanagement.app.core.theme.AppShapes
 import com.hostelmanagement.app.core.theme.AppTypography
 import com.hostelmanagement.app.core.theme.BorderSubtle
+import com.hostelmanagement.app.core.theme.BrandContainer
+import com.hostelmanagement.app.core.theme.BrandPrimary
 import com.hostelmanagement.app.core.theme.PureWhite
-import com.hostelmanagement.app.core.theme.Slate200
-import com.hostelmanagement.app.core.theme.Slate400
-import com.hostelmanagement.app.core.theme.Slate500
-import com.hostelmanagement.app.core.theme.Slate700
-import com.hostelmanagement.app.core.theme.Slate900
 import com.hostelmanagement.app.core.theme.StatusOverdueText
+import com.hostelmanagement.app.core.theme.SurfaceNeutral
+import com.hostelmanagement.app.core.theme.TextMuted
+import com.hostelmanagement.app.core.theme.TextPrimary
+import com.hostelmanagement.app.core.theme.TextSecondary
 import com.hostelmanagement.app.ui.components.AppButton
 import com.hostelmanagement.app.ui.components.AppCard
 import com.hostelmanagement.app.ui.components.AppTextField
 import com.hostelmanagement.app.ui.components.AppTopBar
-import com.hostelmanagement.app.ui.components.ButtonVariant
+import com.hostelmanagement.app.ui.components.SectionHeader
 
 @Composable
 fun TenantRaiseComplaintScreen(
@@ -104,31 +104,26 @@ fun TenantRaiseComplaintScreen(
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = SurfaceNeutral
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .padding(horizontal = AppDimens.Spacing16, vertical = AppDimens.Spacing16)
         ) {
-            // Section 1: Category Selection
+            // Section 1: Issue Category Selection
+            SectionHeader(title = "Select Issue Category")
             Text(
-                text = "Issue Category",
-                style = AppTypography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                color = Slate900
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                text = "Select the type of maintenance or issue you are experiencing:",
+                text = "Choose the category that best describes your maintenance or facility request:",
                 style = AppTypography.bodySmall,
-                color = Slate500
+                color = TextSecondary
             )
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(AppDimens.Spacing10))
 
             LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(AppDimens.Spacing8),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 items(COMPLAINT_CATEGORIES) { category ->
@@ -140,120 +135,120 @@ fun TenantRaiseComplaintScreen(
                             Text(
                                 text = category,
                                 style = AppTypography.labelMedium.copy(
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                                 )
                             )
                         },
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.primary,
-                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                            selectedContainerColor = BrandPrimary,
+                            selectedLabelColor = PureWhite,
                             containerColor = PureWhite,
-                            labelColor = Slate700
+                            labelColor = TextSecondary
                         ),
                         border = FilterChipDefaults.filterChipBorder(
                             enabled = true,
                             selected = isSelected,
-                            borderColor = if (isSelected) MaterialTheme.colorScheme.primary else Slate200
-                        )
+                            borderColor = if (isSelected) BrandPrimary else BorderSubtle
+                        ),
+                        shape = AppShapes.small
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(AppDimens.Spacing20))
 
-            // Section 2: Complaint Title
-            AppTextField(
-                value = uiState.title,
-                onValueChange = viewModel::onTitleChanged,
-                label = "Complaint Title",
-                placeholder = "e.g. Geyser not heating water in bathroom",
-                singleLine = true,
-                maxLines = 1,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                Text(
-                    text = "${uiState.title.length}/150",
-                    style = AppTypography.labelSmall,
-                    color = if (uiState.title.length > 150) StatusOverdueText else Slate400
+            // Section 2: Complaint Details Card
+            AppCard(padding = AppDimens.Spacing16) {
+                AppTextField(
+                    value = uiState.title,
+                    onValueChange = viewModel::onTitleChanged,
+                    label = "Complaint Title",
+                    placeholder = "e.g. Geyser not heating water in bathroom",
+                    singleLine = true,
+                    maxLines = 1,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Text(
+                        text = "${uiState.title.length}/150",
+                        style = AppTypography.labelSmall,
+                        color = if (uiState.title.length > 150) StatusOverdueText else TextMuted
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(AppDimens.Spacing16))
+
+                AppTextField(
+                    value = uiState.description,
+                    onValueChange = viewModel::onDescriptionChanged,
+                    label = "Detailed Description",
+                    placeholder = "Please explain the problem with specific details (location, timing, symptoms)...",
+                    singleLine = false,
+                    maxLines = 5,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(AppDimens.Spacing20))
 
-            // Section 3: Detailed Description
-            AppTextField(
-                value = uiState.description,
-                onValueChange = viewModel::onDescriptionChanged,
-                label = "Detailed Description",
-                placeholder = "Provide details like exact location, when it started, and any symptoms...",
-                singleLine = false,
-                maxLines = 5,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Section 4: Photo Attachment (Optional)
+            // Section 3: Photo Attachment Card
+            SectionHeader(title = "Attach Photo (Optional)")
             Text(
-                text = "Attach Photo (Optional)",
-                style = AppTypography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                color = Slate900
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "Add a photo to help the owner or maintenance team resolve it faster (PNG, JPG, WEBP up to 5MB):",
+                text = "Photos help the maintenance team diagnose and fix the issue faster (PNG, JPG up to 5MB):",
                 style = AppTypography.bodySmall,
-                color = Slate500
+                color = TextSecondary
             )
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(AppDimens.Spacing10))
 
             if (uiState.selectedImageUri == null) {
-                // Upload trigger card
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f))
-                        .border(1.dp, BorderSubtle, RoundedCornerShape(12.dp))
+                        .clip(AppShapes.medium)
+                        .background(PureWhite)
+                        .border(1.dp, BorderSubtle, AppShapes.medium)
                         .clickable { imagePickerLauncher.launch("image/*") }
-                        .padding(vertical = 24.dp, horizontal = 16.dp),
+                        .padding(vertical = AppDimens.Spacing24, horizontal = AppDimens.Spacing16),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.AddPhotoAlternate,
-                            contentDescription = "Upload Photo",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(36.dp)
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Box(
+                            modifier = Modifier
+                                .size(50.dp)
+                                .background(BrandContainer, CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.AddPhotoAlternate,
+                                contentDescription = "Upload Photo",
+                                tint = BrandPrimary,
+                                modifier = Modifier.size(26.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(AppDimens.Spacing10))
                         Text(
                             text = "Tap to choose a photo",
-                            style = AppTypography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                            color = MaterialTheme.colorScheme.primary
+                            style = AppTypography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                            color = BrandPrimary
                         )
-                        Spacer(modifier = Modifier.height(2.dp))
+                        Spacer(modifier = Modifier.height(AppDimens.Spacing4))
                         Text(
-                            text = "JPEG, PNG, WEBP (Max 5 MB)",
-                            style = AppTypography.labelSmall,
-                            color = Slate500
+                            text = "JPEG, PNG (Max 5 MB)",
+                            style = AppTypography.bodySmall,
+                            color = TextSecondary
                         )
                     }
                 }
             } else {
-                // Preview card
-                AppCard(modifier = Modifier.fillMaxWidth()) {
+                AppCard(padding = AppDimens.Spacing12) {
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         AsyncImage(
@@ -261,23 +256,23 @@ fun TenantRaiseComplaintScreen(
                             contentDescription = "Complaint photo preview",
                             modifier = Modifier
                                 .size(64.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .border(1.dp, BorderSubtle, RoundedCornerShape(8.dp)),
+                                .clip(AppShapes.small)
+                                .border(1.dp, BorderSubtle, AppShapes.small),
                             contentScale = ContentScale.Crop
                         )
-                        Spacer(modifier = Modifier.width(12.dp))
+                        Spacer(modifier = Modifier.width(AppDimens.Spacing12))
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text = uiState.selectedImageName ?: "Selected image",
-                                style = AppTypography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                                color = Slate900,
+                                style = AppTypography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                                color = TextPrimary,
                                 maxLines = 1
                             )
-                            Spacer(modifier = Modifier.height(2.dp))
+                            Spacer(modifier = Modifier.height(AppDimens.Spacing2))
                             Text(
-                                text = "Photo attached",
-                                style = AppTypography.labelSmall,
-                                color = MaterialTheme.colorScheme.primary
+                                text = "Photo attached to ticket",
+                                style = AppTypography.bodySmall,
+                                color = BrandPrimary
                             )
                         }
                         IconButton(onClick = viewModel::onRemoveImage) {
@@ -291,9 +286,9 @@ fun TenantRaiseComplaintScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(AppDimens.Spacing28))
 
-            // Section 5: Submit Button
+            // Section 4: Submit Button
             val canSubmit = uiState.title.trim().length >= 3 &&
                     uiState.title.trim().length <= 150 &&
                     uiState.description.trim().length >= 5 &&
@@ -305,11 +300,10 @@ fun TenantRaiseComplaintScreen(
                 enabled = canSubmit,
                 isLoading = uiState.isSubmitting,
                 modifier = Modifier.fillMaxWidth(),
-                variant = ButtonVariant.Primary,
-                icon = Icons.Default.Send
+                icon = Icons.Outlined.Send
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(AppDimens.Spacing32))
         }
     }
 }

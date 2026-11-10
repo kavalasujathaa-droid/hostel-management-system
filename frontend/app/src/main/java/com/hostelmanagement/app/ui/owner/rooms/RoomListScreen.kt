@@ -44,19 +44,17 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hostelmanagement.app.core.theme.AppDimens
 import com.hostelmanagement.app.core.theme.AppShapes
 import com.hostelmanagement.app.core.theme.AppTypography
+import com.hostelmanagement.app.core.theme.BorderSubtle
+import com.hostelmanagement.app.core.theme.BrandPrimary
 import com.hostelmanagement.app.core.theme.PureWhite
-import com.hostelmanagement.app.core.theme.Slate100
-import com.hostelmanagement.app.core.theme.Slate200
-import com.hostelmanagement.app.core.theme.Slate50
-import com.hostelmanagement.app.core.theme.Slate500
-import com.hostelmanagement.app.core.theme.Slate600
-import com.hostelmanagement.app.core.theme.Slate900
 import com.hostelmanagement.app.core.theme.StatusOverdueText
+import com.hostelmanagement.app.core.theme.SurfaceNeutral
+import com.hostelmanagement.app.core.theme.TextPrimary
+import com.hostelmanagement.app.core.theme.TextSecondary
 import com.hostelmanagement.app.ui.components.AppButton
 import com.hostelmanagement.app.ui.components.AppCard
 import com.hostelmanagement.app.ui.components.AppTextField
 import com.hostelmanagement.app.ui.components.AppTopBar
-import com.hostelmanagement.app.ui.components.ButtonVariant
 import com.hostelmanagement.app.ui.components.EmptyStateView
 import com.hostelmanagement.app.ui.components.ErrorStateView
 import com.hostelmanagement.app.ui.components.LoadingView
@@ -85,7 +83,7 @@ fun RoomListScreen(
     Scaffold(
         topBar = {
             AppTopBar(
-                title = "Rooms",
+                title = "Room Management",
                 subtitle = "${state.rooms.size} rooms configured",
                 onNavigateBack = onNavigateBack,
                 actions = {
@@ -93,14 +91,14 @@ fun RoomListScreen(
                         Icon(
                             imageVector = Icons.Outlined.Add,
                             contentDescription = "Add Room",
-                            tint = Slate900
+                            tint = TextPrimary
                         )
                     }
                 }
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = Slate50
+        containerColor = SurfaceNeutral
     ) { paddingValues ->
         when {
             state.isLoading -> LoadingView(message = "Loading rooms...")
@@ -113,7 +111,7 @@ fun RoomListScreen(
             state.rooms.isEmpty() -> {
                 EmptyStateView(
                     title = "No Rooms Added Yet",
-                    message = "Add rooms and set their capacity to start assigning tenants.",
+                    message = "Add rooms and set their bed capacity to start assigning tenants.",
                     icon = Icons.Outlined.MeetingRoom,
                     actionButtonText = "+ Add First Room",
                     onActionClick = viewModel::openAddRoomDialog,
@@ -126,7 +124,6 @@ fun RoomListScreen(
                         .fillMaxSize()
                         .padding(paddingValues)
                 ) {
-                    // Floor Filter Chips
                     val floors = remember(state.rooms) {
                         listOf(null) + state.rooms.mapNotNull { it.floor }.distinct().sorted()
                     }
@@ -147,15 +144,23 @@ fun RoomListScreen(
                                     label = {
                                         Text(
                                             text = floor ?: "All Floors",
-                                            style = AppTypography.labelSmall
+                                            style = AppTypography.labelMedium.copy(
+                                                fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
+                                            )
                                         )
                                     },
                                     colors = FilterChipDefaults.filterChipColors(
-                                        selectedContainerColor = Slate900,
+                                        selectedContainerColor = BrandPrimary,
                                         selectedLabelColor = PureWhite,
-                                        containerColor = Slate100,
-                                        labelColor = Slate600
-                                    )
+                                        containerColor = PureWhite,
+                                        labelColor = TextSecondary
+                                    ),
+                                    border = FilterChipDefaults.filterChipBorder(
+                                        enabled = true,
+                                        selected = selected,
+                                        borderColor = if (selected) BrandPrimary else BorderSubtle
+                                    ),
+                                    shape = AppShapes.small
                                 )
                             }
                         }
@@ -167,10 +172,15 @@ fun RoomListScreen(
                             .padding(horizontal = AppDimens.Spacing16),
                         verticalArrangement = Arrangement.spacedBy(AppDimens.Spacing12)
                     ) {
+                        item {
+                            Spacer(modifier = Modifier.height(AppDimens.Spacing4))
+                        }
+
                         items(state.rooms, key = { it.id }) { room ->
                             AppCard(
                                 onClick = { onNavigateToRoomDetail(room.id) },
-                                modifier = Modifier.semantics(mergeDescendants = true) {}
+                                modifier = Modifier.semantics(mergeDescendants = true) {},
+                                padding = AppDimens.Spacing16
                             ) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
@@ -180,14 +190,14 @@ fun RoomListScreen(
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(
                                             text = "Room ${room.room_number}",
-                                            style = AppTypography.titleMedium,
-                                            color = Slate900
+                                            style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                            color = TextPrimary
                                         )
                                         Spacer(modifier = Modifier.height(AppDimens.Spacing2))
                                         Text(
-                                            text = "Floor: ${room.floor ?: "Standard"} · Total Beds: ${room.capacity}",
-                                            style = AppTypography.bodyMedium,
-                                            color = Slate500
+                                            text = "Floor: ${room.floor ?: "Standard"} • Total Beds: ${room.capacity}",
+                                            style = AppTypography.bodySmall,
+                                            color = TextSecondary
                                         )
                                     }
 
@@ -195,7 +205,7 @@ fun RoomListScreen(
                                         Text(
                                             text = "${room.active_occupants} / ${room.capacity} Occupied",
                                             style = AppTypography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                                            color = if (room.available_beds > 0) Slate900 else StatusOverdueText
+                                            color = if (room.available_beds > 0) TextPrimary else StatusOverdueText
                                         )
                                         Spacer(modifier = Modifier.height(AppDimens.Spacing4))
                                         StatusBadge(
@@ -206,7 +216,7 @@ fun RoomListScreen(
                             }
                         }
 
-                        item { Spacer(modifier = Modifier.height(AppDimens.Spacing16)) }
+                        item { Spacer(modifier = Modifier.height(AppDimens.Spacing24)) }
                     }
                 }
             }
@@ -217,7 +227,7 @@ fun RoomListScreen(
         AlertDialog(
             onDismissRequest = viewModel::closeAddRoomDialog,
             title = {
-                Text(text = "Add New Room", style = AppTypography.titleMedium, color = Slate900)
+                Text(text = "Add New Room", style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold), color = TextPrimary)
             },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(AppDimens.Spacing12)) {
@@ -259,11 +269,11 @@ fun RoomListScreen(
             },
             dismissButton = {
                 TextButton(onClick = viewModel::closeAddRoomDialog) {
-                    Text("Cancel", color = Slate600)
+                    Text("Cancel", color = TextSecondary)
                 }
             },
             containerColor = PureWhite,
-            shape = com.hostelmanagement.app.core.theme.AppShapes.medium
+            shape = AppShapes.large
         )
     }
 }

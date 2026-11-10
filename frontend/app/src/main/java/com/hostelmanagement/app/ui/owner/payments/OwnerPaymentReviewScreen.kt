@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -30,7 +31,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -63,15 +63,17 @@ import com.hostelmanagement.app.BuildConfig
 import com.hostelmanagement.app.core.common.CurrencyFormatter
 import com.hostelmanagement.app.core.common.DateFormatter
 import com.hostelmanagement.app.core.theme.AppDimens
+import com.hostelmanagement.app.core.theme.AppShapes
 import com.hostelmanagement.app.core.theme.AppTypography
 import com.hostelmanagement.app.core.theme.BorderSubtle
+import com.hostelmanagement.app.core.theme.BrandContainer
+import com.hostelmanagement.app.core.theme.BrandPrimary
 import com.hostelmanagement.app.core.theme.PureWhite
-import com.hostelmanagement.app.core.theme.Slate200
-import com.hostelmanagement.app.core.theme.Slate50
-import com.hostelmanagement.app.core.theme.Slate500
-import com.hostelmanagement.app.core.theme.Slate600
-import com.hostelmanagement.app.core.theme.Slate900
 import com.hostelmanagement.app.core.theme.StatusOverdueText
+import com.hostelmanagement.app.core.theme.SurfaceNeutral
+import com.hostelmanagement.app.core.theme.TextMuted
+import com.hostelmanagement.app.core.theme.TextPrimary
+import com.hostelmanagement.app.core.theme.TextSecondary
 import com.hostelmanagement.app.data.remote.dto.PaymentResponseDto
 import com.hostelmanagement.app.ui.components.AppButton
 import com.hostelmanagement.app.ui.components.AppCard
@@ -113,7 +115,7 @@ fun OwnerPaymentReviewScreen(
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = SurfaceNeutral
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -122,12 +124,12 @@ fun OwnerPaymentReviewScreen(
         ) {
             TabRow(
                 selectedTabIndex = state.selectedTab,
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.primary,
+                containerColor = PureWhite,
+                contentColor = BrandPrimary,
                 indicator = { tabPositions ->
                     TabRowDefaults.SecondaryIndicator(
                         Modifier.tabIndicatorOffset(tabPositions[state.selectedTab]),
-                        color = MaterialTheme.colorScheme.primary
+                        color = BrandPrimary
                     )
                 }
             ) {
@@ -137,8 +139,10 @@ fun OwnerPaymentReviewScreen(
                     text = {
                         Text(
                             text = "Pending (${state.pendingPayments.size})",
-                            style = AppTypography.titleSmall,
-                            color = if (state.selectedTab == 0) MaterialTheme.colorScheme.primary else Slate600
+                            style = AppTypography.titleSmall.copy(
+                                fontWeight = if (state.selectedTab == 0) FontWeight.Bold else FontWeight.Normal
+                            ),
+                            color = if (state.selectedTab == 0) BrandPrimary else TextSecondary
                         )
                     }
                 )
@@ -148,8 +152,10 @@ fun OwnerPaymentReviewScreen(
                     text = {
                         Text(
                             text = "History (${state.historyPayments.size})",
-                            style = AppTypography.titleSmall,
-                            color = if (state.selectedTab == 1) MaterialTheme.colorScheme.primary else Slate600
+                            style = AppTypography.titleSmall.copy(
+                                fontWeight = if (state.selectedTab == 1) FontWeight.Bold else FontWeight.Normal
+                            ),
+                            color = if (state.selectedTab == 1) BrandPrimary else TextSecondary
                         )
                     }
                 )
@@ -187,7 +193,8 @@ fun OwnerPaymentReviewScreen(
                         ) {
                             items(currentList, key = { it.id }) { payment ->
                                 AppCard(
-                                    modifier = Modifier.semantics(mergeDescendants = true) {}
+                                    modifier = Modifier.semantics(mergeDescendants = true) {},
+                                    padding = AppDimens.Spacing16
                                 ) {
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
@@ -197,40 +204,42 @@ fun OwnerPaymentReviewScreen(
                                         Column(modifier = Modifier.weight(1f)) {
                                             Text(
                                                 text = payment.submitted_by_name ?: "Tenant #${payment.submitted_by}",
-                                                style = AppTypography.titleMedium,
-                                                color = MaterialTheme.colorScheme.onSurface
+                                                style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                                color = TextPrimary
                                             )
                                             Spacer(modifier = Modifier.height(AppDimens.Spacing2))
                                             Row(verticalAlignment = Alignment.CenterVertically) {
                                                 Text(
                                                     text = "UTR: ${payment.utr}",
-                                                    style = AppTypography.bodyMedium,
-                                                    color = MaterialTheme.colorScheme.onSurface
+                                                    style = AppTypography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                                                    color = TextPrimary
                                                 )
                                                 IconButton(
                                                     onClick = {
                                                         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                                         clipboard.setPrimaryClip(ClipData.newPlainText("UTR", payment.utr))
                                                         scope.launch { snackbarHostState.showSnackbar("Copied UTR to clipboard") }
-                                                    }
+                                                    },
+                                                    modifier = Modifier.size(28.dp)
                                                 ) {
                                                     Icon(
                                                         imageVector = Icons.Outlined.ContentCopy,
                                                         contentDescription = "Copy UTR",
-                                                        tint = Slate500
+                                                        tint = BrandPrimary,
+                                                        modifier = Modifier.size(16.dp)
                                                     )
                                                 }
                                             }
                                             Text(
                                                 text = "Submitted: ${DateFormatter.formatIsoDateTime(payment.submitted_at)}",
                                                 style = AppTypography.labelSmall,
-                                                color = Slate500
+                                                color = TextSecondary
                                             )
                                             if (!payment.rejection_reason.isNullOrBlank()) {
                                                 Spacer(modifier = Modifier.height(AppDimens.Spacing4))
                                                 Text(
                                                     text = "Reason: ${payment.rejection_reason}",
-                                                    style = AppTypography.bodyMedium,
+                                                    style = AppTypography.bodySmall,
                                                     color = StatusOverdueText
                                                 )
                                             }
@@ -239,10 +248,10 @@ fun OwnerPaymentReviewScreen(
                                         Column(horizontalAlignment = Alignment.End) {
                                             Text(
                                                 text = CurrencyFormatter.format(payment.amount),
-                                                style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                                color = MaterialTheme.colorScheme.onSurface
+                                                style = AppTypography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                                                color = TextPrimary
                                             )
-                                            Spacer(modifier = Modifier.height(AppDimens.Spacing4))
+                                            Spacer(modifier = Modifier.height(AppDimens.Spacing6))
                                             StatusBadge(status = payment.status)
                                         }
                                     }
@@ -254,10 +263,10 @@ fun OwnerPaymentReviewScreen(
                                         Row(
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .clip(RoundedCornerShape(8.dp))
-                                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                                                .clip(AppShapes.small)
+                                                .background(BrandContainer)
                                                 .clickable { viewingProofPayment = payment }
-                                                .padding(8.dp),
+                                                .padding(AppDimens.Spacing8),
                                             verticalAlignment = Alignment.CenterVertically
                                         ) {
                                             AsyncImage(
@@ -265,27 +274,27 @@ fun OwnerPaymentReviewScreen(
                                                 contentDescription = "Payment Screenshot Thumbnail",
                                                 modifier = Modifier
                                                     .size(54.dp)
-                                                    .clip(RoundedCornerShape(6.dp))
-                                                    .border(1.dp, BorderSubtle, RoundedCornerShape(6.dp)),
+                                                    .clip(AppShapes.small)
+                                                    .border(1.dp, BorderSubtle, AppShapes.small),
                                                 contentScale = ContentScale.Crop
                                             )
-                                            Spacer(modifier = Modifier.width(10.dp))
+                                            Spacer(modifier = Modifier.width(AppDimens.Spacing10))
                                             Column(modifier = Modifier.weight(1f)) {
                                                 Text(
                                                     text = "Screenshot Attached",
-                                                    style = AppTypography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                                                    color = MaterialTheme.colorScheme.onSurface
+                                                    style = AppTypography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                                                    color = TextPrimary
                                                 )
                                                 Text(
                                                     text = "Tap to view full receipt",
-                                                    style = AppTypography.labelSmall,
-                                                    color = MaterialTheme.colorScheme.primary
+                                                    style = AppTypography.bodySmall,
+                                                    color = BrandPrimary
                                                 )
                                             }
                                             Icon(
                                                 imageVector = Icons.Default.ZoomIn,
                                                 contentDescription = "Enlarge proof",
-                                                tint = MaterialTheme.colorScheme.primary,
+                                                tint = BrandPrimary,
                                                 modifier = Modifier.size(22.dp)
                                             )
                                         }
@@ -328,14 +337,14 @@ fun OwnerPaymentReviewScreen(
     viewingProofPayment?.let { proofPayment ->
         Dialog(onDismissRequest = { viewingProofPayment = null }) {
             Card(
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                shape = AppShapes.large,
+                colors = CardDefaults.cardColors(containerColor = PureWhite),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier.padding(AppDimens.Spacing16),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Row(
@@ -346,21 +355,21 @@ fun OwnerPaymentReviewScreen(
                         Column {
                             Text(
                                 text = "Payment Screenshot",
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                color = MaterialTheme.colorScheme.onSurface
+                                style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                color = TextPrimary
                             )
                             Text(
                                 text = "UTR: ${proofPayment.utr} • ₹${proofPayment.amount}",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Slate600
+                                style = AppTypography.bodySmall,
+                                color = TextSecondary
                             )
                         }
                         IconButton(onClick = { viewingProofPayment = null }) {
-                            Icon(Icons.Default.Close, contentDescription = "Close preview")
+                            Icon(Icons.Default.Close, contentDescription = "Close preview", tint = TextPrimary)
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(AppDimens.Spacing12))
 
                     val fullProofUrl = "${BuildConfig.BACKEND_URL.trimEnd('/')}/api/v1/payments/${proofPayment.id}/proof"
                     AsyncImage(
@@ -369,12 +378,12 @@ fun OwnerPaymentReviewScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .heightIn(min = 220.dp, max = 420.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .border(1.dp, BorderSubtle, RoundedCornerShape(8.dp)),
+                            .clip(AppShapes.medium)
+                            .border(1.dp, BorderSubtle, AppShapes.medium),
                         contentScale = ContentScale.Fit
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(AppDimens.Spacing16))
 
                     AppButton(
                         text = "Dismiss",
@@ -391,14 +400,14 @@ fun OwnerPaymentReviewScreen(
         AlertDialog(
             onDismissRequest = viewModel::closeRejectDialog,
             title = {
-                Text(text = "Reject Payment", style = AppTypography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+                Text(text = "Reject Payment", style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold), color = TextPrimary)
             },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(AppDimens.Spacing12)) {
                     Text(
                         text = "Specify the reason for payment rejection (e.g., UTR not matching bank statement):",
                         style = AppTypography.bodyMedium,
-                        color = Slate500
+                        color = TextSecondary
                     )
                     AppTextField(
                         value = rejectReason,
@@ -423,11 +432,11 @@ fun OwnerPaymentReviewScreen(
             },
             dismissButton = {
                 TextButton(onClick = viewModel::closeRejectDialog) {
-                    Text("Cancel", color = Slate600)
+                    Text("Cancel", color = TextSecondary)
                 }
             },
             containerColor = PureWhite,
-            shape = com.hostelmanagement.app.core.theme.AppShapes.medium
+            shape = AppShapes.large
         )
     }
 }

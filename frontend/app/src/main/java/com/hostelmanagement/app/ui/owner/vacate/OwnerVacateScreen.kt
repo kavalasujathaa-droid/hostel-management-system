@@ -1,8 +1,6 @@
 package com.hostelmanagement.app.ui.owner.vacate
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,18 +15,14 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.MeetingRoom
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.outlined.CalendarToday
+import androidx.compose.material.icons.outlined.MeetingRoom
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -49,12 +43,22 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hostelmanagement.app.core.common.DateFormatter
-import com.hostelmanagement.app.core.theme.Slate500
+import com.hostelmanagement.app.core.theme.AppDimens
+import com.hostelmanagement.app.core.theme.AppShapes
+import com.hostelmanagement.app.core.theme.AppTypography
+import com.hostelmanagement.app.core.theme.BorderSubtle
+import com.hostelmanagement.app.core.theme.BrandPrimary
+import com.hostelmanagement.app.core.theme.PureWhite
+import com.hostelmanagement.app.core.theme.StatusOverdueText
+import com.hostelmanagement.app.core.theme.SurfaceNeutral
+import com.hostelmanagement.app.core.theme.TextPrimary
+import com.hostelmanagement.app.core.theme.TextSecondary
 import com.hostelmanagement.app.data.remote.dto.VacateRequestResponseDto
 import com.hostelmanagement.app.ui.components.AppButton
-import com.hostelmanagement.app.ui.components.ButtonVariant
 import com.hostelmanagement.app.ui.components.AppCard
+import com.hostelmanagement.app.ui.components.AppTextField
 import com.hostelmanagement.app.ui.components.AppTopBar
+import com.hostelmanagement.app.ui.components.ButtonVariant
 import com.hostelmanagement.app.ui.components.EmptyStateView
 import com.hostelmanagement.app.ui.components.LoadingView
 import com.hostelmanagement.app.ui.components.StatusBadge
@@ -94,62 +98,97 @@ fun OwnerVacateScreen(
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = SurfaceNeutral
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Filter Chips
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    .padding(horizontal = AppDimens.Spacing16, vertical = AppDimens.Spacing8),
+                horizontalArrangement = Arrangement.spacedBy(AppDimens.Spacing8)
             ) {
                 item {
+                    val isSelected = uiState.selectedStatusFilter == "PENDING"
                     FilterChip(
-                        selected = uiState.selectedStatusFilter == "PENDING",
+                        selected = isSelected,
                         onClick = { viewModel.setStatusFilter("PENDING") },
-                        label = { Text("Pending") },
+                        label = { Text("Pending", fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium) },
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.primary,
-                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary
-                        )
+                            selectedContainerColor = BrandPrimary,
+                            selectedLabelColor = PureWhite,
+                            containerColor = PureWhite,
+                            labelColor = TextSecondary
+                        ),
+                        border = FilterChipDefaults.filterChipBorder(
+                            enabled = true,
+                            selected = isSelected,
+                            borderColor = if (isSelected) BrandPrimary else BorderSubtle
+                        ),
+                        shape = AppShapes.small
                     )
                 }
                 item {
+                    val isSelected = uiState.selectedStatusFilter == "APPROVED"
                     FilterChip(
-                        selected = uiState.selectedStatusFilter == "APPROVED",
+                        selected = isSelected,
                         onClick = { viewModel.setStatusFilter("APPROVED") },
-                        label = { Text("Approved") },
+                        label = { Text("Approved", fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium) },
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.primary,
-                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary
-                        )
+                            selectedContainerColor = BrandPrimary,
+                            selectedLabelColor = PureWhite,
+                            containerColor = PureWhite,
+                            labelColor = TextSecondary
+                        ),
+                        border = FilterChipDefaults.filterChipBorder(
+                            enabled = true,
+                            selected = isSelected,
+                            borderColor = if (isSelected) BrandPrimary else BorderSubtle
+                        ),
+                        shape = AppShapes.small
                     )
                 }
                 item {
+                    val isSelected = uiState.selectedStatusFilter == "REJECTED"
                     FilterChip(
-                        selected = uiState.selectedStatusFilter == "REJECTED",
+                        selected = isSelected,
                         onClick = { viewModel.setStatusFilter("REJECTED") },
-                        label = { Text("Rejected") },
+                        label = { Text("Rejected", fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium) },
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.primary,
-                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary
-                        )
+                            selectedContainerColor = BrandPrimary,
+                            selectedLabelColor = PureWhite,
+                            containerColor = PureWhite,
+                            labelColor = TextSecondary
+                        ),
+                        border = FilterChipDefaults.filterChipBorder(
+                            enabled = true,
+                            selected = isSelected,
+                            borderColor = if (isSelected) BrandPrimary else BorderSubtle
+                        ),
+                        shape = AppShapes.small
                     )
                 }
                 item {
+                    val isSelected = uiState.selectedStatusFilter == null
                     FilterChip(
-                        selected = uiState.selectedStatusFilter == null,
+                        selected = isSelected,
                         onClick = { viewModel.setStatusFilter(null) },
-                        label = { Text("All") },
+                        label = { Text("All", fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium) },
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.primary,
-                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary
-                        )
+                            selectedContainerColor = BrandPrimary,
+                            selectedLabelColor = PureWhite,
+                            containerColor = PureWhite,
+                            labelColor = TextSecondary
+                        ),
+                        border = FilterChipDefaults.filterChipBorder(
+                            enabled = true,
+                            selected = isSelected,
+                            borderColor = if (isSelected) BrandPrimary else BorderSubtle
+                        ),
+                        shape = AppShapes.small
                     )
                 }
             }
@@ -169,18 +208,18 @@ fun OwnerVacateScreen(
                     },
                     actionLabel = "Refresh",
                     onAction = { viewModel.loadVacateRequests() },
-                    icon = Icons.Default.CalendarToday,
+                    icon = Icons.Outlined.CalendarToday,
                     modifier = Modifier.fillMaxSize()
                 )
             } else {
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                        .padding(horizontal = AppDimens.Spacing16),
+                    verticalArrangement = Arrangement.spacedBy(AppDimens.Spacing12)
                 ) {
                     item {
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(AppDimens.Spacing4))
                     }
 
                     items(uiState.requests, key = { it.id }) { request ->
@@ -196,7 +235,7 @@ fun OwnerVacateScreen(
                     }
 
                     item {
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(AppDimens.Spacing24))
                     }
                 }
             }
@@ -207,15 +246,23 @@ fun OwnerVacateScreen(
     selectedRequestToApprove?.let { req ->
         AlertDialog(
             onDismissRequest = { selectedRequestToApprove = null },
-            title = { Text("Approve Move-Out Notice") },
+            title = {
+                Text(
+                    text = "Approve Move-Out Notice",
+                    style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = TextPrimary
+                )
+            },
             text = {
                 Text(
-                    "Are you sure you want to approve the vacate request for ${req.tenant_name ?: "tenant"} with vacating date ${DateFormatter.formatDate(req.requested_vacating_date)}? This will schedule the end date of their stay."
+                    text = "Are you sure you want to approve the vacate notice for ${req.tenant_name ?: "resident"} for vacating date ${DateFormatter.formatDate(req.requested_vacating_date)}? This will schedule the completion of their room stay.",
+                    style = AppTypography.bodyMedium,
+                    color = TextSecondary
                 )
             },
             confirmButton = {
                 AppButton(
-                    text = "Approve",
+                    text = "Approve Move-Out",
                     onClick = {
                         viewModel.approveRequest(req.id)
                         selectedRequestToApprove = null
@@ -224,9 +271,11 @@ fun OwnerVacateScreen(
             },
             dismissButton = {
                 TextButton(onClick = { selectedRequestToApprove = null }) {
-                    Text("Cancel")
+                    Text("Cancel", color = TextSecondary)
                 }
-            }
+            },
+            containerColor = PureWhite,
+            shape = AppShapes.large
         )
     }
 
@@ -234,23 +283,34 @@ fun OwnerVacateScreen(
     selectedRequestToReject?.let { req ->
         AlertDialog(
             onDismissRequest = { selectedRequestToReject = null },
-            title = { Text("Reject Move-Out Notice") },
+            title = {
+                Text(
+                    text = "Reject Move-Out Notice",
+                    style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = TextPrimary
+                )
+            },
             text = {
                 Column {
-                    Text("Provide a reason for rejecting this vacate request (optional):")
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(
+                    Text(
+                        text = "Provide a reason for rejecting this vacate request (e.g. minimum notice period not fulfilled):",
+                        style = AppTypography.bodySmall,
+                        color = TextSecondary
+                    )
+                    Spacer(modifier = Modifier.height(AppDimens.Spacing10))
+                    AppTextField(
                         value = rejectionReasonText,
                         onValueChange = { rejectionReasonText = it },
-                        modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("e.g. Notice period minimum not met") },
+                        label = "Rejection Reason",
+                        placeholder = "e.g. Notice period minimum not met",
+                        singleLine = false,
                         maxLines = 3
                     )
                 }
             },
             confirmButton = {
                 AppButton(
-                    text = "Reject Request",
+                    text = "Confirm Rejection",
                     variant = ButtonVariant.Destructive,
                     onClick = {
                         viewModel.rejectRequest(req.id, rejectionReasonText)
@@ -260,9 +320,11 @@ fun OwnerVacateScreen(
             },
             dismissButton = {
                 TextButton(onClick = { selectedRequestToReject = null }) {
-                    Text("Cancel")
+                    Text("Cancel", color = TextSecondary)
                 }
-            }
+            },
+            containerColor = PureWhite,
+            shape = AppShapes.large
         )
     }
 }
@@ -274,13 +336,15 @@ private fun VacateItemCard(
     onApprove: () -> Unit,
     onReject: () -> Unit
 ) {
-    AppCard(modifier = Modifier.fillMaxWidth()) {
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        padding = AppDimens.Spacing16
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
                 .semantics(mergeDescendants = true) {
-                    contentDescription = "Vacate request by ${request.tenant_name ?: "tenant"} in room ${request.room_number ?: "-"}, requested date ${DateFormatter.formatDate(request.requested_vacating_date)}, status ${request.status}"
+                    contentDescription = "Vacate request by ${request.tenant_name ?: "resident"} in room ${request.room_number ?: "-"}, requested date ${DateFormatter.formatDate(request.requested_vacating_date)}, status ${request.status}"
                 }
         ) {
             Row(
@@ -289,68 +353,68 @@ private fun VacateItemCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = request.tenant_name ?: "Tenant",
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurface
+                    text = request.tenant_name ?: "Resident",
+                    style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = TextPrimary
                 )
-                StatusBadge(text = request.status, status = request.status)
+                StatusBadge(status = request.status)
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(AppDimens.Spacing6))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = Icons.Default.MeetingRoom,
+                    imageVector = Icons.Outlined.MeetingRoom,
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
-                    tint = Slate500
+                    tint = TextSecondary
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = "Room ${request.room_number ?: "-"}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Slate500
+                    style = AppTypography.bodySmall,
+                    color = TextSecondary
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Icon(
-                    imageVector = Icons.Default.CalendarToday,
+                    imageVector = Icons.Outlined.CalendarToday,
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
-                    tint = Slate500
+                    tint = TextSecondary
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = "Requested Date: ${DateFormatter.formatDate(request.requested_vacating_date)}",
-                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
-                    color = MaterialTheme.colorScheme.onSurface
+                    text = "Vacating Date: ${DateFormatter.formatDate(request.requested_vacating_date)}",
+                    style = AppTypography.bodySmall.copy(fontWeight = FontWeight.Medium),
+                    color = TextPrimary
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(AppDimens.Spacing6))
 
             Text(
                 text = "Submitted ${DateFormatter.formatDateTime(request.requested_at)}",
-                style = MaterialTheme.typography.labelSmall,
-                color = Slate500
+                style = AppTypography.labelSmall,
+                color = TextSecondary
             )
 
             if (!request.rejection_reason.isNullOrBlank()) {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(AppDimens.Spacing6))
                 Text(
                     text = "Reason: ${request.rejection_reason}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error
+                    style = AppTypography.bodySmall,
+                    color = StatusOverdueText
                 )
             }
 
             if (request.status == "PENDING") {
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(AppDimens.Spacing16))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(AppDimens.Spacing12)
                 ) {
                     AppButton(
                         text = "Approve",

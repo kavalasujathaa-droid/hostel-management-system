@@ -39,14 +39,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hostelmanagement.app.core.common.CurrencyFormatter
 import com.hostelmanagement.app.core.common.DateFormatter
 import com.hostelmanagement.app.core.theme.AppDimens
+import com.hostelmanagement.app.core.theme.AppShapes
 import com.hostelmanagement.app.core.theme.AppTypography
+import com.hostelmanagement.app.core.theme.BrandPrimary
 import com.hostelmanagement.app.core.theme.PureWhite
-import com.hostelmanagement.app.core.theme.Slate200
-import com.hostelmanagement.app.core.theme.Slate50
-import com.hostelmanagement.app.core.theme.Slate500
-import com.hostelmanagement.app.core.theme.Slate600
-import com.hostelmanagement.app.core.theme.Slate900
 import com.hostelmanagement.app.core.theme.StatusOverdueText
+import com.hostelmanagement.app.core.theme.SurfaceNeutral
+import com.hostelmanagement.app.core.theme.TextPrimary
+import com.hostelmanagement.app.core.theme.TextSecondary
 import com.hostelmanagement.app.ui.components.AppButton
 import com.hostelmanagement.app.ui.components.AppCard
 import com.hostelmanagement.app.ui.components.AppTextField
@@ -85,14 +85,14 @@ fun OwnerBillingScreen(
                         Icon(
                             imageVector = Icons.Outlined.ElectricBolt,
                             contentDescription = "Generate Monthly Dues",
-                            tint = Slate900
+                            tint = BrandPrimary
                         )
                     }
                 }
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = Slate50
+        containerColor = SurfaceNeutral
     ) { paddingValues ->
         when {
             state.isLoading -> LoadingView(message = "Loading billing charges...")
@@ -122,7 +122,8 @@ fun OwnerBillingScreen(
                 ) {
                     items(state.charges, key = { it.id }) { charge ->
                         AppCard(
-                            modifier = Modifier.semantics(mergeDescendants = true) {}
+                            modifier = Modifier.semantics(mergeDescendants = true) {},
+                            padding = AppDimens.Spacing16
                         ) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -132,20 +133,20 @@ fun OwnerBillingScreen(
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
                                         text = charge.tenant_name ?: "Stay #${charge.tenant_stay_id}",
-                                        style = AppTypography.titleMedium,
-                                        color = Slate900
+                                        style = AppTypography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                                        color = TextPrimary
                                     )
                                     Spacer(modifier = Modifier.height(AppDimens.Spacing2))
                                     Text(
-                                        text = "Room ${charge.room_number ?: "—"} · Due ${DateFormatter.formatIsoDate(charge.due_date)}",
-                                        style = AppTypography.bodyMedium,
-                                        color = Slate500
+                                        text = "Room ${charge.room_number ?: "—"} • Due ${DateFormatter.formatIsoDate(charge.due_date)}",
+                                        style = AppTypography.bodySmall,
+                                        color = TextSecondary
                                     )
                                     Spacer(modifier = Modifier.height(AppDimens.Spacing2))
                                     Text(
                                         text = "Billable Days: ${charge.billable_days} / ${charge.days_in_month}",
                                         style = AppTypography.labelSmall,
-                                        color = Slate500
+                                        color = TextSecondary
                                     )
                                 }
 
@@ -153,13 +154,13 @@ fun OwnerBillingScreen(
                                     Text(
                                         text = CurrencyFormatter.format(charge.amount_due),
                                         style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                        color = Slate900
+                                        color = TextPrimary
                                     )
                                     if (charge.balance != "0.00" && charge.balance != "0") {
                                         Spacer(modifier = Modifier.height(AppDimens.Spacing2))
                                         Text(
                                             text = "Bal: ${CurrencyFormatter.format(charge.balance)}",
-                                            style = AppTypography.labelSmall,
+                                            style = AppTypography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
                                             color = StatusOverdueText
                                         )
                                     }
@@ -170,7 +171,7 @@ fun OwnerBillingScreen(
                         }
                     }
 
-                    item { Spacer(modifier = Modifier.height(AppDimens.Spacing16)) }
+                    item { Spacer(modifier = Modifier.height(AppDimens.Spacing24)) }
                 }
             }
         }
@@ -180,14 +181,18 @@ fun OwnerBillingScreen(
         AlertDialog(
             onDismissRequest = viewModel::closeGenerateDialog,
             title = {
-                Text(text = "Generate Monthly Rent Charges", style = AppTypography.titleMedium, color = Slate900)
+                Text(
+                    text = "Generate Monthly Rent Charges",
+                    style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = TextPrimary
+                )
             },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(AppDimens.Spacing12)) {
                     Text(
                         text = "This generates daily-prorated rent charges for all active stays in the given month.",
-                        style = AppTypography.bodyMedium,
-                        color = Slate500
+                        style = AppTypography.bodySmall,
+                        color = TextSecondary
                     )
 
                     AppTextField(
@@ -218,11 +223,11 @@ fun OwnerBillingScreen(
             },
             dismissButton = {
                 TextButton(onClick = viewModel::closeGenerateDialog) {
-                    Text("Cancel", color = Slate600)
+                    Text("Cancel", color = TextSecondary)
                 }
             },
             containerColor = PureWhite,
-            shape = com.hostelmanagement.app.core.theme.AppShapes.medium
+            shape = AppShapes.large
         )
     }
 }

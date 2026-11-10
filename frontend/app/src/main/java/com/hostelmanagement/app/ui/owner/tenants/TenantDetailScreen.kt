@@ -17,19 +17,23 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hostelmanagement.app.core.common.CurrencyFormatter
 import com.hostelmanagement.app.core.common.DateFormatter
 import com.hostelmanagement.app.core.theme.AppDimens
 import com.hostelmanagement.app.core.theme.AppTypography
-import com.hostelmanagement.app.core.theme.Slate50
-import com.hostelmanagement.app.core.theme.Slate500
-import com.hostelmanagement.app.core.theme.Slate900
+import com.hostelmanagement.app.core.theme.BrandPrimary
+import com.hostelmanagement.app.core.theme.PureWhite
+import com.hostelmanagement.app.core.theme.SurfaceNeutral
+import com.hostelmanagement.app.core.theme.TextPrimary
+import com.hostelmanagement.app.core.theme.TextSecondary
 import com.hostelmanagement.app.ui.components.AppCard
 import com.hostelmanagement.app.ui.components.AppTopBar
 import com.hostelmanagement.app.ui.components.ErrorStateView
 import com.hostelmanagement.app.ui.components.LoadingView
+import com.hostelmanagement.app.ui.components.SectionHeader
 import com.hostelmanagement.app.ui.components.StatusBadge
 
 @Composable
@@ -48,7 +52,7 @@ fun TenantDetailScreen(
                 onNavigateBack = onNavigateBack
             )
         },
-        containerColor = Slate50
+        containerColor = SurfaceNeutral
     ) { paddingValues ->
         when {
             state.isLoading -> LoadingView(message = "Loading resident profile...")
@@ -72,53 +76,49 @@ fun TenantDetailScreen(
                 ) {
                     // Profile Info Card
                     item {
-                        AppCard {
+                        AppCard(padding = AppDimens.Spacing20) {
                             Text(
                                 text = "PERSONAL DETAILS",
-                                style = AppTypography.labelSmall,
-                                color = Slate500
+                                style = AppTypography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                color = BrandPrimary
                             )
                             Spacer(modifier = Modifier.height(AppDimens.Spacing8))
                             Text(
                                 text = tenant.full_name,
-                                style = AppTypography.titleLarge,
-                                color = Slate900
+                                style = AppTypography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                                color = TextPrimary
                             )
                             Spacer(modifier = Modifier.height(AppDimens.Spacing4))
                             Text(
                                 text = "Email: ${tenant.email}",
-                                style = AppTypography.bodyMedium,
-                                color = Slate500
+                                style = AppTypography.bodySmall,
+                                color = TextSecondary
                             )
                             if (!tenant.phone.isNullOrBlank()) {
                                 Spacer(modifier = Modifier.height(AppDimens.Spacing2))
                                 Text(
                                     text = "Phone: ${tenant.phone}",
-                                    style = AppTypography.bodyMedium,
-                                    color = Slate500
+                                    style = AppTypography.bodySmall,
+                                    color = TextSecondary
                                 )
                             }
                             Spacer(modifier = Modifier.height(AppDimens.Spacing4))
                             Text(
-                                text = "Account Registered: ${DateFormatter.formatIsoDate(tenant.created_at)}",
-                                style = AppTypography.bodyMedium,
-                                color = Slate500
+                                text = "Registered on: ${DateFormatter.formatIsoDate(tenant.created_at)}",
+                                style = AppTypography.labelSmall,
+                                color = TextSecondary
                             )
                         }
                     }
 
                     // Active Stay Card
                     item {
-                        Text(
-                            text = "Current Active Stay",
-                            style = AppTypography.titleMedium,
-                            color = Slate900
-                        )
+                        SectionHeader(title = "Current Active Stay")
                     }
 
                     item {
                         if (activeStay != null) {
-                            AppCard {
+                            AppCard(padding = AppDimens.Spacing16) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -127,31 +127,31 @@ fun TenantDetailScreen(
                                     Column {
                                         Text(
                                             text = "Room ${activeStay.room_number ?: activeStay.room_id}",
-                                            style = AppTypography.titleMedium,
-                                            color = Slate900
+                                            style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                            color = TextPrimary
                                         )
                                         Spacer(modifier = Modifier.height(AppDimens.Spacing2))
                                         Text(
-                                            text = "Joined on ${DateFormatter.formatIsoDate(activeStay.joining_date)}",
-                                            style = AppTypography.bodyMedium,
-                                            color = Slate500
+                                            text = "Joined: ${DateFormatter.formatIsoDate(activeStay.joining_date)}",
+                                            style = AppTypography.bodySmall,
+                                            color = TextSecondary
                                         )
                                         Spacer(modifier = Modifier.height(AppDimens.Spacing2))
                                         Text(
                                             text = "Monthly Rent: ${CurrencyFormatter.format(activeStay.monthly_rent)}",
                                             style = AppTypography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                                            color = Slate900
+                                            color = TextPrimary
                                         )
                                     }
                                     StatusBadge(status = activeStay.status)
                                 }
                             }
                         } else {
-                            AppCard {
+                            AppCard(padding = AppDimens.Spacing16) {
                                 Text(
                                     text = "No active room stay assigned. Assign a vacant room from the Rooms screen.",
                                     style = AppTypography.bodyMedium,
-                                    color = Slate500
+                                    color = TextSecondary
                                 )
                             }
                         }
@@ -160,15 +160,11 @@ fun TenantDetailScreen(
                     // Historical Stays
                     if (history.isNotEmpty()) {
                         item {
-                            Text(
-                                text = "Stay History (${history.size})",
-                                style = AppTypography.titleMedium,
-                                color = Slate900
-                            )
+                            SectionHeader(title = "Stay History (${history.size})")
                         }
 
                         items(history) { stay ->
-                            AppCard {
+                            AppCard(padding = AppDimens.Spacing14) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -177,21 +173,25 @@ fun TenantDetailScreen(
                                     Column {
                                         Text(
                                             text = "Room ${stay.room_number ?: stay.room_id}",
-                                            style = AppTypography.titleMedium,
-                                            color = Slate900
+                                            style = AppTypography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                                            color = TextPrimary
                                         )
                                         Spacer(modifier = Modifier.height(AppDimens.Spacing2))
                                         Text(
                                             text = "From: ${DateFormatter.formatIsoDate(stay.joining_date)}" +
-                                                (stay.approved_vacating_date?.let { " to ${DateFormatter.formatIsoDate(it)}" } ?: ""),
-                                            style = AppTypography.bodyMedium,
-                                            color = Slate500
+                                                    (stay.approved_vacating_date?.let { " to ${DateFormatter.formatIsoDate(it)}" } ?: ""),
+                                            style = AppTypography.bodySmall,
+                                            color = TextSecondary
                                         )
                                     }
                                     StatusBadge(status = stay.status)
                                 }
                             }
                         }
+                    }
+
+                    item {
+                        Spacer(modifier = Modifier.height(AppDimens.Spacing24))
                     }
                 }
             }

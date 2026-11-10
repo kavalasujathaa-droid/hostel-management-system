@@ -1,6 +1,8 @@
 package com.hostelmanagement.app.ui.tenant.billing
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,13 +10,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Payment
 import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -26,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -34,7 +41,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hostelmanagement.app.core.common.CurrencyFormatter
 import com.hostelmanagement.app.core.common.DateFormatter
-import com.hostelmanagement.app.core.theme.Slate500
+import com.hostelmanagement.app.core.theme.BrandContainer
+import com.hostelmanagement.app.core.theme.BrandPrimary
+import com.hostelmanagement.app.core.theme.StatusGreen
+import com.hostelmanagement.app.core.theme.TextPrimary
+import com.hostelmanagement.app.core.theme.TextSecondary
 import com.hostelmanagement.app.data.remote.dto.RentChargeResponseDto
 import com.hostelmanagement.app.ui.components.AppButton
 import com.hostelmanagement.app.ui.components.AppCard
@@ -133,21 +144,37 @@ private fun TenantRentChargeCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Invoice #${charge.id}",
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(BrandContainer),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ReceiptLong,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                            tint = BrandPrimary
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column {
+                        Text(
+                            text = "Invoice #${charge.id}",
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            color = TextPrimary
+                        )
+                        Text(
+                            text = "${charge.period_start} to ${charge.period_end}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = TextSecondary
+                        )
+                    }
+                }
                 StatusBadge(text = charge.status, status = charge.status)
             }
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = "Period: ${charge.period_start} to ${charge.period_end}",
-                style = MaterialTheme.typography.bodySmall,
-                color = Slate500
-            )
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
 
@@ -156,27 +183,30 @@ private fun TenantRentChargeCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column {
-                    Text(text = "Amount Due", style = MaterialTheme.typography.labelSmall, color = Slate500)
+                    Text(text = "Amount Due", style = MaterialTheme.typography.labelSmall, color = TextSecondary)
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = CurrencyFormatter.format(charge.amount_due),
-                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                        color = MaterialTheme.colorScheme.onSurface
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                        color = TextPrimary
                     )
                 }
                 Column {
-                    Text(text = "Amount Paid", style = MaterialTheme.typography.labelSmall, color = Slate500)
+                    Text(text = "Amount Paid", style = MaterialTheme.typography.labelSmall, color = TextSecondary)
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = CurrencyFormatter.format(charge.amount_paid),
-                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                        color = MaterialTheme.colorScheme.primary
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                        color = StatusGreen
                     )
                 }
                 Column {
-                    Text(text = "Balance", style = MaterialTheme.typography.labelSmall, color = Slate500)
+                    Text(text = "Balance", style = MaterialTheme.typography.labelSmall, color = TextSecondary)
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = CurrencyFormatter.format(charge.balance),
-                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                        color = if (charge.status == "PAID") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                        color = if (charge.status == "PAID") StatusGreen else MaterialTheme.colorScheme.error
                     )
                 }
             }
@@ -186,7 +216,7 @@ private fun TenantRentChargeCard(
             Text(
                 text = "Payment Due Date: ${DateFormatter.formatDate(charge.due_date)}",
                 style = MaterialTheme.typography.labelSmall,
-                color = Slate500
+                color = TextSecondary
             )
 
             if (charge.status != "PAID") {

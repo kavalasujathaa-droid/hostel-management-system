@@ -1,6 +1,8 @@
 package com.hostelmanagement.app.ui.tenant.profile
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
@@ -22,7 +25,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -36,19 +38,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.hostelmanagement.app.core.theme.Slate500
+import com.hostelmanagement.app.core.theme.BrandContainer
+import com.hostelmanagement.app.core.theme.BrandPrimary
+import com.hostelmanagement.app.core.theme.TextPrimary
+import com.hostelmanagement.app.core.theme.TextSecondary
 import com.hostelmanagement.app.ui.components.AppButton
-import com.hostelmanagement.app.ui.components.ButtonVariant
 import com.hostelmanagement.app.ui.components.AppCard
+import com.hostelmanagement.app.ui.components.AppTextField
 import com.hostelmanagement.app.ui.components.AppTopBar
+import com.hostelmanagement.app.ui.components.ButtonVariant
 import com.hostelmanagement.app.ui.components.LoadingView
+import com.hostelmanagement.app.ui.components.SectionHeader
 import com.hostelmanagement.app.ui.components.StatusBadge
 
 @Composable
@@ -119,11 +126,7 @@ fun TenantProfileScreen(
             ) {
                 item {
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "Tenant Information",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
+                    SectionHeader(title = "Resident Profile")
                 }
 
                 item {
@@ -142,23 +145,38 @@ fun TenantProfileScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(
-                                        imageVector = Icons.Default.Person,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(24.dp),
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(
-                                        text = profile?.full_name ?: "Tenant",
-                                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
+                                    Box(
+                                        modifier = Modifier
+                                            .size(44.dp)
+                                            .clip(CircleShape)
+                                            .background(BrandContainer),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Person,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(24.dp),
+                                            tint = BrandPrimary
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Column {
+                                        Text(
+                                            text = profile?.full_name ?: "Resident",
+                                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                            color = TextPrimary
+                                        )
+                                        Text(
+                                            text = profile?.role ?: "TENANT",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = TextSecondary
+                                        )
+                                    }
                                 }
                                 StatusBadge(text = profile?.role ?: "TENANT", status = "ACTIVE")
                             }
 
-                            HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
+                            HorizontalDivider(modifier = Modifier.padding(vertical = 14.dp))
 
                             TenantInfoRow(icon = Icons.Default.Email, label = "Email", value = profile?.email ?: "-")
                             Spacer(modifier = Modifier.height(10.dp))
@@ -181,35 +199,39 @@ fun TenantProfileScreen(
                 }
 
                 item {
-                    Text(
-                        text = "Security",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
+                    SectionHeader(title = "Security & Privacy")
                 }
 
                 item {
                     AppCard(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    imageVector = Icons.Default.Lock,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(20.dp),
-                                    tint = Slate500
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(CircleShape)
+                                        .background(BrandContainer),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Lock,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(18.dp),
+                                        tint = BrandPrimary
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(10.dp))
                                 Text(
                                     text = "Password & Security",
                                     style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-                                    color = MaterialTheme.colorScheme.onSurface
+                                    color = TextPrimary
                                 )
                             }
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
                                 text = "Update your login password regularly to ensure account security.",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = Slate500
+                                color = TextSecondary
                             )
                             Spacer(modifier = Modifier.height(14.dp))
                             AppButton(
@@ -227,11 +249,7 @@ fun TenantProfileScreen(
                 }
 
                 item {
-                    Text(
-                        text = "Session",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
+                    SectionHeader(title = "Session")
                 }
 
                 item {
@@ -256,22 +274,28 @@ fun TenantProfileScreen(
     if (showEditProfileDialog) {
         AlertDialog(
             onDismissRequest = { showEditProfileDialog = false },
-            title = { Text("Edit Profile") },
+            title = {
+                Text(
+                    text = "Edit Contact Info",
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = TextPrimary
+                )
+            },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    OutlinedTextField(
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    AppTextField(
                         value = editFullName,
                         onValueChange = { editFullName = it },
-                        label = { Text("Full Name") },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
+                        label = "Full Name",
+                        leadingIcon = Icons.Default.Person,
+                        modifier = Modifier.fillMaxWidth()
                     )
-                    OutlinedTextField(
+                    AppTextField(
                         value = editPhone,
                         onValueChange = { editPhone = it },
-                        label = { Text("Phone Number") },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
+                        label = "Phone Number",
+                        leadingIcon = Icons.Default.Phone,
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
             },
@@ -287,7 +311,7 @@ fun TenantProfileScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showEditProfileDialog = false }) {
-                    Text("Cancel")
+                    Text("Cancel", color = TextSecondary)
                 }
             }
         )
@@ -297,24 +321,30 @@ fun TenantProfileScreen(
     if (showChangePasswordDialog) {
         AlertDialog(
             onDismissRequest = { showChangePasswordDialog = false },
-            title = { Text("Change Password") },
+            title = {
+                Text(
+                    text = "Change Password",
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = TextPrimary
+                )
+            },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    OutlinedTextField(
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    AppTextField(
                         value = oldPassword,
                         onValueChange = { oldPassword = it },
-                        label = { Text("Current Password") },
-                        visualTransformation = PasswordVisualTransformation(),
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
+                        label = "Current Password",
+                        isPassword = true,
+                        leadingIcon = Icons.Default.Lock,
+                        modifier = Modifier.fillMaxWidth()
                     )
-                    OutlinedTextField(
+                    AppTextField(
                         value = newPassword,
                         onValueChange = { newPassword = it },
-                        label = { Text("New Password (min 6 characters)") },
-                        visualTransformation = PasswordVisualTransformation(),
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
+                        label = "New Password (min 6 chars)",
+                        isPassword = true,
+                        leadingIcon = Icons.Default.Lock,
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
             },
@@ -330,7 +360,7 @@ fun TenantProfileScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showChangePasswordDialog = false }) {
-                    Text("Cancel")
+                    Text("Cancel", color = TextSecondary)
                 }
             }
         )
@@ -340,8 +370,20 @@ fun TenantProfileScreen(
     if (showLogoutConfirmation) {
         AlertDialog(
             onDismissRequest = { showLogoutConfirmation = false },
-            title = { Text("Confirm Logout") },
-            text = { Text("Are you sure you want to log out of your session on this device?") },
+            title = {
+                Text(
+                    text = "Confirm Logout",
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = TextPrimary
+                )
+            },
+            text = {
+                Text(
+                    text = "Are you sure you want to log out of your session on this device?",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextSecondary
+                )
+            },
             confirmButton = {
                 AppButton(
                     text = "Log Out",
@@ -354,7 +396,7 @@ fun TenantProfileScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showLogoutConfirmation = false }) {
-                    Text("Cancel")
+                    Text("Cancel", color = TextSecondary)
                 }
             }
         )
@@ -371,19 +413,27 @@ private fun TenantInfoRow(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            modifier = Modifier.size(18.dp),
-            tint = Slate500
-        )
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(16.dp),
+                tint = TextSecondary
+            )
+        }
         Spacer(modifier = Modifier.width(10.dp))
         Column {
-            Text(text = label, style = MaterialTheme.typography.labelSmall, color = Slate500)
+            Text(text = label, style = MaterialTheme.typography.labelSmall, color = TextSecondary)
             Text(
                 text = value,
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                color = MaterialTheme.colorScheme.onSurface
+                color = TextPrimary
             )
         }
     }

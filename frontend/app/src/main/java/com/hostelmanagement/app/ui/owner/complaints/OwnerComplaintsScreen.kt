@@ -27,15 +27,14 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MeetingRoom
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.ReportProblem
 import androidx.compose.material.icons.filled.ZoomIn
+import androidx.compose.material.icons.outlined.ReportProblem
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -61,14 +60,16 @@ import coil.compose.AsyncImage
 import com.hostelmanagement.app.BuildConfig
 import com.hostelmanagement.app.core.common.DateFormatter
 import com.hostelmanagement.app.core.theme.AppDimens
+import com.hostelmanagement.app.core.theme.AppShapes
 import com.hostelmanagement.app.core.theme.AppTypography
 import com.hostelmanagement.app.core.theme.BorderSubtle
+import com.hostelmanagement.app.core.theme.BrandContainer
+import com.hostelmanagement.app.core.theme.BrandPrimary
 import com.hostelmanagement.app.core.theme.PureWhite
-import com.hostelmanagement.app.core.theme.Slate200
-import com.hostelmanagement.app.core.theme.Slate500
-import com.hostelmanagement.app.core.theme.Slate600
-import com.hostelmanagement.app.core.theme.Slate700
-import com.hostelmanagement.app.core.theme.Slate900
+import com.hostelmanagement.app.core.theme.SurfaceNeutral
+import com.hostelmanagement.app.core.theme.TextMuted
+import com.hostelmanagement.app.core.theme.TextPrimary
+import com.hostelmanagement.app.core.theme.TextSecondary
 import com.hostelmanagement.app.data.remote.dto.ComplaintResponseDto
 import com.hostelmanagement.app.ui.components.AppButton
 import com.hostelmanagement.app.ui.components.AppCard
@@ -110,90 +111,98 @@ fun OwnerComplaintsScreen(
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = SurfaceNeutral
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Filter Chips
+            // Status Filter Pills
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    .padding(horizontal = AppDimens.Spacing16, vertical = AppDimens.Spacing8),
+                horizontalArrangement = Arrangement.spacedBy(AppDimens.Spacing8)
             ) {
                 item {
+                    val isSelected = uiState.selectedStatusFilter == null
                     FilterChip(
-                        selected = uiState.selectedStatusFilter == null,
+                        selected = isSelected,
                         onClick = { viewModel.setStatusFilter(null) },
-                        label = { Text("All") },
+                        label = { Text("All", fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium) },
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.primary,
-                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                            selectedContainerColor = BrandPrimary,
+                            selectedLabelColor = PureWhite,
                             containerColor = PureWhite,
-                            labelColor = Slate700
+                            labelColor = TextSecondary
                         ),
                         border = FilterChipDefaults.filterChipBorder(
                             enabled = true,
-                            selected = uiState.selectedStatusFilter == null,
-                            borderColor = if (uiState.selectedStatusFilter == null) MaterialTheme.colorScheme.primary else Slate200
-                        )
+                            selected = isSelected,
+                            borderColor = if (isSelected) BrandPrimary else BorderSubtle
+                        ),
+                        shape = AppShapes.small
                     )
                 }
                 item {
+                    val isSelected = uiState.selectedStatusFilter == "OPEN"
                     FilterChip(
-                        selected = uiState.selectedStatusFilter == "OPEN",
+                        selected = isSelected,
                         onClick = { viewModel.setStatusFilter("OPEN") },
-                        label = { Text("Open") },
+                        label = { Text("Open", fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium) },
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.primary,
-                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                            selectedContainerColor = BrandPrimary,
+                            selectedLabelColor = PureWhite,
                             containerColor = PureWhite,
-                            labelColor = Slate700
+                            labelColor = TextSecondary
                         ),
                         border = FilterChipDefaults.filterChipBorder(
                             enabled = true,
-                            selected = uiState.selectedStatusFilter == "OPEN",
-                            borderColor = if (uiState.selectedStatusFilter == "OPEN") MaterialTheme.colorScheme.primary else Slate200
-                        )
+                            selected = isSelected,
+                            borderColor = if (isSelected) BrandPrimary else BorderSubtle
+                        ),
+                        shape = AppShapes.small
                     )
                 }
                 item {
+                    val isSelected = uiState.selectedStatusFilter == "IN PROGRESS"
                     FilterChip(
-                        selected = uiState.selectedStatusFilter == "IN PROGRESS",
+                        selected = isSelected,
                         onClick = { viewModel.setStatusFilter("IN PROGRESS") },
-                        label = { Text("In Progress") },
+                        label = { Text("In Progress", fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium) },
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.primary,
-                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                            selectedContainerColor = BrandPrimary,
+                            selectedLabelColor = PureWhite,
                             containerColor = PureWhite,
-                            labelColor = Slate700
+                            labelColor = TextSecondary
                         ),
                         border = FilterChipDefaults.filterChipBorder(
                             enabled = true,
-                            selected = uiState.selectedStatusFilter == "IN PROGRESS",
-                            borderColor = if (uiState.selectedStatusFilter == "IN PROGRESS") MaterialTheme.colorScheme.primary else Slate200
-                        )
+                            selected = isSelected,
+                            borderColor = if (isSelected) BrandPrimary else BorderSubtle
+                        ),
+                        shape = AppShapes.small
                     )
                 }
                 item {
+                    val isSelected = uiState.selectedStatusFilter == "RESOLVED"
                     FilterChip(
-                        selected = uiState.selectedStatusFilter == "RESOLVED",
+                        selected = isSelected,
                         onClick = { viewModel.setStatusFilter("RESOLVED") },
-                        label = { Text("Resolved") },
+                        label = { Text("Resolved", fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium) },
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.primary,
-                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                            selectedContainerColor = BrandPrimary,
+                            selectedLabelColor = PureWhite,
                             containerColor = PureWhite,
-                            labelColor = Slate700
+                            labelColor = TextSecondary
                         ),
                         border = FilterChipDefaults.filterChipBorder(
                             enabled = true,
-                            selected = uiState.selectedStatusFilter == "RESOLVED",
-                            borderColor = if (uiState.selectedStatusFilter == "RESOLVED") MaterialTheme.colorScheme.primary else Slate200
-                        )
+                            selected = isSelected,
+                            borderColor = if (isSelected) BrandPrimary else BorderSubtle
+                        ),
+                        shape = AppShapes.small
                     )
                 }
             }
@@ -213,22 +222,22 @@ fun OwnerComplaintsScreen(
                     },
                     actionLabel = "Refresh",
                     onAction = { viewModel.loadComplaints() },
-                    icon = Icons.Default.ReportProblem,
+                    icon = Icons.Outlined.ReportProblem,
                     modifier = Modifier.fillMaxSize()
                 )
             } else {
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                        .padding(horizontal = AppDimens.Spacing16),
+                    verticalArrangement = Arrangement.spacedBy(AppDimens.Spacing12)
                 ) {
                     item {
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(AppDimens.Spacing4))
                     }
 
                     items(uiState.complaints, key = { it.id }) { complaint ->
-                        ComplaintItemCard(
+                        OwnerComplaintItemCard(
                             complaint = complaint,
                             isUpdating = uiState.isUpdating,
                             onUpdateStatus = { newStatus ->
@@ -239,7 +248,7 @@ fun OwnerComplaintsScreen(
                     }
 
                     item {
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(AppDimens.Spacing24))
                     }
                 }
             }
@@ -250,7 +259,7 @@ fun OwnerComplaintsScreen(
     viewingAttachmentComplaint?.let { complaint ->
         Dialog(onDismissRequest = { viewingAttachmentComplaint = null }) {
             Card(
-                shape = RoundedCornerShape(16.dp),
+                shape = AppShapes.large,
                 colors = CardDefaults.cardColors(containerColor = PureWhite),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -259,7 +268,7 @@ fun OwnerComplaintsScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
+                        .padding(AppDimens.Spacing16),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Row(
@@ -271,20 +280,20 @@ fun OwnerComplaintsScreen(
                             Text(
                                 text = "Ticket #${complaint.id} Photo",
                                 style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                color = Slate900
+                                color = TextPrimary
                             )
                             Text(
                                 text = "Room ${complaint.room_number ?: "-"} • ${complaint.tenant_name ?: "Tenant"}",
                                 style = AppTypography.bodySmall,
-                                color = Slate500
+                                color = TextSecondary
                             )
                         }
                         IconButton(onClick = { viewingAttachmentComplaint = null }) {
-                            Icon(Icons.Default.Close, contentDescription = "Close preview", tint = Slate600)
+                            Icon(Icons.Default.Close, contentDescription = "Close preview", tint = TextPrimary)
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(AppDimens.Spacing12))
 
                     val attachmentUrl = "${BuildConfig.BACKEND_URL.trimEnd('/')}/api/v1/complaints/${complaint.id}/attachment"
                     AsyncImage(
@@ -293,12 +302,12 @@ fun OwnerComplaintsScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .heightIn(max = 380.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(Slate200),
+                            .clip(AppShapes.medium)
+                            .border(1.dp, BorderSubtle, AppShapes.medium),
                         contentScale = ContentScale.Fit
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(AppDimens.Spacing16))
 
                     AppButton(
                         text = "Close",
@@ -313,22 +322,23 @@ fun OwnerComplaintsScreen(
 }
 
 @Composable
-private fun ComplaintItemCard(
+private fun OwnerComplaintItemCard(
     complaint: ComplaintResponseDto,
     isUpdating: Boolean,
     onUpdateStatus: (String) -> Unit,
     onViewAttachment: () -> Unit
 ) {
-    AppCard(modifier = Modifier.fillMaxWidth()) {
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        padding = AppDimens.Spacing16
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
                 .semantics(mergeDescendants = true) {
                     contentDescription = "Complaint #${complaint.id} by ${complaint.tenant_name ?: "Tenant"} in room ${complaint.room_number ?: "Unknown"}, category ${complaint.category}, status ${complaint.status}"
                 }
         ) {
-            // Header Row: Ticket #, Category Badge & StatusBadge
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -338,28 +348,28 @@ private fun ComplaintItemCard(
                     Text(
                         text = "Ticket #${complaint.id}",
                         style = AppTypography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = TextPrimary
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(AppDimens.Spacing8))
                     Box(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                            .clip(AppShapes.small)
+                            .background(BrandContainer)
+                            .padding(horizontal = 8.dp, vertical = 2.dp)
                     ) {
                         Text(
                             text = complaint.category,
-                            style = AppTypography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                            color = MaterialTheme.colorScheme.primary
+                            style = AppTypography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                            color = BrandPrimary
                         )
                     }
                 }
-                StatusBadge(text = complaint.status, status = complaint.status)
+                StatusBadge(status = complaint.status)
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(AppDimens.Spacing8))
 
-            // Tenant and Room Info Row
+            // Tenant and Room Info
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -368,59 +378,57 @@ private fun ComplaintItemCard(
                     imageVector = Icons.Default.Person,
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
-                    tint = Slate500
+                    tint = TextSecondary
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = complaint.tenant_name ?: "Unknown Tenant",
-                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
-                    color = MaterialTheme.colorScheme.onSurface
+                    text = complaint.tenant_name ?: "Resident",
+                    style = AppTypography.bodySmall.copy(fontWeight = FontWeight.Medium),
+                    color = TextPrimary
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Icon(
                     imageVector = Icons.Default.MeetingRoom,
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
-                    tint = Slate500
+                    tint = TextSecondary
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = "Room ${complaint.room_number ?: "-"}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Slate500
+                    style = AppTypography.bodySmall,
+                    color = TextSecondary
                 )
             }
 
-            // Title
             if (complaint.title.isNotBlank()) {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(AppDimens.Spacing8))
                 Text(
                     text = complaint.title,
                     style = AppTypography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = TextPrimary
                 )
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(AppDimens.Spacing4))
 
-            // Description
             Text(
                 text = complaint.description,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = AppTypography.bodyMedium,
+                color = TextSecondary
             )
 
-            // Optional Photo Thumbnail Row
+            // Optional Photo Thumbnail
             if (!complaint.attachment_path.isNullOrBlank()) {
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(AppDimens.Spacing12))
                 val attachmentUrl = "${BuildConfig.BACKEND_URL.trimEnd('/')}/api/v1/complaints/${complaint.id}/attachment"
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f))
+                        .clip(AppShapes.small)
+                        .background(BrandContainer)
                         .clickable(onClick = onViewAttachment)
-                        .padding(8.dp),
+                        .padding(AppDimens.Spacing8),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     AsyncImage(
@@ -428,48 +436,48 @@ private fun ComplaintItemCard(
                         contentDescription = "Complaint photo thumbnail",
                         modifier = Modifier
                             .size(50.dp)
-                            .clip(RoundedCornerShape(6.dp))
-                            .border(1.dp, BorderSubtle, RoundedCornerShape(6.dp)),
+                            .clip(AppShapes.small)
+                            .border(1.dp, BorderSubtle, AppShapes.small),
                         contentScale = ContentScale.Crop
                     )
-                    Spacer(modifier = Modifier.width(10.dp))
+                    Spacer(modifier = Modifier.width(AppDimens.Spacing10))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = "Photo Attached",
-                            style = AppTypography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                            color = MaterialTheme.colorScheme.onSurface
+                            style = AppTypography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                            color = TextPrimary
                         )
                         Text(
                             text = "Tap to inspect full photo",
-                            style = AppTypography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary
+                            style = AppTypography.bodySmall,
+                            color = BrandPrimary
                         )
                     }
                     Icon(
                         imageVector = Icons.Default.ZoomIn,
                         contentDescription = "Inspect photo",
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = BrandPrimary,
                         modifier = Modifier.size(20.dp)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(AppDimens.Spacing10))
 
             Text(
                 text = "Reported ${DateFormatter.formatDateTime(complaint.created_at)}",
-                style = MaterialTheme.typography.labelSmall,
-                color = Slate500
+                style = AppTypography.labelSmall,
+                color = TextSecondary
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(AppDimens.Spacing12))
 
             // Action Buttons
             when (complaint.status) {
                 "OPEN" -> {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(AppDimens.Spacing8)
                     ) {
                         AppButton(
                             text = "Mark In Progress",
@@ -492,7 +500,7 @@ private fun ComplaintItemCard(
                 "IN PROGRESS" -> {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(AppDimens.Spacing8)
                     ) {
                         AppButton(
                             text = "Revert to Open",

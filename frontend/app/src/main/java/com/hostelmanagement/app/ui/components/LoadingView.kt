@@ -17,8 +17,8 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import com.hostelmanagement.app.core.theme.AppDimens
 import com.hostelmanagement.app.core.theme.AppTypography
-import com.hostelmanagement.app.core.theme.Slate500
-import com.hostelmanagement.app.core.theme.Slate900
+import com.hostelmanagement.app.core.theme.BrandPrimary
+import com.hostelmanagement.app.core.theme.TextSecondary
 
 @Composable
 fun LoadingView(
@@ -36,15 +36,15 @@ fun LoadingView(
             verticalArrangement = Arrangement.Center
         ) {
             CircularProgressIndicator(
-                modifier = Modifier.size(28.dp),
-                color = Slate900,
-                strokeWidth = 2.5.dp
+                modifier = Modifier.size(32.dp),
+                color = BrandPrimary,
+                strokeWidth = 3.dp
             )
-            Spacer(modifier = Modifier.height(AppDimens.Spacing12))
+            Spacer(modifier = Modifier.height(AppDimens.Spacing16))
             Text(
                 text = message,
                 style = AppTypography.bodyMedium,
-                color = Slate500
+                color = TextSecondary
             )
         }
     }
