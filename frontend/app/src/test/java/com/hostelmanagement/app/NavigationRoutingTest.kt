@@ -113,4 +113,10 @@ class NavigationRoutingTest {
         assertEquals("tenant_raise_complaint", Screen.TenantRaiseComplaint.route)
         assertEquals("owner_complaints", Screen.OwnerComplaints.route)
     }
+
+    @Test
+    fun ownerManagementRoutes_verifyExactRouteStrings() {
+        assertEquals("owner_manage_owners", Screen.OwnerManageOwners.route)
+        assertEquals("owner_add_owner", Screen.OwnerAddOwner.route)
+    }
 }

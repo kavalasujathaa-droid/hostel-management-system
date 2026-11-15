@@ -4,6 +4,7 @@ import com.hostelmanagement.app.data.repository.AuthRepositoryImpl
 import com.hostelmanagement.app.data.repository.BillingRepositoryImpl
 import com.hostelmanagement.app.data.repository.ComplaintRepositoryImpl
 import com.hostelmanagement.app.data.repository.NotificationRepositoryImpl
+import com.hostelmanagement.app.data.repository.OwnerRepositoryImpl
 import com.hostelmanagement.app.data.repository.PaymentQrRepositoryImpl
 import com.hostelmanagement.app.data.repository.PaymentRepositoryImpl
 import com.hostelmanagement.app.data.repository.ReportRepositoryImpl
@@ -15,6 +16,7 @@ import com.hostelmanagement.app.domain.repository.AuthRepository
 import com.hostelmanagement.app.domain.repository.BillingRepository
 import com.hostelmanagement.app.domain.repository.ComplaintRepository
 import com.hostelmanagement.app.domain.repository.NotificationRepository
+import com.hostelmanagement.app.domain.repository.OwnerRepository
 import com.hostelmanagement.app.domain.repository.PaymentQrRepository
 import com.hostelmanagement.app.domain.repository.PaymentRepository
 import com.hostelmanagement.app.domain.repository.ReportRepository
@@ -79,4 +81,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindUserRepository(impl: UserRepositoryImpl): UserRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindOwnerRepository(impl: OwnerRepositoryImpl): OwnerRepository
 }

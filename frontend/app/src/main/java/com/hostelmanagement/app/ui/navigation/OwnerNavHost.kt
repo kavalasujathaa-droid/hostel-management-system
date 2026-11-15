@@ -31,6 +31,8 @@ import com.hostelmanagement.app.ui.components.BottomNavItem
 import com.hostelmanagement.app.ui.owner.billing.OwnerBillingScreen
 import com.hostelmanagement.app.ui.owner.complaints.OwnerComplaintsScreen
 import com.hostelmanagement.app.ui.owner.dashboard.OwnerDashboardScreen
+import com.hostelmanagement.app.ui.owner.management.AddOwnerScreen
+import com.hostelmanagement.app.ui.owner.management.ManageOwnersScreen
 import com.hostelmanagement.app.ui.owner.notifications.OwnerNotificationsScreen
 import com.hostelmanagement.app.ui.owner.payments.OwnerPaymentReviewScreen
 import com.hostelmanagement.app.ui.owner.qr.OwnerPaymentQrScreen
@@ -191,7 +193,22 @@ fun OwnerNavHost(
             composable(Screen.OwnerSettings.route) {
                 OwnerSettingsScreen(
                     onNavigateBack = { navController.popBackStack() },
-                    onLogoutSuccess = onLogoutSuccess
+                    onLogoutSuccess = onLogoutSuccess,
+                    onNavigateToManageOwners = { navController.navigate(Screen.OwnerManageOwners.route) }
+                )
+            }
+
+            composable(Screen.OwnerManageOwners.route) {
+                ManageOwnersScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToAddOwner = { navController.navigate(Screen.OwnerAddOwner.route) }
+                )
+            }
+
+            composable(Screen.OwnerAddOwner.route) {
+                AddOwnerScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onOwnerCreated = { navController.popBackStack() }
                 )
             }
 

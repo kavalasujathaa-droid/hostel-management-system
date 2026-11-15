@@ -10,6 +10,7 @@ import com.hostelmanagement.app.data.remote.api.BillingApi
 import com.hostelmanagement.app.data.remote.api.ComplaintApi
 import com.hostelmanagement.app.data.remote.api.HealthApi
 import com.hostelmanagement.app.data.remote.api.NotificationApi
+import com.hostelmanagement.app.data.remote.api.OwnerApi
 import com.hostelmanagement.app.data.remote.api.PaymentApi
 import com.hostelmanagement.app.data.remote.api.PaymentQrApi
 import com.hostelmanagement.app.data.remote.api.ReportApi
@@ -149,4 +150,8 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideHealthApi(retrofit: Retrofit): HealthApi = retrofit.create(HealthApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideOwnerApi(retrofit: Retrofit): OwnerApi = retrofit.create(OwnerApi::class.java)
 }

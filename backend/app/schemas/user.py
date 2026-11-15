@@ -34,3 +34,10 @@ class TenantCreateRequest(BaseModel):
     room_id: Optional[int] = None
     joining_date: Optional[str] = None  # YYYY-MM-DD
     monthly_rent: Optional[float] = None
+
+
+class OwnerCreateRequest(BaseModel):
+    full_name: str = Field(..., min_length=2, max_length=120)
+    email: EmailStr
+    password: str = Field(..., min_length=8)
+    phone: Optional[str] = Field(None, max_length=20)

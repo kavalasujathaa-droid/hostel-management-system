@@ -5,6 +5,7 @@ from app.api.v1.endpoints import (
     complaints,
     health,
     notifications,
+    owners,
     payment_qr,
     payments,
     reports,
@@ -20,6 +21,7 @@ api_v1_router = APIRouter()
 api_v1_router.include_router(health.router, prefix="/health", tags=["Health"])
 api_v1_router.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 api_v1_router.include_router(users.router, prefix="/users", tags=["Users"])
+api_v1_router.include_router(owners.router, prefix="/owners", tags=["Owner Management"])
 api_v1_router.include_router(rooms.router, prefix="/rooms", tags=["Rooms"])
 api_v1_router.include_router(tenants.router, prefix="/tenants", tags=["Tenants"])
 api_v1_router.include_router(stays.router, prefix="/stays", tags=["Tenant Stays"])

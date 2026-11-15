@@ -48,13 +48,14 @@ def assign_tenant_to_room(
         room.updated_at = func.now()
         db.flush()
 
-        # Check room capacity
-        current_occupants = (
-            db.query(func.count(TenantStay.id))
+        # Check room capacity with locking read to avoid REPEATABLE READ snapshot isolation stale counts
+        active_stays = (
+            db.query(TenantStay.id)
             .filter(TenantStay.room_id == room.id, TenantStay.status == "ACTIVE")
-            .scalar()
-            or 0
+            .with_for_update()
+            .all()
         )
+        current_occupants = len(active_stays)
 
         if current_occupants >= room.capacity:
             raise ConflictError(

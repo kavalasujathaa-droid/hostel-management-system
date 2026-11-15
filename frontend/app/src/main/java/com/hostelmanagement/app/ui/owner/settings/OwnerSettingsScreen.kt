@@ -63,6 +63,7 @@ import com.hostelmanagement.app.ui.components.StatusBadge
 fun OwnerSettingsScreen(
     onNavigateBack: () -> Unit,
     onLogoutSuccess: () -> Unit,
+    onNavigateToManageOwners: () -> Unit = {},
     viewModel: OwnerSettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -248,6 +249,56 @@ fun OwnerSettingsScreen(
                                     newPassword = ""
                                     showChangePasswordDialog = true
                                 },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                }
+
+                item {
+                    SectionHeader(title = "Hostel Administration")
+                }
+
+                item {
+                    AppCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        padding = 16.dp
+                    ) {
+                        Column {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(CircleShape)
+                                        .background(BrandContainer),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Person,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(18.dp),
+                                        tint = BrandPrimary
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Column {
+                                    Text(
+                                        text = "Co-Owner Accounts",
+                                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                                        color = TextPrimary
+                                    )
+                                    Text(
+                                        text = "Provision and manage co-owners for this hostel",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = TextSecondary
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(14.dp))
+                            AppButton(
+                                text = "Manage Owners",
+                                variant = ButtonVariant.Secondary,
+                                onClick = onNavigateToManageOwners,
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }

@@ -30,6 +30,13 @@ data class TenantCreateRequestDto(
     val monthly_rent: Double? = null
 )
 
+data class OwnerCreateRequestDto(
+    val full_name: String,
+    val email: String,
+    val password: String,
+    val phone: String? = null
+)
+
 data class TenantDetailResponseDto(
     val tenant: UserResponseDto,
     val active_stay: TenantStayResponseDto?,

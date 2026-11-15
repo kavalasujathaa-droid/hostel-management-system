@@ -24,6 +24,8 @@ sealed class Screen(val route: String) {
     data object OwnerReports : Screen("owner_reports")
     data object OwnerNotifications : Screen("owner_notifications")
     data object OwnerSettings : Screen("owner_settings")
+    data object OwnerManageOwners : Screen("owner_manage_owners")
+    data object OwnerAddOwner : Screen("owner_add_owner")
 
     // Tenant Routes
     data object TenantDashboard : Screen("tenant_dashboard")
