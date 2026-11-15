@@ -363,15 +363,21 @@ private fun TenantRentDueHeroCard(
             )
             val dueBadgeText = remember(rentCharge.due_date) {
                 try {
-                    val due = java.time.LocalDate.parse(rentCharge.due_date)
-                    val now = java.time.LocalDate.now()
-                    val days = java.time.temporal.ChronoUnit.DAYS.between(now, due)
-                    when {
-                        days > 1 -> "Due in $days days"
-                        days == 1L -> "Due tomorrow"
-                        days == 0L -> "Due today"
-                        days < 0 -> "Overdue by ${-days} days"
-                        else -> "Due in 3 days"
+                    val sdf = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+                    val dueDate = sdf.parse(rentCharge.due_date.take(10))
+                    val today = sdf.parse(sdf.format(java.util.Date()))
+                    if (dueDate != null && today != null) {
+                        val diffMillis = dueDate.time - today.time
+                        val days = java.util.concurrent.TimeUnit.MILLISECONDS.toDays(diffMillis)
+                        when {
+                            days > 1 -> "Due in $days days"
+                            days == 1L -> "Due tomorrow"
+                            days == 0L -> "Due today"
+                            days < 0 -> "Overdue by ${-days} days"
+                            else -> "Due in 3 days"
+                        }
+                    } else {
+                        "Due in 3 days"
                     }
                 } catch (e: Exception) {
                     "Due in 3 days"
