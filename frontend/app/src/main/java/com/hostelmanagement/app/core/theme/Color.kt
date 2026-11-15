@@ -10,6 +10,8 @@ val BrandLogoTeal = Color(0xFF149EA5)         // Location pin in logo
 val BrandLogoOrange = Color(0xFFF07832)       // Radiating wireless waves in logo
 val BrandTeal = BrandLogoTeal
 val BrandOrange = BrandLogoOrange
+val SoftTeal = Color(0xFFE0F7F6)              // Soft teal container for logo icon
+val SoftTealBorder = Color(0xFFB2EBF2)        // Soft teal border for logo icon
 
 // ==========================================
 // Approved SmartTrack Purple & Lavender UI Tokens
