@@ -17,12 +17,12 @@ object AppDimens {
     val Spacing32 = 32.dp
 
     val MinTouchTarget = 48.dp
-    val ButtonHeight = 48.dp
+    val ButtonHeight = 50.dp
     val InputHeight = 52.dp
     val HairlineBorder = 1.dp
 
-    val CornerSmall = 8.dp
-    val CornerMedium = 14.dp
-    val CornerLarge = 18.dp
-    val CornerXLarge = 24.dp
+    val CornerSmall = 10.dp
+    val CornerMedium = 16.dp
+    val CornerLarge = 20.dp
+    val CornerXLarge = 28.dp
 }

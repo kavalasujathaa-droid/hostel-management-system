@@ -107,7 +107,7 @@ fun OwnerSettingsScreen(
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = com.hostelmanagement.app.core.theme.SurfaceNeutral
     ) { paddingValues ->
         if (uiState.isLoading && uiState.userProfile == null) {
             LoadingView(
@@ -131,11 +131,13 @@ fun OwnerSettingsScreen(
                 }
 
                 item {
-                    AppCard(modifier = Modifier.fillMaxWidth()) {
+                    AppCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        padding = 16.dp
+                    ) {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp)
                                 .semantics(mergeDescendants = true) {
                                     contentDescription = "Profile details for ${profile?.full_name ?: ""}"
                                 }
@@ -204,8 +206,11 @@ fun OwnerSettingsScreen(
                 }
 
                 item {
-                    AppCard(modifier = Modifier.fillMaxWidth()) {
-                        Column(modifier = Modifier.padding(16.dp)) {
+                    AppCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        padding = 16.dp
+                    ) {
+                        Column {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Box(
                                     modifier = Modifier

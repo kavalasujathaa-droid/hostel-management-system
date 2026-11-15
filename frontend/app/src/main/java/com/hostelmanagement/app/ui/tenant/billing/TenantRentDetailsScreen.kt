@@ -78,7 +78,7 @@ fun TenantRentDetailsScreen(
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = com.hostelmanagement.app.core.theme.SurfaceNeutral
     ) { paddingValues ->
         if (uiState.isLoading && uiState.rentCharges.isEmpty()) {
             LoadingView(
@@ -130,11 +130,13 @@ private fun TenantRentChargeCard(
     charge: RentChargeResponseDto,
     onPayClick: () -> Unit
 ) {
-    AppCard(modifier = Modifier.fillMaxWidth()) {
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        padding = 16.dp
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
                 .semantics(mergeDescendants = true) {
                     contentDescription = "Invoice #${charge.id}, due ${CurrencyFormatter.format(charge.amount_due)}, balance ${CurrencyFormatter.format(charge.balance)}, status ${charge.status}"
                 }

@@ -13,6 +13,7 @@ import com.hostelmanagement.app.core.datastore.SessionManager
 import com.hostelmanagement.app.core.datastore.SessionState
 import com.hostelmanagement.app.ui.auth.LoginScreen
 import com.hostelmanagement.app.ui.auth.OwnerInitScreen
+import com.hostelmanagement.app.ui.auth.SplashScreen
 import com.hostelmanagement.app.ui.components.LoadingView
 
 const val ROUTE_OWNER_ROOT = "owner_root"
@@ -39,23 +40,32 @@ fun AppNavGraph(
             when {
                 state.session.isOwner -> ROUTE_OWNER_ROOT
                 state.session.isTenant -> ROUTE_TENANT_ROOT
-                else -> Screen.Login.route
+                else -> Screen.Splash.route
             }
         }
-        else -> Screen.Login.route
+        else -> Screen.Splash.route
     }
 
     NavHost(
         navController = navController,
         startDestination = startDestination
     ) {
+        // Welcome / Splash Screen
+        composable(Screen.Splash.route) {
+            SplashScreen(
+                onGetStartedClick = {
+                    navController.navigate(Screen.Login.route)
+                }
+            )
+        }
+
         // Authentication Flow
         composable(Screen.Login.route) {
             LoginScreen(
                 onLoginSuccess = { role ->
                     val destination = if (role.equals("OWNER", ignoreCase = true)) ROUTE_OWNER_ROOT else ROUTE_TENANT_ROOT
                     navController.navigate(destination) {
-                        popUpTo(Screen.Login.route) { inclusive = true }
+                        popUpTo(Screen.Splash.route) { inclusive = true }
                     }
                 },
                 onNavigateToOwnerInit = {
@@ -69,7 +79,7 @@ fun AppNavGraph(
                 onNavigateBack = { navController.popBackStack() },
                 onInitSuccess = {
                     navController.navigate(ROUTE_OWNER_ROOT) {
-                        popUpTo(Screen.Login.route) { inclusive = true }
+                        popUpTo(Screen.Splash.route) { inclusive = true }
                     }
                 }
             )
@@ -79,7 +89,7 @@ fun AppNavGraph(
         composable(ROUTE_OWNER_ROOT) {
             OwnerNavHost(
                 onLogoutSuccess = {
-                    navController.navigate(Screen.Login.route) {
+                    navController.navigate(Screen.Splash.route) {
                         popUpTo(0) { inclusive = true }
                     }
                 }
@@ -90,7 +100,7 @@ fun AppNavGraph(
         composable(ROUTE_TENANT_ROOT) {
             TenantNavHost(
                 onLogoutSuccess = {
-                    navController.navigate(Screen.Login.route) {
+                    navController.navigate(Screen.Splash.route) {
                         popUpTo(0) { inclusive = true }
                     }
                 }

@@ -112,6 +112,7 @@ fun TenantDashboardScreen(
 
     val stay = uiState.activeStay
     val roomDisplay = if (stay?.room_number != null) "Room ${stay.room_number}" else "Hostel Resident"
+    val displayName = uiState.userProfile?.full_name?.trim()?.split(" ")?.firstOrNull() ?: "Resident"
 
     Scaffold(
         topBar = {
@@ -120,7 +121,7 @@ fun TenantDashboardScreen(
                     title = {
                         Column {
                             Text(
-                                text = "Hi, Resident 👋",
+                                text = "Hi, $displayName 👋",
                                 style = AppTypography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                                 color = TextPrimary
                             )
@@ -147,11 +148,11 @@ fun TenantDashboardScreen(
                                     .background(BrandContainer),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Person,
-                                    contentDescription = "My Stay Info",
-                                    tint = BrandPrimary,
-                                    modifier = Modifier.size(20.dp)
+                                val initials = (uiState.userProfile?.full_name ?: "Resident").take(2).uppercase()
+                                Text(
+                                    text = initials,
+                                    style = AppTypography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                                    color = BrandPrimary
                                 )
                             }
                         }
@@ -360,13 +361,29 @@ private fun TenantRentDueHeroCard(
                 style = AppTypography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                 color = TextSecondary
             )
+            val dueBadgeText = remember(rentCharge.due_date) {
+                try {
+                    val due = java.time.LocalDate.parse(rentCharge.due_date)
+                    val now = java.time.LocalDate.now()
+                    val days = java.time.temporal.ChronoUnit.DAYS.between(now, due)
+                    when {
+                        days > 1 -> "Due in $days days"
+                        days == 1L -> "Due tomorrow"
+                        days == 0L -> "Due today"
+                        days < 0 -> "Overdue by ${-days} days"
+                        else -> "Due in 3 days"
+                    }
+                } catch (e: Exception) {
+                    "Due in 3 days"
+                }
+            }
             Surface(
                 color = StatusOverdueBg,
                 shape = AppShapes.small,
                 border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF9B6BC))
             ) {
                 Text(
-                    text = "Due Soon",
+                    text = dueBadgeText,
                     style = AppTypography.labelSmall.copy(fontWeight = FontWeight.Bold),
                     color = StatusOverdueText,
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)

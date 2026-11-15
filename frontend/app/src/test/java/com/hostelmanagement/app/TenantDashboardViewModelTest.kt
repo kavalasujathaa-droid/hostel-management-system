@@ -5,6 +5,7 @@ import com.hostelmanagement.app.data.remote.dto.ComplaintResponseDto
 import com.hostelmanagement.app.data.remote.dto.PaymentResponseDto
 import com.hostelmanagement.app.data.remote.dto.RentChargeResponseDto
 import com.hostelmanagement.app.data.remote.dto.TenantStayResponseDto
+import com.hostelmanagement.app.domain.repository.AuthRepository
 import com.hostelmanagement.app.domain.repository.BillingRepository
 import com.hostelmanagement.app.domain.repository.ComplaintRepository
 import com.hostelmanagement.app.domain.repository.PaymentRepository
@@ -36,6 +37,7 @@ class TenantDashboardViewModelTest {
     private val billingRepository: BillingRepository = mockk(relaxed = true)
     private val paymentRepository: PaymentRepository = mockk(relaxed = true)
     private val complaintRepository: ComplaintRepository = mockk(relaxed = true)
+    private val authRepository: AuthRepository = mockk(relaxed = true)
 
     @Before
     fun setUp() {
@@ -112,7 +114,7 @@ class TenantDashboardViewModelTest {
         coEvery { paymentRepository.listPayments() } returns Resource.Success(mockPayments)
         coEvery { complaintRepository.listComplaints() } returns Resource.Success(mockComplaints)
 
-        val viewModel = TenantDashboardViewModel(stayRepository, billingRepository, paymentRepository, complaintRepository)
+        val viewModel = TenantDashboardViewModel(stayRepository, billingRepository, paymentRepository, complaintRepository, authRepository)
         advanceUntilIdle()
 
         assertNull(viewModel.uiState.value.errorMessage)

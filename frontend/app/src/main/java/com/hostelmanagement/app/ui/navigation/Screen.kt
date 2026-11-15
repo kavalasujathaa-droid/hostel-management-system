@@ -2,6 +2,7 @@ package com.hostelmanagement.app.ui.navigation
 
 sealed class Screen(val route: String) {
     // Auth Routes
+    data object Splash : Screen("splash")
     data object Login : Screen("login")
     data object OwnerInit : Screen("owner_init")
 

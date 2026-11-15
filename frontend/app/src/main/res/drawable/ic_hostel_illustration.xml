@@ -1,0 +1,112 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="280dp"
+    android:height="200dp"
+    android:viewportWidth="280"
+    android:viewportHeight="200">
+
+    <!-- Ground / Lawn -->
+    <path
+        android:fillColor="#24144A"
+        android:pathData="M0,175 Q140,165 280,175 L280,200 L0,200 Z" />
+
+    <!-- Walkway to Entrance -->
+    <path
+        android:fillColor="#3D236E"
+        android:pathData="M115,185 L165,185 L155,148 L125,148 Z" />
+
+    <!-- Left Bush / Tree -->
+    <path
+        android:fillColor="#1B4D3E"
+        android:pathData="M25,175 C20,150 45,135 65,145 C80,130 105,145 100,175 Z" />
+    <path
+        android:fillColor="#2A7A62"
+        android:pathData="M35,170 C30,155 50,145 65,152 C75,142 92,152 88,170 Z" />
+
+    <!-- Right Bush / Tree -->
+    <path
+        android:fillColor="#1B4D3E"
+        android:pathData="M195,175 C190,140 220,130 240,142 C255,128 275,145 265,175 Z" />
+    <path
+        android:fillColor="#2A7A62"
+        android:pathData="M205,170 C200,148 225,140 238,150 C250,138 268,150 260,170 Z" />
+
+    <!-- Main Hostel Building Body (Modern 3-Story) -->
+    <!-- Left Wing Shadow -->
+    <path
+        android:fillColor="#9580C8"
+        android:pathData="M50,95 L90,82 L90,165 L50,165 Z" />
+
+    <!-- Main Center Facade (Warm Lavender-Rose) -->
+    <path
+        android:fillColor="#DFD5F5"
+        android:pathData="M88,78 L200,78 L200,168 L88,168 Z" />
+
+    <!-- Roof Parapet -->
+    <path
+        android:fillColor="#7138D8"
+        android:pathData="M84,72 L204,72 L204,78 L84,78 Z" />
+
+    <!-- Left Wing Roof -->
+    <path
+        android:fillColor="#5B24C6"
+        android:pathData="M48,90 L90,78 L90,84 L48,96 Z" />
+
+    <!-- Entrance Canopy -->
+    <path
+        android:fillColor="#7138D8"
+        android:pathData="M120,136 L168,136 L168,142 L120,142 Z" />
+
+    <!-- "HOSTEL" Sign Plaque Above Door -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M122,126 L166,126 L166,134 L122,134 Z" />
+
+    <!-- Entrance Glass Doors -->
+    <path
+        android:fillColor="#3D236E"
+        android:pathData="M128,142 L160,142 L160,168 L128,168 Z" />
+    <!-- Door Warm Interior Glow -->
+    <path
+        android:fillColor="#FFD479"
+        android:pathData="M132,146 L156,146 L156,168 L132,168 Z" />
+
+    <!-- Glowing Windows - Floor 3 (Center Facade) -->
+    <path
+        android:fillColor="#FFEAA7"
+        android:pathData="M100,88 L122,88 L122,104 L100,104 Z" />
+    <path
+        android:fillColor="#FFEAA7"
+        android:pathData="M133,88 L155,88 L155,104 L133,104 Z" />
+    <path
+        android:fillColor="#FFEAA7"
+        android:pathData="M166,88 L188,88 L188,104 L166,104 Z" />
+
+    <!-- Glowing Windows - Floor 2 (Center Facade) -->
+    <path
+        android:fillColor="#FFEAA7"
+        android:pathData="M100,112 L122,112 L122,128 L100,128 Z" />
+    <path
+        android:fillColor="#FFEAA7"
+        android:pathData="M166,112 L188,112 L188,128 L166,128 Z" />
+
+    <!-- Windows - Left Wing (Perspective) -->
+    <path
+        android:fillColor="#FFEAA7"
+        android:pathData="M58,104 L74,99 L74,115 L58,120 Z" />
+    <path
+        android:fillColor="#FFEAA7"
+        android:pathData="M58,128 L74,123 L74,139 L58,144 Z" />
+
+    <!-- Street Lamp Post -->
+    <path
+        android:fillColor="#8C82A8"
+        android:pathData="M80,150 L82,150 L82,180 L80,180 Z" />
+    <path
+        android:fillColor="#FFEAA7"
+        android:pathData="M76,146 L86,146 L86,152 L76,152 Z" />
+
+    <!-- Warm Glowing Lamp Light Aura -->
+    <path
+        android:fillColor="#40FFEAA7"
+        android:pathData="M71,152 L91,152 L97,175 L65,175 Z" />
+</vector>

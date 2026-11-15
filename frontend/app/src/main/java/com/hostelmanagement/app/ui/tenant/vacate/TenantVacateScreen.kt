@@ -104,7 +104,7 @@ fun TenantVacateScreen(
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = com.hostelmanagement.app.core.theme.SurfaceNeutral
     ) { paddingValues ->
         if (uiState.isLoading && uiState.requests.isEmpty()) {
             LoadingView(
@@ -190,11 +190,13 @@ fun TenantVacateScreen(
 
 @Composable
 private fun ActiveNoticeCard(notice: VacateRequestResponseDto) {
-    AppCard(modifier = Modifier.fillMaxWidth()) {
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        padding = 16.dp
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
                 .semantics(mergeDescendants = true) {
                     contentDescription = "Active vacate notice: requested date ${DateFormatter.formatDate(notice.requested_vacating_date)}, status ${notice.status}"
                 }
@@ -263,11 +265,12 @@ private fun NewVacateNoticeCard(
     onPickDateClick: () -> Unit,
     onSubmitClick: () -> Unit
 ) {
-    AppCard(modifier = Modifier.fillMaxWidth()) {
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        padding = 16.dp
+    ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+            modifier = Modifier.fillMaxWidth()
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(

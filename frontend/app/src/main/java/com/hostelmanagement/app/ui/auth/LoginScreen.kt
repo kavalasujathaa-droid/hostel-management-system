@@ -13,17 +13,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Apartment
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Mail
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -37,7 +37,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
@@ -46,13 +45,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hostelmanagement.app.core.theme.AppDimens
 import com.hostelmanagement.app.core.theme.AppShapes
 import com.hostelmanagement.app.core.theme.AppTypography
-import com.hostelmanagement.app.core.theme.BrandContainer
-import com.hostelmanagement.app.core.theme.BrandPrimary
+import com.hostelmanagement.app.core.theme.BorderSubtle
+import com.hostelmanagement.app.core.theme.PageBackground
+import com.hostelmanagement.app.core.theme.PrimaryPurple
 import com.hostelmanagement.app.core.theme.PureWhite
 import com.hostelmanagement.app.core.theme.SurfaceNeutral
 import com.hostelmanagement.app.core.theme.TextMuted
@@ -80,7 +81,7 @@ fun LoginScreen(
     }
 
     Scaffold(
-        containerColor = SurfaceNeutral
+        containerColor = PageBackground
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -91,30 +92,32 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Official SmartTrack Brand Header
+            // Official SmartTrack Brand Header (Retains Official Teal & Orange Logo)
             SmartTrackBrandHeader(
-                iconSize = 68.dp,
+                iconSize = 64.dp,
                 showSubtitle = true,
                 subtitleText = "Hostel Management System"
             )
 
-            Spacer(modifier = Modifier.height(AppDimens.Spacing32))
+            Spacer(modifier = Modifier.height(AppDimens.Spacing28))
 
-            // Login Card Form
+            // Login Elevated White Card
             AppCard(
                 modifier = Modifier.fillMaxWidth(),
-                padding = AppDimens.Spacing20
+                padding = AppDimens.Spacing24,
+                containerColor = PureWhite,
+                borderColor = BorderSubtle
             ) {
                 Text(
-                    text = "Sign In to Your Account",
-                    style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    text = "Welcome Back",
+                    style = AppTypography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                     color = TextPrimary
                 )
 
                 Spacer(modifier = Modifier.height(AppDimens.Spacing4))
 
                 Text(
-                    text = "Enter your credentials to access your portal",
+                    text = "Sign in to manage or access your hostel portal",
                     style = AppTypography.bodySmall,
                     color = TextSecondary
                 )
@@ -195,13 +198,13 @@ fun LoginScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(AppDimens.Spacing24))
+            Spacer(modifier = Modifier.height(AppDimens.Spacing20))
 
             TextButton(onClick = onNavigateToOwnerInit) {
                 Text(
                     text = "First-time owner? Set up your hostel",
-                    style = AppTypography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                    color = BrandPrimary
+                    style = AppTypography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                    color = PrimaryPurple
                 )
             }
         }

@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.hostelmanagement.app.core.theme.AppDimens
 import com.hostelmanagement.app.core.theme.AppShapes
 import com.hostelmanagement.app.core.theme.AppTypography
@@ -41,7 +42,7 @@ fun MetricCard(
 ) {
     AppCard(
         modifier = modifier,
-        padding = AppDimens.Spacing12,
+        padding = AppDimens.Spacing14,
         onClick = onClick,
         containerColor = PureWhite,
         borderColor = BorderSubtle,
@@ -53,32 +54,35 @@ fun MetricCard(
         ) {
             Box(
                 modifier = Modifier
-                    .size(40.dp)
-                    .background(iconBgColor, RoundedCornerShape(10.dp)),
+                    .size(44.dp)
+                    .background(iconBgColor, RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
                     tint = iconTintColor,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(22.dp)
                 )
             }
-            Spacer(modifier = Modifier.width(AppDimens.Spacing10))
+            Spacer(modifier = Modifier.width(AppDimens.Spacing12))
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
                     text = value,
-                    style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    style = AppTypography.headlineSmall.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
+                    ),
                     color = TextPrimary,
                     maxLines = 1
                 )
-                Spacer(modifier = Modifier.height(AppDimens.Spacing2))
+                Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = title,
-                    style = AppTypography.labelSmall,
+                    style = AppTypography.labelMedium,
                     color = TextSecondary,
                     maxLines = 1
                 )

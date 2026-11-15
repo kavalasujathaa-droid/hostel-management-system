@@ -202,17 +202,22 @@ fun OwnerDashboardScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(AppDimens.Spacing10)
                             ) {
+                                val paidValue = if (!state.totalCollectedThisMonth.isNullOrBlank()) {
+                                    CurrencyFormatter.format(state.totalCollectedThisMonth!!)
+                                } else {
+                                    "₹0"
+                                }
                                 MetricCard(
-                                    title = "Available Beds",
-                                    value = "${stats.available_beds}",
+                                    title = "Paid (This Month)",
+                                    value = paidValue,
                                     icon = Icons.Outlined.CheckCircle,
                                     iconBgColor = Color(0xFFE6F5EE),
                                     iconTintColor = Color(0xFF16845B),
                                     modifier = Modifier.weight(1f),
-                                    onClick = onNavigateToRooms
+                                    onClick = onNavigateToReports
                                 )
                                 MetricCard(
-                                    title = "Pending (${stats.pending_payments_count})",
+                                    title = "Pending",
                                     value = CurrencyFormatter.format(stats.pending_payments_amount),
                                     icon = Icons.Outlined.ReceiptLong,
                                     iconBgColor = Color(0xFFFDECEE),

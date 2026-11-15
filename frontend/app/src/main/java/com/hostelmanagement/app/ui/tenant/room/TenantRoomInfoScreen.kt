@@ -79,7 +79,7 @@ fun TenantRoomInfoScreen(
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = com.hostelmanagement.app.core.theme.SurfaceNeutral
     ) { paddingValues ->
         if (uiState.isLoading && uiState.activeStay == null) {
             LoadingView(
@@ -148,11 +148,13 @@ fun TenantRoomInfoScreen(
 
 @Composable
 private fun ActiveStayDetailCard(stay: TenantStayResponseDto) {
-    AppCard(modifier = Modifier.fillMaxWidth()) {
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        padding = 16.dp
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
                 .semantics(mergeDescendants = true) {
                     contentDescription = "Active room ${stay.room_number ?: "-"}, monthly rent ${CurrencyFormatter.format(stay.monthly_rent)}, joined ${DateFormatter.formatDate(stay.joining_date)}"
                 }
@@ -260,11 +262,12 @@ private fun StayInfoRow(
 
 @Composable
 private fun PastStayCard(stay: TenantStayResponseDto) {
-    AppCard(modifier = Modifier.fillMaxWidth()) {
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        padding = 14.dp
+    ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(14.dp),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {

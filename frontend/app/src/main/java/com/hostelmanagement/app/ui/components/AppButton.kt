@@ -1,6 +1,7 @@
 package com.hostelmanagement.app.ui.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -23,13 +24,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.hostelmanagement.app.core.theme.AppDimens
 import com.hostelmanagement.app.core.theme.AppShapes
 import com.hostelmanagement.app.core.theme.AppTypography
 import com.hostelmanagement.app.core.theme.BorderSubtle
-import com.hostelmanagement.app.core.theme.BrandPrimary
+import com.hostelmanagement.app.core.theme.PrimaryPurple
 import com.hostelmanagement.app.core.theme.PureWhite
+import com.hostelmanagement.app.core.theme.PurpleGradient
 import com.hostelmanagement.app.core.theme.StatusOverdueBg
 import com.hostelmanagement.app.core.theme.StatusOverdueText
 import com.hostelmanagement.app.core.theme.TextMuted
@@ -61,17 +64,24 @@ fun AppButton(
 
     when (variant) {
         ButtonVariant.Primary -> {
+            val bgModifier = if (isInteractive) {
+                Modifier.background(PurpleGradient, AppShapes.medium)
+            } else {
+                Modifier.background(Color(0xFFD6D0F5), AppShapes.medium)
+            }
+
             Button(
                 onClick = onClick,
                 enabled = isInteractive,
                 shape = AppShapes.medium,
                 modifier = modifier
                     .height(AppDimens.ButtonHeight)
+                    .then(bgModifier)
                     .semantics { role = Role.Button },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = BrandPrimary,
+                    containerColor = Color.Transparent,
                     contentColor = PureWhite,
-                    disabledContainerColor = Color(0xFFD6D0F5),
+                    disabledContainerColor = Color.Transparent,
                     disabledContentColor = PureWhite
                 )
             ) {
@@ -84,7 +94,7 @@ fun AppButton(
                 onClick = onClick,
                 enabled = isInteractive,
                 shape = AppShapes.medium,
-                border = BorderStroke(AppDimens.HairlineBorder, if (isInteractive) BorderSubtle else BorderSubtle),
+                border = BorderStroke(AppDimens.HairlineBorder, BorderSubtle),
                 modifier = modifier
                     .height(AppDimens.ButtonHeight)
                     .semantics { role = Role.Button },
@@ -124,7 +134,7 @@ private fun ButtonContent(
     text: String,
     isLoading: Boolean,
     contentColor: Color,
-    icon: ImageVector? = null
+    icon: ImageVector?
 ) {
     Box(contentAlignment = Alignment.Center) {
         if (isLoading) {
@@ -135,8 +145,8 @@ private fun ButtonContent(
             )
         } else {
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 if (icon != null) {
                     Icon(
@@ -149,7 +159,7 @@ private fun ButtonContent(
                 }
                 Text(
                     text = text,
-                    style = AppTypography.labelLarge,
+                    style = AppTypography.labelLarge.copy(fontWeight = FontWeight.Bold),
                     color = contentColor
                 )
             }

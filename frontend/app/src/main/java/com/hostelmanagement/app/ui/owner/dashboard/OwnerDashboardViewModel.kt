@@ -20,6 +20,7 @@ data class OwnerDashboardUiState(
     val isLoading: Boolean = false,
     val isRefreshing: Boolean = false,
     val stats: DashboardStatsDto? = null,
+    val totalCollectedThisMonth: String? = null,
     val pendingPayments: List<PaymentResponseDto> = emptyList(),
     val errorMessage: String? = null
 )
@@ -53,6 +54,9 @@ class OwnerDashboardViewModel @Inject constructor(
             val statsResult = reportRepository.getDashboardStats()
             // Fetch Pending Payments
             val paymentsResult = paymentRepository.listPayments(status = "PENDING")
+            // Fetch Financial Report for Paid amount
+            val revenueResult = reportRepository.getRevenueReport()
+            val collected = (revenueResult as? Resource.Success)?.data?.summary?.total_collected
 
             if (statsResult is Resource.Success && paymentsResult is Resource.Success) {
                 _uiState.update {
@@ -60,6 +64,7 @@ class OwnerDashboardViewModel @Inject constructor(
                         isLoading = false,
                         isRefreshing = false,
                         stats = statsResult.data,
+                        totalCollectedThisMonth = collected,
                         pendingPayments = paymentsResult.data,
                         errorMessage = null
                     )

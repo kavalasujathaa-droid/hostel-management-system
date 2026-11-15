@@ -7,6 +7,8 @@ import com.hostelmanagement.app.data.remote.dto.ComplaintResponseDto
 import com.hostelmanagement.app.data.remote.dto.PaymentResponseDto
 import com.hostelmanagement.app.data.remote.dto.RentChargeResponseDto
 import com.hostelmanagement.app.data.remote.dto.TenantStayResponseDto
+import com.hostelmanagement.app.data.remote.dto.UserResponseDto
+import com.hostelmanagement.app.domain.repository.AuthRepository
 import com.hostelmanagement.app.domain.repository.BillingRepository
 import com.hostelmanagement.app.domain.repository.ComplaintRepository
 import com.hostelmanagement.app.domain.repository.PaymentRepository
@@ -27,6 +29,7 @@ data class TenantDashboardUiState(
     val totalOutstanding: BigDecimal = BigDecimal.ZERO,
     val recentPayments: List<PaymentResponseDto> = emptyList(),
     val activeComplaints: List<ComplaintResponseDto> = emptyList(),
+    val userProfile: UserResponseDto? = null,
     val errorMessage: String? = null
 )
 
@@ -35,7 +38,8 @@ class TenantDashboardViewModel @Inject constructor(
     private val stayRepository: StayRepository,
     private val billingRepository: BillingRepository,
     private val paymentRepository: PaymentRepository,
-    private val complaintRepository: ComplaintRepository
+    private val complaintRepository: ComplaintRepository,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(TenantDashboardUiState())
@@ -49,11 +53,13 @@ class TenantDashboardViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
+            val userResult = authRepository.getCurrentUser()
             val stayResult = stayRepository.getMyActiveStay()
             val billingResult = billingRepository.listCharges()
             val paymentResult = paymentRepository.listPayments()
             val complaintResult = complaintRepository.listComplaints()
 
+            val userProfile = (userResult as? Resource.Success)?.data
             val activeStay = (stayResult as? Resource.Success)?.data
             val rentCharges = (billingResult as? Resource.Success)?.data ?: emptyList()
             val payments = (paymentResult as? Resource.Success)?.data ?: emptyList()
@@ -75,6 +81,7 @@ class TenantDashboardViewModel @Inject constructor(
             _uiState.update {
                 it.copy(
                     isLoading = false,
+                    userProfile = userProfile,
                     activeStay = activeStay,
                     unpaidRentCharge = unpaid,
                     totalOutstanding = totalOutstanding,
