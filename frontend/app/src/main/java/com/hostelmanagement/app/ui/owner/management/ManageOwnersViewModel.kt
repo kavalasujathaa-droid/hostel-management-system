@@ -63,6 +63,9 @@ class ManageOwnersViewModel @Inject constructor(
                         )
                     }
                 }
+                is Resource.Loading -> {
+                    // Handled before API call
+                }
             }
         }
     }

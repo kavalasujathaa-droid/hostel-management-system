@@ -152,6 +152,9 @@ class AddOwnerViewModel @Inject constructor(
                         )
                     }
                 }
+                is Resource.Loading -> {
+                    // Handled before API call
+                }
             }
         }
     }

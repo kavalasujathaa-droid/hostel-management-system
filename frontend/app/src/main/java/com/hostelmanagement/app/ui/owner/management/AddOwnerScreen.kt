@@ -160,7 +160,14 @@ fun AddOwnerScreen(
                             onValueChange = viewModel::onFullNameChange,
                             label = "Full Name *",
                             placeholder = "e.g. Priya Sharma",
-                            leadingIcon = Icons.Default.Person,
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Person,
+                                    contentDescription = null,
+                                    tint = TextSecondary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            },
                             isError = uiState.fullNameError != null,
                             errorMessage = uiState.fullNameError,
                             modifier = Modifier.fillMaxWidth()
@@ -172,7 +179,14 @@ fun AddOwnerScreen(
                             onValueChange = viewModel::onEmailChange,
                             label = "Email Address *",
                             placeholder = "owner@hostel.com",
-                            leadingIcon = Icons.Default.Email,
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Email,
+                                    contentDescription = null,
+                                    tint = TextSecondary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                             isError = uiState.emailError != null,
                             errorMessage = uiState.emailError,
@@ -185,7 +199,14 @@ fun AddOwnerScreen(
                             onValueChange = viewModel::onPhoneChange,
                             label = "Phone Number (Optional)",
                             placeholder = "e.g. 9876543210",
-                            leadingIcon = Icons.Default.Phone,
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Phone,
+                                    contentDescription = null,
+                                    tint = TextSecondary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -196,9 +217,24 @@ fun AddOwnerScreen(
                             onValueChange = viewModel::onPasswordChange,
                             label = "Password * (Min 8 characters)",
                             placeholder = "Enter secure password",
-                            leadingIcon = Icons.Default.Lock,
-                            trailingIcon = if (uiState.isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                            onTrailingIconClick = viewModel::togglePasswordVisibility,
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Lock,
+                                    contentDescription = null,
+                                    tint = TextSecondary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            },
+                            trailingIcon = {
+                                IconButton(onClick = viewModel::togglePasswordVisibility) {
+                                    Icon(
+                                        imageVector = if (uiState.isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                        contentDescription = if (uiState.isPasswordVisible) "Hide password" else "Show password",
+                                        tint = TextSecondary,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            },
                             visualTransformation = if (uiState.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                             isError = uiState.passwordError != null,
@@ -212,9 +248,24 @@ fun AddOwnerScreen(
                             onValueChange = viewModel::onConfirmPasswordChange,
                             label = "Confirm Password *",
                             placeholder = "Re-enter password",
-                            leadingIcon = Icons.Default.Lock,
-                            trailingIcon = if (uiState.isConfirmPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                            onTrailingIconClick = viewModel::toggleConfirmPasswordVisibility,
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Lock,
+                                    contentDescription = null,
+                                    tint = TextSecondary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            },
+                            trailingIcon = {
+                                IconButton(onClick = viewModel::toggleConfirmPasswordVisibility) {
+                                    Icon(
+                                        imageVector = if (uiState.isConfirmPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                        contentDescription = if (uiState.isConfirmPasswordVisible) "Hide password" else "Show password",
+                                        tint = TextSecondary,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            },
                             visualTransformation = if (uiState.isConfirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                             isError = uiState.confirmPasswordError != null,
